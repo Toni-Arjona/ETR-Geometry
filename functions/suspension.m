@@ -69,6 +69,7 @@ classdef suspension < handle
             fprintf(" - Knuckle:\n"); obj.knuckle.print();
             fprintf(" - L_Wishbone:\n"); obj.l_wishbone.print();
         end
+
     end
 end
 

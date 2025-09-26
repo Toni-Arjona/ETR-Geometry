@@ -139,7 +139,6 @@ classdef solid < handle
             rotation_angle = anglev3( rotation_vector_1, rotation_vector_2 );
             %rotation_vector_2 = rotation_direction ^ rotation_vector_1;
             rotation_direction = (rotation_vector_2 ^ rotation_vector_1)';
-            rotation_vector_2 = rotation_vector_1 ^ rotation_direction;
 
             
             for i = 1:length(obj.coord)
@@ -164,6 +163,16 @@ classdef solid < handle
         function print(obj)
             for i = 1:length(obj.coord)
                 obj.coord(i).print();
+            end
+            if(length(obj.coord) == 3 | length(obj.coord) == 4)
+                for i = 1:length(obj.coord)
+                    for j = i:length(obj.coord)
+                        if(i==j)
+                            continue
+                        end
+                        fprintf("Length %1d-%1d: %14.8f\n", i,j, (obj.coord(i)-obj.coord(j)).')
+                    end
+                end
             end
         end
     end
