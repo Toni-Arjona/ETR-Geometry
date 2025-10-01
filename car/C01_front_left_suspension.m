@@ -1,4 +1,4 @@
-addpath('../functions');
+addpath('functions');
 
 % Left Front Damper Definition
 fl_damper_support = v3( 7.20000000, -25.00000000, 596.36000000 );
@@ -39,3 +39,6 @@ fl_lower_wishbone_end = v3( 1.80217124, -587.54165026, 114.17477164 );
 fl_lower_wishbone = solid([fl_lower_wishbone_front_support, fl_lower_wishbone_rear_support, fl_lower_wishbone_end]);
 
 fl_suspension = suspension( fl_damper, fl_rocker, fl_pushrod, fl_upper_wishbone, fl_knuckle, fl_lower_wishbone );
+save('car/car_variables/fl_suspension.mat', 'fl_suspension');
+clear;
+fprintf("fl_suspension saved at car/car_variables/fl_suspension.mat\n");

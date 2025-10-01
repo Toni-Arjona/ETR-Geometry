@@ -1,3 +1,3 @@
-addpath('car');
-
-fl_suspension.print()
+clc;
+clear;
+load('car/car_variables/fl_suspension.mat')
