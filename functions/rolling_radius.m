@@ -1,5 +1,5 @@
 
-function RR = rolling_radius(fz, camber)
+function RR = rolling_radius(fz_tire, camber)
     load('B1654run21.mat');
 
     % Effective Rolling Radius
@@ -44,11 +44,11 @@ RMSE        0.6611
 %}
 
     if camber == 0
-        RR= f1(fz);
+        RR= f1(fz_tire);
     elseif camber== 2
-        RR= f2(fz);
+        RR= f2(fz_tire);
     else
-        RR= (f1(fz)+f2(fz))/2;
+        RR= (f1(fz_tire)+f2(fz_tire))/2;
     end
 end
 
