@@ -8,7 +8,7 @@ function point = point_plane_intersection(input_point, start, finale)
         point v3
     end
 
-    plane_dir = (finale - start).';
+    plane_dir = (finale - start)';
     plane_D = -(plane_dir*input_point);
     point = start + (plane_dir .* (-plane_D-(plane_dir*start)));
 end

@@ -63,10 +63,27 @@ classdef suspension < handle
         end
 
         function centre_steering(obj)
-            obj.knuckle.setPoint(5, obj.knuckle.coord(4)+v3(-100,0,0));
+            centre = obj.knuckle_rotation_centre();
+            obj.knuckle.setPoint(3, centre+v3(-100,0,0));
+
+            centre = point_line_projection( obj.knuckle.coord(4), (obj.knuckle.coord(2)-obj.knuckle.coord(1))', obj.knuckle.coord(1)  );
+            centre = point_plane_intersection( centre, obj.knuckle.coord(1), obj.knuckle.coord(2) );
+
+            error = 1;
+            while error > 1e-8
+                centre = point_line_projection( obj.knuckle.coord(4), (obj.knuckle.coord(2)-obj.knuckle.coord(1))', obj.knuckle.coord(1)  );
+                centre = point_plane_intersection( centre, obj.knuckle.coord(1), obj.knuckle.coord(2) );
+                obj.knuckle.setPoint(4, centre);
+                error = (obj.knuckle.coord(4) - centre).';
+                fprintf("Error: %f\n", error);
+            end
+            obj.knuckle.setPoint( 5, centre + v3(100,0,0) );
         end
 
         function centre = knuckle_rotation_centre(obj)
+            arguments (Output)
+                centre v3
+            end
             centre = point_plane_intersection( obj.knuckle.coord(3), obj.knuckle.coord(1), obj.knuckle.coord(2) );
         end
 
