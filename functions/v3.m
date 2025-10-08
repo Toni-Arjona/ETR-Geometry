@@ -84,7 +84,7 @@ classdef v3
 
         function c = ctranspose(obj) %obj' -> normalize
             mod = obj.modulus();
-            if mod <= 1e-16
+            if mod <= 1e-8
                 fprintf("Vector modulus calculated to 0. Vector geometry may be incorrectly interpreted.\n")
             end
             c = v3(obj.x/mod, obj.y/mod, obj.z/mod);
