@@ -10,17 +10,8 @@ classdef suspension < handle
         knuckle solid
         l_wishbone solid
     end
-    
-    methods
-        function obj = suspension(damper, rocker,pushrod, u_wishbone, knuckle, l_wishbone)
-            obj.damper = damper;
-            obj.rocker = rocker;
-            obj.pushrod = pushrod;
-            obj.u_wishbone = u_wishbone;
-            obj.knuckle = knuckle;
-            obj.l_wishbone = l_wishbone;
-        end
 
+    methods (Access = private)
         function susp_update(obj)
             % Virtually linking up the damper & rocker
             error = 1;
@@ -55,16 +46,10 @@ classdef suspension < handle
                 error = (obj.knuckle.coord(2) - obj.l_wishbone.coord(3)).';
             end
         end
-        
-        function set_damper_distance(obj, damper_distance)
-            obj.damper.set_length(damper_distance);
-            obj.susp_update();
-            obj.centre_steering();
-        end
 
         function centre_steering(obj)
             error = 1;
-            while error > 1e-2
+            while error > 5e-3
                 rotation_centre = point_plane_intersection( obj.knuckle.coord(4), obj.knuckle.coord(1), obj.knuckle.coord(2) );
                 normal = (obj.knuckle.coord(2) - obj.knuckle.coord(1))';
                 vector_1 = ( obj.knuckle.coord(4) - rotation_centre)';
@@ -81,7 +66,6 @@ classdef suspension < handle
                 obj.knuckle.setPoint(4, objective_point);
                 error = anglev3( (obj.knuckle.coord(5) - obj.knuckle.coord(4))', v3(-1,0,0) );
             end
-
         end
 
         function centre = knuckle_rotation_centre(obj)
@@ -95,21 +79,59 @@ classdef suspension < handle
             angle = anglev3( (obj.knuckle.coord(5) - obj.knuckle.coord(4)), v3(-1,0,0) );
         end
 
+        function angle = unprojected_camber(obj)
+            angle = anglev3( (obj.knuckle.coord(6)-obj.knuckle.coord(4))', v3(0,0,1) );
+        end
+
+    end
+
+    
+    methods (Access = public)
+        function obj = suspension(damper, rocker,pushrod, u_wishbone, knuckle, l_wishbone)
+            obj.damper = damper;
+            obj.rocker = rocker;
+            obj.pushrod = pushrod;
+            obj.u_wishbone = u_wishbone;
+            obj.knuckle = knuckle;
+            obj.l_wishbone = l_wishbone;
+        end
+        
+        function set_damper_distance(obj, damper_distance)
+            obj.damper.set_length(damper_distance);
+            obj.susp_update();
+            obj.centre_steering();
+        end
+
+
         function angle = steering_angle(obj)
             arguments (Output)
                 angle double
             end
             knukle_direction = (obj.knuckle.coord(1) - obj.knuckle.coord(2))';
             angle = angle_projection( obj.unprojected_steering_angle, knukle_direction, v3(0,0,1) );
+            if(obj.knuckle.coord(5).y - obj.knuckle.coord(4).y > 0 )
+                angle = -angle;
+            end
         end
 
 
+        function angle = camber_angle(obj)
+            arguments (Output)
+                angle double
+            end
 
+            rotation = obj.steering_angle();
+            unprojected_camber = obj.unprojected_camber();
+            unporjected_camber_plane = (obj.knuckle.coord(6)-obj.knuckle.coord(4))' ^ v3(0,0,1);
+            projection_direction = point_in_3d_circle( v3(0,0,0), rotation, 1, v3(-1,0,0), v3(0,-1,0) );
 
+            angle = angle_projection( unprojected_camber, unporjected_camber_plane, projection_direction );
 
+            if(obj.knuckle.coord(6).y > obj.knuckle.coord(4) )
+                angle = -angle;
+            end
 
-
-
+        end
 
 
         function print(obj)
