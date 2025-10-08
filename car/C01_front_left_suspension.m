@@ -1,4 +1,4 @@
-addpath('functions');
+addpath('../functions');
 
 % Left Front Damper Definition
 fl_damper_support = v3( 7.20000000, -25.00000000, 596.36000000 );
@@ -27,10 +27,11 @@ fl_upper_wishbone = solid([ fl_upper_wishbone_front_support, fl_upper_wishbone_r
 fl_knuckle_upper_connection = v3( -7.14000000, 75.00000000, 24.10000000  );
 fl_knuckle_lower_connection = v3( -1.00000000, -79.00000000, 22.00000000 );
 fl_knuckle_tierod_connection = v3( 62.83805199, -48.63592517, 23.00000000 );
-fl_knuckle_X = v3(0,0,0);
-fl_knuckle_Y = v3(0,0,0);
-fl_knuckle_Z = v3(0,0,0);
-fl_knuckle = solid([fl_knuckle_upper_connection, fl_knuckle_lower_connection, fl_knuckle_tierod_connection, fl_knuckle_X, fl_knuckle_Y, fl_knuckle_Z]);
+fl_knuckle_zero = v3(0,0,0);
+fl_knuckle_X = v3(1,0,0);
+fl_knuckle_Y = v3(0,1,0);
+fl_knuckle_Z = v3(0,0,1);
+fl_knuckle = solid([fl_knuckle_upper_connection, fl_knuckle_lower_connection, fl_knuckle_tierod_connection, fl_knuckle_zero, fl_knuckle_X, fl_knuckle_Y, fl_knuckle_Z]);
 
 % Left Front Global Lower Wishbone Definition
 fl_lower_wishbone_front_support = v3( -112.37132168, -242.61317619, 148.01276501 );
@@ -39,6 +40,6 @@ fl_lower_wishbone_end = v3( 1.80217124, -587.54165026, 114.17477164 );
 fl_lower_wishbone = solid([fl_lower_wishbone_front_support, fl_lower_wishbone_rear_support, fl_lower_wishbone_end]);
 
 fl_suspension = suspension( fl_damper, fl_rocker, fl_pushrod, fl_upper_wishbone, fl_knuckle, fl_lower_wishbone );
-save('car/car_variables/fl_suspension.mat', 'fl_suspension');
+save('car_variables/fl_suspension.mat', 'fl_suspension');
 clear;
 fprintf("fl_suspension saved at car/car_variables/fl_suspension.mat\n");

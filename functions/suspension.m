@@ -21,7 +21,7 @@ classdef suspension < handle
             obj.l_wishbone = l_wishbone;
         end
 
-        function update(obj)
+        function susp_update(obj)
             % Virtually linking up the damper & rocker
             error = 1;
             while error > 1e-6
@@ -58,8 +58,38 @@ classdef suspension < handle
         
         function set_damper_distance(obj, damper_distance)
             obj.damper.set_length(damper_distance);
-            obj.update();
+            obj.centre_steering();
+            obj.susp_update();
         end
+
+        function centre_steering(obj)
+            obj.knuckle.setPoint(5, obj.knuckle.coord(4)+v3(-100,0,0));
+        end
+
+        function centre = knuckle_rotation_centre(obj)
+            centre = point_plane_intersection( obj.knuckle.coord(3), obj.knuckle.coord(1), obj.knuckle.coord(2) );
+        end
+
+        function angle = unprojected_steering_angle(obj)
+            angle = anglev3( (obj.knuckle.coord(5) - obj.knuckle.coord(4)), v3(-1,0,0) );
+        end
+
+        function angle = steering_angle(obj)
+            arguments (Output)
+                angle double
+            end
+            knukle_direction = (obj.knuckle.coord(1) - obj.knuckle.coord(2))';
+            angle = angle_projection( obj.unprojected_steering_angle, knukle_direction, v3(0,0,1) );
+        end
+
+
+
+
+
+
+
+
+
 
         function print(obj)
             fprintf("--- Suspension ---\n - Damper:\n"); obj.damper.print();
