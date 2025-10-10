@@ -31,7 +31,9 @@ fl_knuckle_zero = v3(0,0,0);
 fl_knuckle_X = v3(1,0,0);
 fl_knuckle_Y = v3(0,1,0);
 fl_knuckle_Z = v3(0,0,1);
-fl_knuckle = solid([fl_knuckle_upper_connection, fl_knuckle_lower_connection, fl_knuckle_tierod_connection, fl_knuckle_zero, fl_knuckle_X, fl_knuckle_Y, fl_knuckle_Z]);
+fl_knuckle_wheel_normal = v3(0,0,-1);
+fl_knuckle_wheel_centre = v3(0,0,-31.14105609);
+fl_knuckle = solid([fl_knuckle_upper_connection, fl_knuckle_lower_connection, fl_knuckle_tierod_connection, fl_knuckle_zero, fl_knuckle_X, fl_knuckle_Y, fl_knuckle_Z, fl_knuckle_wheel_normal, fl_knuckle_wheel_centre]);
 
 % Left Front Global Lower Wishbone Definition
 fl_lower_wishbone_front_support = v3( -112.37132168, -242.61317619, 148.01276501 );
