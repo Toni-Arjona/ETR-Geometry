@@ -11,7 +11,7 @@ classdef suspension < handle
         l_wishbone solid
     end
 
-    methods (Access = private)
+    methods (Access = publ)
         function susp_update(obj)
             % Virtually linking up the damper & rocker
             error = 1;
@@ -51,16 +51,16 @@ classdef suspension < handle
 
             % If we are working either on the left or the right side of the car
             if( obj.knuckle.coord(4).y < 0 )
-                outside_car_direction = v3(0,-1,0);
+                outside_car_directon = v3(0,-1,0);
             else
-                outside_car_direction = v3(0,1,0);
+                outside_car_directon = v3(0,1,0);
             end
 
             rotation_centre = point_plane_intersection( obj.knuckle.coord(9), obj.knuckle.coord(1), obj.knuckle.coord(2) );
             normal = (obj.knuckle.coord(2) - obj.knuckle.coord(1))';
             plane_D = -(normal*obj.knuckle.coord(9));
 
-            projected_outside_car_point = line_plane_intersection( rotation_centre+outside_car_direction, v3(0,0,1), normal, plane_D );
+            projected_outside_car_point = line_plane_intersection( rotation_centre+outside_car_directon, v3(0,0,1), normal, plane_D );
             projected_outside_car_direction = (projected_outside_car_point - rotation_centre)';
 
             obj.knuckle.setDirection( 1, 2, 4, 9, projected_outside_car_direction );
@@ -76,12 +76,12 @@ classdef suspension < handle
         function angle = unprojected_steering_angle(obj)
             % If we are working either on the left or the right side of the car
             if( obj.knuckle.coord(4).y < 0 )
-                outside_car_direction = v3(0,-1,0);
+                direction = v3(0,-1,0);
             else
-                outside_car_direction = v3(0, 1,0);
+                direction = v3(0, 1,0);
             end
 
-            angle = anglev3( (obj.knuckle.coord(8) - obj.knuckle.coord(4)), outside_car_direction );
+            angle = anglev3( (obj.knuckle.coord(8) - obj.knuckle.coord(4)), direction );
         end
 
         function angle = unprojected_camber(obj)
@@ -112,15 +112,9 @@ classdef suspension < handle
             arguments (Output)
                 angle double
             end
-            % If we are working either on the left or the right side of the car
-            if( obj.knuckle.coord(4).y < 0 )
-                outside_car_direction = v3(0,-1,0);
-            else
-                outside_car_direction = v3(0, 1,0);
-            end
 
-            angle_direction = (obj.knuckle.coord(8) - obj.knuckle.coord(4))' ^ outside_car_direction;
-            angle = angle_projection( obj.unprojected_steering_angle(), angle_direction, v3(0,0,1) );
+            knukle_direction = (obj.knuckle.coord(2) - obj.knuckle.coord(1))';
+            angle = angle_projection( obj.unprojected_steering_angle(), knukle_direction, v3(0,0,1) );
             if(obj.knuckle.coord(8).x - obj.knuckle.coord(4).x < 0 )
                 angle = -angle;
             end
@@ -139,7 +133,7 @@ classdef suspension < handle
 
             angle = angle_projection( unprojected_camber, unporjected_camber_plane, projection_direction );
 
-            if(obj.knuckle.coord(6).y > obj.knuckle.coord(4).y )
+            if(obj.knuckle.coord(6).y > obj.knuckle.coord(4) )
                 angle = -angle;
             end
 

@@ -102,9 +102,17 @@ classdef v3
             c = matrix*[obj.x; obj.y; obj.z];
         end
 
-        function c = eq(a,b)
+        function c = eq(a,b) % obj1 == obj2 -> equal
             if(isa(a,'v3') && isa(b,'v3') )
                 c = anglev3(a,b)<=1e-10;
+            else
+                fprintf("Invalid arguments for the comparison.\n");
+            end
+        end
+
+        function c = ne(a,b) % obj1 ~= obj2 -> not equal
+            if(isa(a,'v3') && isa(b,'v3') )
+                c = anglev3(a,b)>=1e-10;
             else
                 fprintf("Invalid arguments for the comparison.\n");
             end

@@ -9,6 +9,6 @@ function point = point_plane_intersection(input_point, start, finale)
     end
 
     plane_dir = (finale - start)';
-    plane_D = -(plane_dir*input_point);
+    plane_D = -(plane_dir*input_point); %Ax + By + Cz + D = 0
     point = start + (plane_dir .* (-plane_D-(plane_dir*start)));
 end
