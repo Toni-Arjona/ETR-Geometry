@@ -42,6 +42,9 @@ fl_lower_wishbone_end = v3( 1.80217124, -587.54165026, 114.17477164 ); %TOCAR
 fl_lower_wishbone = solid([fl_lower_wishbone_front_support, fl_lower_wishbone_rear_support, fl_lower_wishbone_end]); %NO TOCAR
 
 fl_suspension = suspension( fl_damper, fl_rocker, fl_pushrod, fl_upper_wishbone, fl_knuckle, fl_lower_wishbone ); %NO TOCAR
+fr_suspension = fl_suspension.mirror_on_plane( v3(0,1,0), 0);
 save('car/car_variables/fl_suspension.mat', 'fl_suspension'); %NO TOCAR
+save('car/car_variables/fr_suspension.mat', 'fr_suspension');
 clear; %NO TOCAR
 fprintf("fl_suspension saved at car/car_variables/fl_suspension.mat\n"); %NO TOCAR
+fprintf("fr_suspension saved at car/car_variables/fr_suspension.mat\n"); %NO TOCAR

@@ -53,6 +53,22 @@ classdef rod < handle
             obj.p2 = obj.p2 + displacement;
         end
 
+        function mirror_rod = mirror_on_plane(obj, plane_direction, plane_D)
+            arguments (Input)
+                obj rod
+                plane_direction v3
+                plane_D double
+            end
+            arguments (Output)
+                mirror_rod rod
+            end
+            plane_direction = plane_direction';
+            mirror_p1 = point_plane_mirror( obj.p1, plane_direction, plane_D );
+            mirror_p2 = point_plane_mirror( obj.p2, plane_direction, plane_D );
+
+            mirror_rod = rod( mirror_p1, mirror_p2 );
+        end
+
         function print(obj)
             fprintf("P1: "); obj.p1.print();
             fprintf("P2: "); obj.p2.print();

@@ -118,10 +118,12 @@ classdef suspension < handle
             else
                 outside_car_direction = v3(0, 1,0);
             end
-
-            angle_direction = (obj.knuckle.coord(8) - obj.knuckle.coord(4))' ^ outside_car_direction;
-            angle = angle_projection( obj.unprojected_steering_angle(), angle_direction, v3(0,0,1) );
-            if(obj.knuckle.coord(8).x - obj.knuckle.coord(4).x < 0 )
+            
+            unprojected_steering = obj.unprojected_steering_angle();
+            angle_direction = ((obj.knuckle.coord(8) - obj.knuckle.coord(4))' ^ outside_car_direction)';
+            angle = angle_projection( unprojected_steering, angle_direction, v3(0,0,1) );
+            knuckle_front_direction = (obj.knuckle.coord(5) - obj.knuckle.coord(4))';
+            if(knuckle_front_direction*outside_car_direction < 0 )
                 angle = -angle;
             end
         end
@@ -132,17 +134,48 @@ classdef suspension < handle
                 angle double
             end
 
+            % If we are working either on the left or the right side of the car
+            if( obj.knuckle.coord(4).y < 0 )
+                outside_car_direction = v3(0,-1,0);
+                camber_plane_correction = -1;
+            else
+                outside_car_direction = v3(0, 1,0);
+                camber_plane_correction = 1;
+            end
+
             rotation = obj.steering_angle();
             unprojected_camber = obj.unprojected_camber();
-            unporjected_camber_plane = (obj.knuckle.coord(6)-obj.knuckle.coord(4))' ^ v3(0,0,1);
+            unprojected_camber_plane = camber_plane_correction.*((obj.knuckle.coord(6)-obj.knuckle.coord(4))' ^ v3(0,0,1))';
             projection_direction = point_in_3d_circle( v3(0,0,0), rotation, 1, v3(-1,0,0), v3(0,-1,0) );
 
-            angle = angle_projection( unprojected_camber, unporjected_camber_plane, projection_direction );
+            angle = angle_projection( unprojected_camber, unprojected_camber_plane, projection_direction );
+            knuckle_vertical_direction = (obj.knuckle.coord(6) - obj.knuckle.coord(4))';
 
-            if(obj.knuckle.coord(6).y > obj.knuckle.coord(4).y )
+            if( outside_car_direction*knuckle_vertical_direction < 0 )
                 angle = -angle;
             end
 
+        end
+
+
+        function mirror_suspension = mirror_on_plane(obj, plane_direction, plane_D)
+            arguments (Input)
+                obj suspension
+                plane_direction v3
+                plane_D double
+            end
+            arguments (Output)
+                mirror_suspension suspension
+            end
+            plane_direction = plane_direction';
+
+            mirror_damper =     obj.damper.mirror_on_plane(     plane_direction, plane_D );
+            mirror_rocker =     obj.rocker.mirror_on_plane(     plane_direction, plane_D );
+            mirror_pushrod =    obj.pushrod.mirror_on_plane(    plane_direction, plane_D );
+            mirror_u_wishbone = obj.u_wishbone.mirror_on_plane( plane_direction, plane_D );
+            mirror_knuckle =    obj.knuckle.mirror_on_plane(    plane_direction, plane_D );
+            mirror_l_wishbone = obj.l_wishbone.mirror_on_plane( plane_direction, plane_D );
+            mirror_suspension = suspension(mirror_damper, mirror_rocker, mirror_pushrod, mirror_u_wishbone, mirror_knuckle, mirror_l_wishbone);
         end
 
 

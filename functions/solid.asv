@@ -85,12 +85,12 @@ classdef solid < handle
             
             % Se rotan los demás puntos en consecuencia
             rotation_angle = anglev3((obj.coord(index)-rotation_centre)', (previous_position-rotation_centre)' ); % We get the rotation angle from the movement of the assigned point
-            if((previous_position-rotation_centre)' == (obj.coord(index)-rotation_centre)' | (previous_position-rotation_centre)' == -(obj.coord(index)-rotation_centre)')%#ok<BDSCA>
+            if((previous_position-rotation_centre)' == (obj.coord(index)-rotation_centre)' | (previous_position-rotation_centre)' == -(obj.coord(index)-rotation_centre)') % Parallel axis
                 rotation_direction = rotation_plane_dir; % This is to check for edgecases when the revolution is 180º, since the orientation of the revolution doesn't matter
             else
                 rotation_direction = ((previous_position-rotation_centre)'^(obj.coord(index)-rotation_centre)')'; % It may be different from the plane direction since we always assume a right-hand-rule rotation.
             end
-            if(rotation_plane_dir == -rotation_direction) %#ok
+            if(rotation_plane_dir == -rotation_direction)
                 rotation_angle = -rotation_angle;
             end
             for n = 1:(length(obj.coord))
@@ -104,7 +104,7 @@ classdef solid < handle
                 rotation_radius = ((obj.coord(j) - obj.coord(i))^(obj.coord(i) - obj.coord(k))).'/((obj.coord(j)-obj.coord(i)).');
 
                 % Apply rotation around axis of rotation
-                if( (obj.coord(k) - rotation_centre).' <= 1e-10 ) %#ok<BDSCA>
+                if( (obj.coord(k) - rotation_centre).' <= 1e-10 )
                     continue
                 end
                 zero_angle_direction = (obj.coord(k)-rotation_centre)';
@@ -144,7 +144,7 @@ classdef solid < handle
                     continue
                 end
                 rotation_vector_1 = (obj.coord(i) - rotation_centre)';
-                if( rotation_vector_1 == rotation_direction | rotation_vector_1 == -rotation_direction) %#ok<BDSCI>
+                if( rotation_vector_1 == rotation_direction | rotation_vector_1 == -rotation_direction)
                     continue
                 end
                 rotation_vector_2 = (rotation_vector_1 ^ rotation_direction)';
@@ -179,26 +179,24 @@ classdef solid < handle
             obj.setPoint( index_direction_end, objective_point, index_hardpoint_1, index_hardpoint_2 );
 
             plane_vector_1 = (obj.coord(index_direction_end) - rotation_centre)';
-            projected_point_on_line = point_line_projection(obj.coord(index_direction_start), (obj.coord(index_direction_end)-rotation_centre)', rotation_centre );
-            plane_vector_2 = (obj.coord(index_direction_start) - projected_point_on_line)';
-            
-            %plane_vector_2 = rotation_plane_normal ^ plane_vector_1;
+            point_line_projection(obj.coord(index_direction_start), (obj.coord(index_direction_end)-rotation_centre)', rotation_centre )
+            plane_vector_2 = rotation_plane_normal ^ plane_vector_1;
             % Correcting angle
             projected_direction_start = point_plane_projection( obj.coord(index_direction_start), rotation_plane_normal, plane_D );
             error_angle = anglev3( (obj.coord(index_direction_end) - projected_direction_start)', (obj.coord(index_direction_end) - rotation_centre)' );
-            %if(direction*plane_vector_2 < -1e-15)
-             %   plane_vector_2 = -plane_vector_2;
-            %end
+            if(direction*plane_vector_2 < -1e-15)
+                plane_vector_2 = -plane_vector_2;
+            end
             corrected_objective_point = point_in_3d_circle( rotation_centre, error_angle, rotation_radius, plane_vector_1, plane_vector_2 );
             obj.setPoint( index_direction_end, corrected_objective_point, index_hardpoint_1, index_hardpoint_2 );
 
 
             % Error de dirección para debugging
-            if( direction ~= (obj.coord(index_direction_end) - obj.coord(index_direction_start))' ) %#ok<BDSCA,BDSCI>
+            if( direction ~= (obj.coord(index_direction_end) - obj.coord(index_direction_start))' )
                 error = anglev3(direction, (obj.coord(index_direction_end) - obj.coord(index_direction_start))');
-                error = angle_projection(error, direction ^ (obj.coord(index_direction_end) - obj.coord(index_direction_start))', rotation_plane_normal); %#ok<NASGU>
+                error = angle_projection(error, direction ^ (obj.coord(index_direction_end) - obj.coord(index_direction_start))', rotation_plane_normal);
             else
-                error = 0; %#ok<NASGU>
+                error = 0;
             end
         end
 
@@ -213,9 +211,9 @@ classdef solid < handle
             end
             plane_direction = plane_direction';
 
-            mirror_solid_vector = zeros(1, length(obj.coord));
+            mirror_solid_vector = [];
             for i = 1:length(obj.coord)
-                mirror_solid_vector(i) = point_plane_mirror( obj.coord(i), plane_direction, plane_D );
+                mirror_solid_vector = [mirror_solid_vector point_plane_mirror( obj.coord(i), plane_direction, plane_D )];
             end
             mirror_solid = solid(mirror_solid_vector);
         end

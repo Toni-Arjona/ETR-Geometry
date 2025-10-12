@@ -119,6 +119,25 @@ classdef rocker < handle
             obj.update_arm1();
         end
 
+        function mirror_rocker = mirror_on_plane(obj, plane_direction, plane_D)
+            arguments (Input)
+                obj rocker
+                plane_direction v3
+                plane_D double
+            end
+            arguments (Output)
+                mirror_rocker rocker
+            end
+            plane_direction = plane_direction';
+            
+            mirror_rockerCentre = point_plane_mirror(obj.rockerCentre, plane_direction, plane_D);
+            mirror_arm1 = point_plane_mirror(obj.arm1, plane_direction, plane_D);
+            mirror_arm2 = point_plane_mirror(obj.arm2, plane_direction, plane_D);
+
+            mirror_rocker = rocker(mirror_rockerCentre, mirror_arm1, mirror_arm2);
+        end
+
+
         function print(obj)
             fprintf("Rocker Centre: "); obj.rockerCentre.print();
             fprintf("Arm 1: "); obj.arm1.print();
