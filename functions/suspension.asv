@@ -118,10 +118,9 @@ classdef suspension < handle
             else
                 outside_car_direction = v3(0, 1,0);
             end
-            
-            unprojected_steering = obj.unprojected_steering_angle();
+
             angle_direction = ((obj.knuckle.coord(8) - obj.knuckle.coord(4))' ^ outside_car_direction)';
-            angle = angle_projection( unprojected_steering, angle_direction, v3(0,0,1) );
+            angle = angle_projection( obj.unprojected_steering_angle(), angle_direction, v3(0,0,1) );
             knuckle_front_direction = (obj.knuckle.coord(5) - obj.knuckle.coord(4))';
             if(knuckle_front_direction*outside_car_direction < 0 )
                 angle = -angle;
@@ -137,15 +136,14 @@ classdef suspension < handle
             % If we are working either on the left or the right side of the car
             if( obj.knuckle.coord(4).y < 0 )
                 outside_car_direction = v3(0,-1,0);
-                camber_plane_correction = -1;
+                camber_plane_correction = 
             else
                 outside_car_direction = v3(0, 1,0);
-                camber_plane_correction = 1;
             end
 
             rotation = obj.steering_angle();
             unprojected_camber = obj.unprojected_camber();
-            unprojected_camber_plane = camber_plane_correction.*((obj.knuckle.coord(6)-obj.knuckle.coord(4))' ^ v3(0,0,1))';
+            unprojected_camber_plane = -((obj.knuckle.coord(6)-obj.knuckle.coord(4))' ^ v3(0,0,1))';
             projection_direction = point_in_3d_circle( v3(0,0,0), rotation, 1, v3(-1,0,0), v3(0,-1,0) );
 
             angle = angle_projection( unprojected_camber, unprojected_camber_plane, projection_direction );
