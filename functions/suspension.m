@@ -47,7 +47,7 @@ classdef suspension < handle
             end
         end
 
-        function centre_steering(obj)
+        function centre_wheel(obj)
 
             % If we are working either on the left or the right side of the car
             if( obj.knuckle.coord(4).y < 0 )
@@ -55,14 +55,26 @@ classdef suspension < handle
             else
                 outside_car_direction = v3(0,1,0);
             end
+            
+
 
             rotation_centre = point_plane_intersection( obj.knuckle.coord(9), obj.knuckle.coord(1), obj.knuckle.coord(2) );
             normal = (obj.knuckle.coord(2) - obj.knuckle.coord(1))';
             plane_D = -(normal*obj.knuckle.coord(9));
 
-            projected_outside_car_point = line_plane_intersection( rotation_centre+outside_car_direction, v3(0,0,1), normal, plane_D );
-            projected_outside_car_direction = (projected_outside_car_point - rotation_centre)';
+            angle = pi/2 - anglev3( normal, (obj.knuckle.coord(9) - obj.knuckle.coord(4))' );
+            %rotated_direction = point_in_3d_circle( v3(0,0,0), angle, 1,  )
 
+            projected_outside_car_point = line_plane_intersection( rotation_centre+outside_car_direction, v3(0,0,1), normal, plane_D );
+
+            centre_rotation_centre = point_plane_intersection( obj.knuckle.coord(4), obj.knuckle.coord(1), obj.knuckle.coord(2) );
+            centre_plane_D = -(normal*obj.knuckle.coord(4));
+            projected_centre = line_plane_intersection( centre_rotation_centre, v3(0,0,1), normal, plane_D);
+            projected_outside_car_direction = (projected_outside_car_point - projected_centre)';
+            projected_outside_car_direction = (projected_outside_car_point - rotation_centre)';
+            p = rotation_centre + projected_outside_car_direction;
+            
+            projected_outside_car_direction = outside_car_direction - (outside_car_direction*normal).*normal;
             obj.knuckle.setDirection( 1, 2, 4, 9, projected_outside_car_direction );
         end
 
@@ -104,7 +116,7 @@ classdef suspension < handle
         function set_damper_distance(obj, damper_distance)
             obj.damper.set_length(damper_distance);
             obj.susp_update();
-            obj.centre_steering();
+            obj.centre_wheel();
         end
 
 
@@ -121,6 +133,9 @@ classdef suspension < handle
             
             unprojected_steering = obj.unprojected_steering_angle();
             angle_direction = ((obj.knuckle.coord(8) - obj.knuckle.coord(4))' ^ outside_car_direction)';
+            if(angle_direction.z < 0)
+                angle_direction = -angle_direction;
+            end
             angle = angle_projection( unprojected_steering, angle_direction, v3(0,0,1) );
             knuckle_front_direction = (obj.knuckle.coord(5) - obj.knuckle.coord(4))';
             if(knuckle_front_direction*outside_car_direction < 0 )
@@ -176,6 +191,40 @@ classdef suspension < handle
             mirror_knuckle =    obj.knuckle.mirror_on_plane(    plane_direction, plane_D );
             mirror_l_wishbone = obj.l_wishbone.mirror_on_plane( plane_direction, plane_D );
             mirror_suspension = suspension(mirror_damper, mirror_rocker, mirror_pushrod, mirror_u_wishbone, mirror_knuckle, mirror_l_wishbone);
+        end
+
+
+        function set_knuckle(obj, knuckle_tierod_point)
+            arguments
+                obj suspension
+                knuckle_tierod_point v3
+            end
+            obj.knuckle.setPoint(3, knuckle_tierod_point, 1, 2);
+        end
+
+        function set_toe(obj, toe_ang_deg)
+            % Positive toe is TOE IN
+            arguments
+                obj suspension
+                toe_ang_deg double
+            end
+            obj.centre_wheel();
+            toe_ang_rad = toe_ang_deg * pi / 180;
+
+            obj.knuckle.rotate( 3, 1, 2, toe_ang_rad);
+        end
+
+        function centre_steering(obj)
+            obj.centre_wheel();
+            obj.set_toe(0);
+            error = obj.steering_angle();
+            while abs(error) > 1e-3
+                obj.set_toe(error*180/pi);
+                error = obj.steering_angle();
+                if(obj.knuckle.coord(4).y > 0)
+                    error = -error;
+                end
+            end
         end
 
 

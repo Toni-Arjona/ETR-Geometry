@@ -6,7 +6,7 @@ function angle_rad = anglev3(vector_1,vector_2)
     vector_1 = vector_1';
     vector_2 = vector_2';
 
-    rotation_complex = acos((vector_1*vector_2)/(vector_1.modulus()*vector_2.modulus()));
+    rotation_complex = acos((vector_1*vector_2)/(vector_1.'*vector_2.'));
     angle_rad = real(rotation_complex);
 end
 

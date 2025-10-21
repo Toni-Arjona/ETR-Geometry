@@ -163,43 +163,55 @@ classdef solid < handle
             end
             direction = direction';
 
-            rotation_centre = point_plane_intersection( obj.coord(index_direction_end), obj.coord(index_hardpoint_1), obj.coord(index_hardpoint_2) );
-            rotation_plane_normal = (obj.coord(index_hardpoint_2) - obj.coord(index_hardpoint_1))';
-            plane_D = -( rotation_plane_normal*obj.coord(index_direction_end) );
+            rotation_normal = (obj.coord(index_hardpoint_2) - obj.coord(index_hardpoint_1))';
+            start_plane_D = -( rotation_normal*obj.coord(index_direction_start) );
+            start_plane_centre = point_plane_projection( obj.coord(index_hardpoint_1), rotation_normal, start_plane_D );
+            end_plane_D = -( rotation_normal*obj.coord(index_direction_end) );
 
-            rotation_radius = (obj.coord(index_direction_end) - rotation_centre).';
-            plane_vector_1 = (obj.coord(index_direction_end) - rotation_centre)';
-            plane_vector_2 = rotation_plane_normal ^ plane_vector_1;
-            rotation_angle = anglev3( plane_vector_1, direction );
-            if(direction*plane_vector_2 < 0)
-                plane_vector_2 = -plane_vector_2;
+            end_projected_on_start_plane = point_plane_projection( obj.coord(index_direction_end), rotation_normal, start_plane_D );
+            start_end_direction_on_start_plane = (end_projected_on_start_plane - obj.coord(index_direction_start))';
+            end_rotation_radius = (end_projected_on_start_plane - start_plane_centre).';
+            angle = anglev3(start_end_direction_on_start_plane, direction);
+
+            while angle > 1e-6
+                plane_vector_1 = (end_projected_on_start_plane - start_plane_centre)';
+                plane_vector_2 = (rotation_normal ^ plane_vector_1)';
+                if(plane_vector_2*direction < 0)
+                    plane_vector_2 = -plane_vector_2; % Reverse in case the angle has to be in reverse
+                end
+                ideal_point = point_in_3d_circle(start_plane_centre, angle, end_rotation_radius, plane_vector_1, plane_vector_2);
+                ideal_point = point_plane_projection(ideal_point, rotation_normal, end_plane_D);
+                obj.setPoint(index_direction_end, ideal_point, index_hardpoint_1, index_hardpoint_2);
+    
+                end_projected_on_start_plane = point_plane_projection( obj.coord(index_direction_end), rotation_normal, start_plane_D );
+                start_end_direction_on_start_plane = (end_projected_on_start_plane - obj.coord(index_direction_start))';
+                angle = anglev3((obj.coord(index_direction_end) - obj.coord(index_direction_start))', direction);
+                angle = angle_projection(angle, (obj.coord(index_direction_end) - obj.coord(index_direction_start))' ^ direction, rotation_normal);
             end
 
-            objective_point = point_in_3d_circle( rotation_centre, rotation_angle, rotation_radius, plane_vector_1, plane_vector_2 );
-            obj.setPoint( index_direction_end, objective_point, index_hardpoint_1, index_hardpoint_2 );
+        end
 
-            plane_vector_1 = (obj.coord(index_direction_end) - rotation_centre)';
-            projected_point_on_line = point_line_projection(obj.coord(index_direction_start), (obj.coord(index_direction_end)-rotation_centre)', rotation_centre );
-            plane_vector_2 = (obj.coord(index_direction_start) - projected_point_on_line)';
+        function rotate(obj, index_to_rotate, index_hardpoint_1, index_hardpoint_2, angle_rad)
+            % From 1 to 2, right hand rotation rule applies
+            arguments
+                obj solid
+                index_to_rotate {mustBeInteger}
+                index_hardpoint_1 {mustBeInteger} 
+                index_hardpoint_2 {mustBeInteger}
+                angle_rad double
+            end
+
+            rotation_normal = (obj.coord(index_hardpoint_2) - obj.coord(index_hardpoint_1))';
+            start_plane_D = -( rotation_normal*obj.coord(index_to_rotate) );
+            rotation_centre = point_plane_projection( obj.coord(index_hardpoint_1), rotation_normal, start_plane_D );
             
-            %plane_vector_2 = rotation_plane_normal ^ plane_vector_1;
-            % Correcting angle
-            projected_direction_start = point_plane_projection( obj.coord(index_direction_start), rotation_plane_normal, plane_D );
-            error_angle = anglev3( (obj.coord(index_direction_end) - projected_direction_start)', (obj.coord(index_direction_end) - rotation_centre)' );
-            %if(direction*plane_vector_2 < -1e-15)
-             %   plane_vector_2 = -plane_vector_2;
-            %end
-            corrected_objective_point = point_in_3d_circle( rotation_centre, error_angle, rotation_radius, plane_vector_1, plane_vector_2 );
-            obj.setPoint( index_direction_end, corrected_objective_point, index_hardpoint_1, index_hardpoint_2 );
+            rotation_radius = (obj.coord(index_to_rotate) - rotation_centre).';
+            zero_angle_vector = (obj.coord(index_to_rotate) - rotation_centre)';
+            pi_2_angle_vector = (rotation_normal ^ zero_angle_vector)';
 
+            desired_point = point_in_3d_circle(rotation_centre, angle_rad, rotation_radius, zero_angle_vector, pi_2_angle_vector);
 
-            % Error de dirección para debugging
-            if( direction ~= (obj.coord(index_direction_end) - obj.coord(index_direction_start))' ) %#ok<BDSCA,BDSCI>
-                error = anglev3(direction, (obj.coord(index_direction_end) - obj.coord(index_direction_start))');
-                error = angle_projection(error, direction ^ (obj.coord(index_direction_end) - obj.coord(index_direction_start))', rotation_plane_normal); %#ok<NASGU>
-            else
-                error = 0; %#ok<NASGU>
-            end
+            obj.setPoint(index_to_rotate, desired_point, index_hardpoint_1, index_hardpoint_2);
         end
 
         function mirror_solid = mirror_on_plane(obj, plane_direction, plane_D)
