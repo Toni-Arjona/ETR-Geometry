@@ -1,4 +1,4 @@
-function [instant_axis, point_intersection_instant]= rollcenter_instantaxis(suspl, suspr)
+function [instant_axis, roll_center]= rollcenter_instantaxis(suspl, suspr)
     arguments
     suspl suspension
     suspr suspension
