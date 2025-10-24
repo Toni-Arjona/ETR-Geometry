@@ -56,26 +56,15 @@ classdef suspension < handle
                 outside_car_direction = v3(0,1,0);
             end
             
-
-
-            rotation_centre = point_plane_intersection( obj.knuckle.coord(9), obj.knuckle.coord(1), obj.knuckle.coord(2) );
-            normal = (obj.knuckle.coord(2) - obj.knuckle.coord(1))';
-            plane_D = -(normal*obj.knuckle.coord(9));
-
-            angle = pi/2 - anglev3( normal, (obj.knuckle.coord(9) - obj.knuckle.coord(4))' );
-            %rotated_direction = point_in_3d_circle( v3(0,0,0), angle, 1,  )
-
-            projected_outside_car_point = line_plane_intersection( rotation_centre+outside_car_direction, v3(0,0,1), normal, plane_D );
-
-            centre_rotation_centre = point_plane_intersection( obj.knuckle.coord(4), obj.knuckle.coord(1), obj.knuckle.coord(2) );
-            centre_plane_D = -(normal*obj.knuckle.coord(4));
-            projected_centre = line_plane_intersection( centre_rotation_centre, v3(0,0,1), normal, plane_D);
-            projected_outside_car_direction = (projected_outside_car_point - projected_centre)';
-            projected_outside_car_direction = (projected_outside_car_point - rotation_centre)';
-            p = rotation_centre + projected_outside_car_direction;
             
-            projected_outside_car_direction = outside_car_direction - (outside_car_direction*normal).*normal;
-            obj.knuckle.setDirection( 1, 2, 4, 9, projected_outside_car_direction );
+            rotation_centre = point_plane_intersection(obj.knuckle.coord(4), obj.knuckle.coord(1), obj.knuckle.coord(2));
+            normal = (obj.knuckle.coord(2) - obj.knuckle.coord(1))';
+            plane_D = -(normal*obj.knuckle.coord(4));
+
+            direction = line_plane_intersection( outside_car_direction, v3(0,0,1), normal, 0 );
+            direction = direction';
+
+            obj.knuckle.setDirection( 1, 2, 4, 9, direction );
         end
 
         function centre = knuckle_rotation_centre(obj)
@@ -133,9 +122,7 @@ classdef suspension < handle
             
             unprojected_steering = obj.unprojected_steering_angle();
             angle_direction = ((obj.knuckle.coord(8) - obj.knuckle.coord(4))' ^ outside_car_direction)';
-            if(angle_direction.z < 0)
-                angle_direction = -angle_direction;
-            end
+            angle_direction.z = abs(angle_direction.z);
             angle = angle_projection( unprojected_steering, angle_direction, v3(0,0,1) );
             knuckle_front_direction = (obj.knuckle.coord(5) - obj.knuckle.coord(4))';
             if(knuckle_front_direction*outside_car_direction < 0 )

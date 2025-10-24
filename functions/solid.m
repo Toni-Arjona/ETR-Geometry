@@ -165,10 +165,12 @@ classdef solid < handle
 
             rotation_normal = (obj.coord(index_hardpoint_2) - obj.coord(index_hardpoint_1))';
             start_plane_D = -( rotation_normal*obj.coord(index_direction_start) );
-            start_plane_centre = point_plane_projection( obj.coord(index_hardpoint_1), rotation_normal, start_plane_D );
             end_plane_D = -( rotation_normal*obj.coord(index_direction_end) );
+            start_plane_centre = point_plane_projection( obj.coord(index_hardpoint_1), rotation_normal, start_plane_D );
+
 
             end_projected_on_start_plane = point_plane_projection( obj.coord(index_direction_end), rotation_normal, start_plane_D );
+            end_projected_on_start_plane = obj.coord(index_direction_start) + direction
             start_end_direction_on_start_plane = (end_projected_on_start_plane - obj.coord(index_direction_start))';
             end_rotation_radius = (end_projected_on_start_plane - start_plane_centre).';
             angle = anglev3(start_end_direction_on_start_plane, direction);
