@@ -170,7 +170,7 @@ classdef solid < handle
 
 
             end_projected_on_start_plane = point_plane_projection( obj.coord(index_direction_end), rotation_normal, start_plane_D );
-            end_projected_on_start_plane = obj.coord(index_direction_start) + direction
+            %end_projected_on_start_plane = obj.coord(index_direction_start) + direction;
             start_end_direction_on_start_plane = (end_projected_on_start_plane - obj.coord(index_direction_start))';
             end_rotation_radius = (end_projected_on_start_plane - start_plane_centre).';
             angle = anglev3(start_end_direction_on_start_plane, direction);
@@ -227,7 +227,8 @@ classdef solid < handle
             end
             plane_direction = plane_direction';
 
-            mirror_solid_vector = zeros(1, length(obj.coord));
+            k = v3(0,0,0);
+            mirror_solid_vector = zeros(1, length(obj.coord), like=k);
             for i = 1:length(obj.coord)
                 mirror_solid_vector(i) = point_plane_mirror( obj.coord(i), plane_direction, plane_D );
             end

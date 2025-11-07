@@ -207,11 +207,10 @@ classdef suspension < handle
             error = obj.steering_angle();
             while abs(error) > 1e-3
                 obj.set_toe(error*180/pi);
-                error = obj.steering_angle();
-                if(obj.knuckle.coord(4).y > 0)
-                    error = -error;
-                end
+                error = abs(obj.steering_angle());
             end
+
+            obj.centre_wheel();
         end
 
 

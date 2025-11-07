@@ -4,6 +4,23 @@ classdef v3
         y (1,1) double {mustBeFinite} %Y-value
         z (1,1) double {mustBeFinite} %Z-value
     end
+
+    methods (Static)
+        function out = zeros(varargin)
+            if(nargin == 1 && isvector(varargin{1}))
+                sz = varargin{1};
+            else
+                sz = cell2mat(varargin);
+            end
+
+            out(sz(1), sz(2:end)) = v3;
+            for i = 1:numel(out)
+                out(i) = v3(0,0,0);
+            end
+ 
+        end
+    end
+
     methods
 
         % Constructor
