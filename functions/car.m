@@ -232,6 +232,35 @@ classdef car < handle
 
             fprintf("+-------------------+-------------------+\n");
         end
+
+        function print_extended(obj)
+            arguments
+                obj car
+            end
+
+            fprintf("+- Front Left ------+- Front Right -----+\n")
+            fprintf("| DamperD:  %5.2f\t| DamperD:  %5.2f\t|\n", obj.fl_susp.get_damper_distance(), obj.fr_susp.get_damper_distance());
+            fprintf("| PushrodD: %5.2f\t| PushrodD: %5.2f\t|\n", obj.fl_susp.get_pushrod_distance(), obj.fr_susp.get_pushrod_distance());
+            fprintf("| Steering: %6.2f\t| Steering: %6.2f\t|\n", obj.fl_steering_rad()*180/pi, obj.fr_steering_rad()*180/pi);
+            fprintf("| Camber:    %4.2f\t| Camber:    %4.2f\t|\n", obj.fl_susp.camber_angle()*180/pi, obj.fr_susp.camber_angle()*180/pi );
+            fprintf("| TierodD:  %5.2f\t| TierodD:  %5.2f\t|\n", obj.f_tierod, obj.f_tierod);
+            fprintf("| RackDis:   %5.2f\t| RackDis:   %5.2f\t|\n", obj.steering_wheel_deg*pi/180*obj.f_steer.pinion_diameter/2, obj.steering_wheel_deg*pi/180*obj.f_steer.pinion_diameter/2);
+
+            fprintf("+- Rear Left -------+- Rear Right ------+\n")
+            fprintf("| DamperD:  %5.2f\t| DamperD:  %5.2f\t|\n", obj.rl_susp.get_damper_distance(), obj.rr_susp.get_damper_distance());
+            fprintf("| PushrodD: %5.2f\t| PushrodD: %5.2f\t|\n", obj.rl_susp.get_pushrod_distance(), obj.rr_susp.get_pushrod_distance());
+            fprintf("| Steering: %6.2f\t| Steering: %6.2f\t|\n", obj.rl_steering_rad()*180/pi, obj.rr_steering_rad()*180/pi);
+            fprintf("| Camber:    %4.2f\t| Camber:    %4.2f\t|\n", obj.rl_susp.camber_angle()*180/pi, obj.rr_susp.camber_angle()*180/pi );
+            fprintf("| TierodD:  %5.2f\t| TierodD:  %5.2f\t|\n", obj.r_tierod, obj.r_tierod);
+
+
+            fprintf("+-------------------+-------------------+\n");
+
+        end
+
+        function extended_print(obj)
+            obj.print_extended()
+        end
     end
 end
 
