@@ -87,7 +87,6 @@ classdef car < handle
         end
 
         %% Set steering wheel
-
         function set_steering_wheel(obj, steering_wheel_deg)
             % Left steering is positive
             arguments
@@ -117,7 +116,6 @@ classdef car < handle
         end
 
         %% Set toe
-
         function set_toe_front(obj, toe_deg)
             arguments
                 obj car
@@ -148,8 +146,9 @@ classdef car < handle
             obj.set_toe_rear(toe_deg);
         end
 
-
-        end
+        %% Set Dampers
+        
     end
 end
+
 

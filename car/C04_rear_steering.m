@@ -1,12 +1,12 @@
 addpath('functions'); %NO TOCAR
 
 % Steering Definition
-rack_centre = v3(1.41384756, 0.00000000, 168.60000000);
-pinion_diameter = 35;
-rack_centre_distance = 229.50000000;
-front_pinion = true;
-front_steering = steering(rack_centre, pinion_diameter, rack_centre_distance, front_pinion);
+rack_centre = v3(1630, 0, 124.4655); % Only X & Z
+pinion_diameter = 35; % Doesn't matter since it's in the back
+rack_centre_distance = 255; % The Y of the inner suport for the tierod
+rear_pinion = true; % Doesn't matter
+r_steering = steering(rack_centre, pinion_diameter, rack_centre_distance, rear_pinion);
 
-save('car/car_variables/front_steering.mat', 'front_steering'); %NO TOCAR
+save('car/car_variables/r_steering.mat', 'r_steering'); %NO TOCAR
 clear; %NO TOCAR
-fprintf("front_steering saved at car/car_variables/front_steering.mat\n"); %NO TOCAR
+fprintf("r_steering saved at car/car_variables/r_steering.mat\n"); %NO TOCAR

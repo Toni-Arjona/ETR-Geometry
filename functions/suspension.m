@@ -4,7 +4,7 @@ classdef suspension < handle
     
     properties
         damper rod
-        rocker rocker
+        rocker solid
         pushrod rod
         u_wishbone solid
         knuckle solid
@@ -17,13 +17,13 @@ classdef suspension < handle
             error = 1;
             while error > 1e-6
                 new_rocker_position = obj.damper.p2;
-                obj.rocker.set_arm1(new_rocker_position);
-                obj.damper.set_p2(obj.rocker.arm1);
-                error = (obj.rocker.arm1 - obj.damper.p2).';
+                obj.rocker.setPoint(3, new_rocker_position, 1, 2);
+                obj.damper.set_p2( obj.rocker.coord(3) );
+                error = (obj.rocker.coord(3) - obj.damper.p2).';
             end
 
             % Virtually linking up the rocker & pushrod
-            obj.pushrod.set_p1( obj.rocker.arm2 );
+            obj.pushrod.set_p1( obj.rocker.coord(4) );
 
             % Virtually linking up the pushrod with the upper wishbone
             error = 1;
