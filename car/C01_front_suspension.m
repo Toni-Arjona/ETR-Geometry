@@ -52,6 +52,7 @@ fl_lower_wishbone = solid([fl_lower_wishbone_front_support, fl_lower_wishbone_re
 
 
 fl_suspension = suspension( fl_damper, fl_rocker, fl_pushrod, fl_upper_wishbone, fl_knuckle, fl_lower_wishbone ); %NO TOCAR
+fl_suspension.set_damper_distance(180);
 fr_suspension = fl_suspension.mirror_on_plane( v3(0,1,0), 0);
 save('car/car_variables/fl_suspension.mat', 'fl_suspension'); %NO TOCAR
 save('car/car_variables/fr_suspension.mat', 'fr_suspension');

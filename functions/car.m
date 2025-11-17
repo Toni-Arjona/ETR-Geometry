@@ -2,7 +2,7 @@ classdef car < handle
     %CAR 
     %   Using suspension and steering
     
-    properties
+    properties (Access=private)
         fl_susp suspension
         fr_susp suspension
         rl_susp suspension
@@ -11,9 +11,59 @@ classdef car < handle
         r_steer steering
         f_tierod double
         r_tierod double
+        steering_wheel_deg double
     end
-    
-    methods
+
+    methods (Access=private)
+     %% Update Functions
+        function update_front(obj)
+            arguments
+                obj car
+            end
+
+            % Iterate to make the front wheels converge to static
+            error = 1;
+            while abs(error) > 1e-6
+                direction = (obj.fl_susp.knuckle.coord(3) - obj.f_steer.left_clevi())';
+                place = obj.f_steer.left_clevi() + direction.*obj.f_tierod;
+                obj.fl_susp.set_knuckle(place);
+                error = (obj.fl_susp.knuckle.coord(3) - obj.f_steer.left_clevi()).' - obj.f_tierod;
+            end
+
+            error = 1;
+            while abs(error) > 1e-6
+                direction = (obj.fr_susp.knuckle.coord(3) - obj.f_steer.right_clevi())';
+                place = obj.f_steer.right_clevi() + direction.*obj.f_tierod;
+                obj.fr_susp.set_knuckle(place);
+                error = (obj.fr_susp.knuckle.coord(3) - obj.f_steer.right_clevi()).' - obj.f_tierod;
+            end
+        end
+
+        function update_rear(obj)
+            arguments
+                obj car
+            end
+
+            % Iterate to make the front wheels converge to static
+            error = 1;
+            while abs(error) > 1e-6
+                direction = (obj.rl_susp.knuckle.coord(3) - obj.r_steer.left_clevi())';
+                place = obj.r_steer.left_clevi() + direction.*obj.r_tierod;
+                obj.rl_susp.set_knuckle(place);
+                error = (obj.rl_susp.knuckle.coord(3) - obj.r_steer.left_clevi()).' - obj.r_tierod;
+            end
+
+            error = 1;
+            while abs(error) > 1e-6
+                direction = (obj.rr_susp.knuckle.coord(3) - obj.r_steer.right_clevi())';
+                place = obj.r_steer.right_clevi() + direction.*obj.r_tierod;
+                obj.rr_susp.set_knuckle(place);
+                error = (obj.rr_susp.knuckle.coord(3) - obj.r_steer.right_clevi()).' - obj.r_tierod;
+            end
+        end
+
+    end
+    methods (Access=public)
         function obj = car(fl_susp, fr_susp, rl_susp, rr_susp, f_steer, r_steer)
             arguments (Input)
                 fl_susp suspension
@@ -32,6 +82,7 @@ classdef car < handle
 
             obj.f_tierod = (obj.fl_susp.knuckle.coord(3) - obj.f_steer.left_clevi()).';
             obj.r_tierod = (obj.rl_susp.knuckle.coord(3) - obj.r_steer.left_clevi()).';
+            obj.steering_wheel_deg = 0;
         end
 
 
@@ -93,39 +144,25 @@ classdef car < handle
                 obj car
                 steering_wheel_deg double
             end
-
+            obj.steering_wheel_deg = steering_wheel_deg;
             obj.f_steer.set_steering(steering_wheel_deg*pi/180);
-            
-            % Iterate to make the front wheels converge
-            error = 1;
-            while abs(error) > 1e-6
-                direction = (obj.fl_susp.knuckle.coord(3) - obj.f_steer.left_clevi())';
-                place = obj.f_steer.left_clevi() + direction.*obj.f_tierod;
-                obj.fl_susp.set_knuckle(place);
-                error = (obj.fl_susp.knuckle.coord(3) - obj.f_steer.left_clevi()).' - obj.f_tierod;
-            end
-
-            error = 1;
-            while abs(error) > 1e-6
-                direction = (obj.fr_susp.knuckle.coord(3) - obj.f_steer.right_clevi())';
-                place = obj.f_steer.right_clevi() + direction.*obj.f_tierod;
-                obj.fr_susp.set_knuckle(place);
-                error = (obj.fr_susp.knuckle.coord(3) - obj.f_steer.right_clevi()).' - obj.f_tierod;
-            end
-
+            obj.update_front();
         end
 
+       
         %% Set toe
         function set_toe_front(obj, toe_deg)
             arguments
                 obj car
                 toe_deg double 
             end
+            obj.centre_steering();
             obj.fl_susp.set_toe(toe_deg);
             obj.fr_susp.set_toe(toe_deg);
 
             % Updating the tierods length
             obj.f_tierod = (obj.fl_susp.knuckle.coord(3) - obj.f_steer.left_clevi()).';
+            obj.update_front();
         end
         function set_front_toe(obj, toe_deg)
             obj.set_toe_front(toe_deg);
@@ -141,13 +178,60 @@ classdef car < handle
 
             % Updating the tierods length
             obj.r_tierod = (obj.rl_susp.knuckle.coord(3) - obj.r_steer.left_clevi()).';
+            obj.update_rear();
         end
         function set_rear_toe(obj, toe_deg)
             obj.set_toe_rear(toe_deg);
         end
 
         %% Set Dampers
+        function set_front_dampers(obj, distance)
+            arguments
+                obj car
+                distance double 
+            end
+            if(distance ~= obj.fl_susp.get_damper_distance())
+                obj.fl_susp.set_damper_distance(distance);
+                obj.fr_susp.set_damper_distance(distance);
+                obj.update_front();
+            end
+        end
         
+        function set_rear_dampers(obj, distance)
+            arguments
+                obj car
+                distance double
+            end
+            if(distance ~= obj.rl_susp.get_damper_distance())
+                obj.rl_susp.set_damper_distance(distance);
+                obj.rr_susp.set_damper_distance(distance);
+                obj.update_rear();
+            end
+        end
+        
+        %% Print functions
+        function print(obj)
+            arguments
+                obj car
+            end
+
+            fprintf("+- Front Left ------+- Front Right -----+\n")
+            fprintf("| DamperD:  %5.2f\t| DamperD:  %5.2f\t|\n", obj.fl_susp.get_damper_distance(), obj.fr_susp.get_damper_distance());
+            fprintf("| PushrodD: %5.2f\t| PushrodD: %5.2f\t|\n", obj.fl_susp.get_pushrod_distance(), obj.fr_susp.get_pushrod_distance());
+            fprintf("| Steering: %6.2f\t| Steering: %6.2f\t|\n", obj.fl_steering_rad()*180/pi, obj.fr_steering_rad()*180/pi);
+            fprintf("| Camber:    %4.2f\t| Camber:    %4.2f\t|\n", obj.fl_susp.camber_angle()*180/pi, obj.fr_susp.camber_angle()*180/pi );
+            fprintf("| TierodD:  %5.2f\t| TierodD:  %5.2f\t|\n", obj.f_tierod, obj.f_tierod);
+
+            fprintf("+- Rear Left -------+- Rear Right ------+\n")
+            fprintf("| DamperD:  %5.2f\t| DamperD:  %5.2f\t|\n", obj.rl_susp.get_damper_distance(), obj.rr_susp.get_damper_distance());
+            fprintf("| PushrodD: %5.2f\t| PushrodD: %5.2f\t|\n", obj.rl_susp.get_pushrod_distance(), obj.rr_susp.get_pushrod_distance());
+            fprintf("| Steering: %6.2f\t| Steering: %6.2f\t|\n", obj.rl_steering_rad()*180/pi, obj.rr_steering_rad()*180/pi);
+            fprintf("| Camber:    %4.2f\t| Camber:    %4.2f\t|\n", obj.rl_susp.camber_angle()*180/pi, obj.rr_susp.camber_angle()*180/pi );
+            fprintf("| TierodD:  %5.2f\t| TierodD:  %5.2f\t|\n", obj.r_tierod, obj.r_tierod);
+
+
+            fprintf("+-------------------+-------------------+\n");
+        end
     end
 end
 

@@ -49,6 +49,7 @@ rl_lower_wishbone = solid([rl_lower_wishbone_front_support, rl_lower_wishbone_re
 
 %%
 rl_suspension = suspension( rl_damper, rl_rocker, rl_pushrod, rl_upper_wishbone, rl_knuckle, rl_lower_wishbone ); %NO TOCAR
+rl_suspension.set_damper_distance(180);
 rr_suspension = rl_suspension.mirror_on_plane( v3(0,1,0), 0);
 save('car/car_variables/rl_suspension.mat', 'rl_suspension'); %NO TOCAR
 save('car/car_variables/rr_suspension.mat', 'rr_suspension');

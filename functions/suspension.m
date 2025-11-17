@@ -113,12 +113,9 @@ classdef suspension < handle
             arguments (Output)
                 angle double
             end
-            % If we are working either on the left or the right side of the car
-            if( obj.knuckle.coord(4).y < 0 )
-                outside_car_direction = v3(0,-1,0);
-            else
-                outside_car_direction = v3(0, 1,0);
-            end
+
+            outside_car_direction = v3(0,-1,0); % This defines which way the steering is positive 
+            % Right now, left is positive
             
             unprojected_steering = obj.unprojected_steering_angle();
             angle_direction = ((obj.knuckle.coord(8) - obj.knuckle.coord(4))' ^ outside_car_direction)';
@@ -221,6 +218,21 @@ classdef suspension < handle
             fprintf(" - U_Wishbone:\n"); obj.u_wishbone.print();
             fprintf(" - Knuckle:\n"); obj.knuckle.print();
             fprintf(" - L_Wishbone:\n"); obj.l_wishbone.print();
+        end
+
+        function wheel_print(obj)
+            fprintf("DamperD:  %5.2f\n", obj.damper.getLength());
+            fprintf("PushrodD: %5.2f\n", obj.pushrod.getLength());
+            fprintf("Steering: %6.2f\n", obj.steering_angle()*180/pi);
+            fprintf("Camber:    %4.2f\n", obj.camber_angle()*180/pi);
+
+        end
+
+        function distance = get_damper_distance(obj)
+            distance = obj.damper.getLength();
+        end
+        function distance = get_pushrod_distance(obj)
+            distance = obj.pushrod.getLength();
         end
 
     end
