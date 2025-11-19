@@ -135,6 +135,10 @@ classdef v3
             end
         end
 
+        function plot3d(obj, color)
+            plot3(obj.x, obj.y, obj.z, 'ro', 'MarkerSize',6, 'MarkerFaceColor', color, 'Color','k');
+        end
+
     end
 end
 

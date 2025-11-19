@@ -18,33 +18,33 @@ rl_knuckle = solid([rl_knuckle_upper_connection, rl_knuckle_lower_connection, rl
 
 
 %% Left Rear Damper Definition
-rl_damper_support = v3(1257, -160, 516.4655); %TOCAR
-rl_damper_end = v3(1437, -161, 517.4655); %TOCAR
+rl_damper_support = v3(1257, -160, 516.4536); %TOCAR
+rl_damper_end = v3(1437, -161, 517.4536); %TOCAR
 rl_damper = rod(rl_damper_support, rl_damper_end); %NO TOCAR
 
 %% Left Rear Global Rocker Definition
 rl_rocker_arm1 = rl_damper_end;
-rl_rocker_arm2 = v3( 1513, -206, 485.4655 ); % Rocker end
-rl_rocker_base1 = v3( 1451, -205, 461.4655 );
-rl_rocker_base2 = v3( 1451, -228, 495.4655 );
+rl_rocker_arm2 = v3( 1513, -206, 485.4537 ); % Rocker end
+rl_rocker_base1 = v3( 1451, -205, 461.4537 );
+rl_rocker_base2 = v3( 1451, -228, 495.4537 );
 rl_rocker = solid([rl_rocker_base1, rl_rocker_base2, rl_rocker_arm1, rl_rocker_arm2]);
 
 %% Left Rear Global Pushrod Definition
 rl_pushrod_rocker_end = rl_rocker_arm2; %NO TOCAR
-rl_pushrod_wishbone_end = v3( 1502, -507, 310.4655 ); %TOCAR
+rl_pushrod_wishbone_end = v3( 1502, -507, 310.4537 ); %TOCAR
 rl_pushrod = rod(rl_pushrod_rocker_end, rl_pushrod_wishbone_end); %NO TOCAR
 
 %% Left Rear Global Upper Wishbone Definition
-rl_upper_wishbone_front_support = v3( 1330, -257, 270.4655 ); %TOCAR
-rl_upper_wishbone_rear_support = v3( 1610, -257, 260.4655 ); %TOCAR
-rl_upper_wishbone_end = v3( 1500, -544, 282.4655 ); %TOCAR
+rl_upper_wishbone_front_support = v3( 1330, -257, 276.4536 ); %TOCAR
+rl_upper_wishbone_rear_support = v3( 1610, -257, 267.4536 ); %TOCAR
+rl_upper_wishbone_end = v3( 1500, -551, 285.4537 ); %TOCAR
 rl_upper_wishbone_pushrod_end = rl_pushrod_wishbone_end; %NO TOCAR
 rl_upper_wishbone = solid([ rl_upper_wishbone_front_support, rl_upper_wishbone_rear_support, rl_upper_wishbone_end, rl_upper_wishbone_pushrod_end ]); %NO TOCAR
 
 %% Left Rear Global Lower Wishbone Definition
-rl_lower_wishbone_front_support = v3( 1315, -255, 146.4654); %TOCAR
-rl_lower_wishbone_rear_support = v3( 1610, 255, 122.4654); %TOCAR
-rl_lower_wishbone_end = v3( 1500, -589, 112.4655 ); %TOCAR
+rl_lower_wishbone_front_support = v3( 1315, -255, 146.4536); %TOCAR
+rl_lower_wishbone_rear_support = v3( 1610, -255, 123.0000); %TOCAR
+rl_lower_wishbone_end = v3( 1500, -576, 112.4537 ); %TOCAR
 rl_lower_wishbone = solid([rl_lower_wishbone_front_support, rl_lower_wishbone_rear_support, rl_lower_wishbone_end]); %NO TOCAR
 
 %%

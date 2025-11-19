@@ -235,6 +235,26 @@ classdef suspension < handle
             distance = obj.pushrod.getLength();
         end
 
+        function plot3d(obj)
+            arguments
+                obj suspension
+            end
+
+            obj.damper.plot3d('b')
+            obj.rocker.plot3d('k');
+            obj.pushrod.plot3d('k');
+            obj.u_wishbone.plot3d('k');
+            obj.l_wishbone.plot3d('k');
+            %obj.knuckle.plot3d('r');
+
+            % Knuckle
+            plot3dline(obj.knuckle.coord(1), obj.knuckle.coord(2), 'r');
+            plot3dline(obj.knuckle.coord(3), obj.knuckle_rotation_centre(), 'r');
+            plot3dline(obj.knuckle.coord(9), obj.knuckle.coord(4), 'r');
+
+            
+        end
+
     end
 end
 

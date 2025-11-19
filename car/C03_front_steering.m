@@ -1,7 +1,7 @@
 addpath('functions'); %NO TOCAR
 
 % Steering Definition
-rack_centre = v3(1.41384756, 0.00000000, 168.60000000);
+rack_centre = v3(-50, 0.00000000, 168.60000000);
 pinion_diameter = 35;
 rack_centre_distance = 229.50000000;
 front_pinion = false;

@@ -252,6 +252,15 @@ classdef solid < handle
                 end
             end
         end
+
+        function plot3d(obj, color)
+            for i=1:length(obj.coord)
+                for j=i:length(obj.coord)
+                    plot3dline(obj.coord(i), obj.coord(j), color);
+                end
+                obj.coord(i).plot3d(color);
+            end
+        end
     end
 end
 
