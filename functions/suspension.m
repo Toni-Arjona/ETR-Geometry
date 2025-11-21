@@ -9,6 +9,7 @@ classdef suspension < handle
         u_wishbone solid
         knuckle solid
         l_wishbone solid
+        wheel wheel
     end
 
     methods (Access = private)
@@ -45,6 +46,10 @@ classdef suspension < handle
                 obj.knuckle.fixed_free_move(1, 2, obj.l_wishbone.coord(3))
                 error = (obj.knuckle.coord(2) - obj.l_wishbone.coord(3)).';
             end
+
+            %Update wheel
+            obj.wheel.set_centre( obj.knuckle.coord(9) );
+            obj.wheel.set_normal( (obj.knuckle.coord(8) - obj.knuckle.coord(4))' );
         end
 
         function centre_wheel(obj)
@@ -65,6 +70,9 @@ classdef suspension < handle
             direction = direction';
 
             obj.knuckle.setDirection( 1, 2, 4, 9, direction );
+            %Update wheel
+            obj.wheel.set_centre( obj.knuckle.coord(9) );
+            obj.wheel.set_normal( (obj.knuckle.coord(8) - obj.knuckle.coord(4))' );
         end
 
         function centre = knuckle_rotation_centre(obj)
@@ -100,6 +108,7 @@ classdef suspension < handle
             obj.u_wishbone = u_wishbone;
             obj.knuckle = knuckle;
             obj.l_wishbone = l_wishbone;
+            obj.wheel = wheel(16*25.4/2, 7.5*25.4, 30 );
         end
         
         function set_damper_distance(obj, damper_distance)
@@ -252,7 +261,9 @@ classdef suspension < handle
             plot3dline(obj.knuckle.coord(3), obj.knuckle_rotation_centre(), 'r');
             plot3dline(obj.knuckle.coord(9), obj.knuckle.coord(4), 'r');
 
-            
+            %Wheel
+            obj.wheel.update(obj.knuckle.coord(9), (obj.knuckle.coord(8) - obj.knuckle.coord(4))');
+            obj.wheel.plot3d();
         end
 
     end

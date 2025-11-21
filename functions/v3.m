@@ -139,6 +139,13 @@ classdef v3
             plot3(obj.x, obj.y, obj.z, 'ro', 'MarkerSize',6, 'MarkerFaceColor', color, 'Color','k');
         end
 
+        function apply_rotation(obj, R)
+            a = R(1,1)*obj.x + R(1,2)*obj.y + R(1,3)*obj.z;
+            b = R(2,1)*obj.x + R(2,2)*obj.y + R(2,3)*obj.z;
+            c = R(3,1)*obj.x + R(3,2)*obj.y + R(3,3)*obj.z;
+            obj.x = a; obj.y = b; obj.z = c;
+        end
+
     end
 end
 
