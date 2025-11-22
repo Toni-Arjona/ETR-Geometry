@@ -261,6 +261,22 @@ classdef solid < handle
                 obj.coord(i).plot3d(color);
             end
         end
+
+        function alone_plot3d(obj)
+            figure
+            hold on
+
+            obj.plot3d('k');
+
+            grid on
+            xlabel('X');
+            ylabel('Y');
+            zlabel('Z');
+            axis equal
+            view(3);
+
+
+        end
     end
 end
 

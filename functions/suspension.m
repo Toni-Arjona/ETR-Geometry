@@ -109,6 +109,11 @@ classdef suspension < handle
             obj.knuckle = knuckle;
             obj.l_wishbone = l_wishbone;
             obj.wheel = wheel(16*25.4/2, 7.5*25.4, 30 );
+
+            %if( (obj.knuckle.coord(1) - obj.knuckle.coord(2))' * v3(0,0,1) < 0 )
+            %    obj.knuckle = obj.knuckle.mirror_on_plane(v3(0,0,1), 0);
+            %end
+
         end
         
         function set_damper_distance(obj, damper_distance)
@@ -204,7 +209,36 @@ classdef suspension < handle
             obj.centre_wheel();
             toe_ang_rad = toe_ang_deg * pi / 180;
 
-            obj.knuckle.rotate( 3, 1, 2, toe_ang_rad);
+            % TODO
+            
+            wheel_normal = (obj.knuckle.coord(8) - obj.knuckle.coord(4))';
+
+            rotation_centre = obj.knuckle_rotation_centre();
+            rotation_normal = (obj.knuckle.coord(2) - obj.knuckle.coord(1))';
+            radius = (obj.knuckle.coord(3) - rotation_centre).';
+            vector1 = (obj.knuckle.coord(3) - rotation_centre)';
+            vector2 = rotation_normal ^ vector1;
+
+            point = point_in_3d_circle(rotation_centre, toe_ang_rad, radius, vector1, vector2);
+            obj.knuckle.setPoint(3, point, 1, 2);
+
+            %rotation_centre = point_plane_intersection(obj.knuckle.coord(4), obj.knuckle.coord(1), obj.knuckle.coord(2));
+            %normal = (obj.knuckle.coord(2) - obj.knuckle.coord(1))';
+            %plane_D = -(normal*obj.knuckle.coord(4));
+
+            %direction = line_plane_intersection( outside_car_direction, v3(0,0,1), normal, 0 );
+            %direction = direction';
+
+            %obj.knuckle.setDirection( 1, 2, 4, 9, direction );
+            %Update wheel
+            %obj.wheel.set_centre( obj.knuckle.coord(9) );
+            %obj.wheel.set_normal( (obj.knuckle.coord(8) - obj.knuckle.coord(4))' );
+
+
+
+
+
+            %obj.knuckle.rotate( 3, 1, 2, toe_ang_rad);
         end
 
         function centre_steering(obj)
@@ -213,7 +247,7 @@ classdef suspension < handle
             error = obj.steering_angle();
             while abs(error) > 1e-3
                 obj.set_toe(error*180/pi);
-                error = abs(obj.steering_angle());
+                error = obj.steering_angle();
             end
 
             obj.centre_wheel();
@@ -264,6 +298,20 @@ classdef suspension < handle
             %Wheel
             obj.wheel.update(obj.knuckle.coord(9), (obj.knuckle.coord(8) - obj.knuckle.coord(4))');
             obj.wheel.plot3d();
+        end
+
+        function alone_plot3d(obj)
+            figure
+            hold on
+
+            obj.plot3d();
+
+            grid on
+            xlabel('X');
+            ylabel('Y');
+            zlabel('Z');
+            axis equal
+            view(3);
         end
 
     end

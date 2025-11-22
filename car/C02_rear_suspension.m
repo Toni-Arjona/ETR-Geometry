@@ -1,15 +1,15 @@
 addpath('functions'); %NO TOCAR
 
 %% Left Rear Local Knuckle Definition
-rl_knuckle_upper_connection = v3( -7.14000000, 75.00000000, 24.00000000 ); %TOCAR
-rl_knuckle_lower_connection = v3( -1.00000000, -79.00000000, 22.00000000 ); %TOCAR
-rl_knuckle_tierod_connection = v3( 62.83805199, -48.63592517, 23.00000000 ); %TOCAR
+rl_knuckle_upper_connection = v3(   0.00000000,	  85.80820547,	   -3.80436827); %TOCAR
+rl_knuckle_lower_connection = v3(   0.00000000,	  -87.78702810,	  -23.65241301); %TOCAR
+rl_knuckle_tierod_connection = v3(-130.00000000,	  -82.87594642,	   10.22798363 ); %TOCAR
 rl_knuckle_zero = v3(0,0,0); % NO TOCAR
 rl_knuckle_X = v3(1,0,0); % NO TOCAR
 rl_knuckle_Y = v3(0,1,0); %NO TOCAR
 rl_knuckle_Z = v3(0,0,1); %NO TOCAR
 rl_knuckle_wheel_normal = v3(0,0,-1); %NO TOCAR
-rl_knuckle_wheel_centre = v3(0,0,-31.14105609); %SOLO TOCAR Z
+rl_knuckle_wheel_centre = v3(0,0,-70.02522506); %SOLO TOCAR Z
 rl_knuckle = solid([rl_knuckle_upper_connection, rl_knuckle_lower_connection, rl_knuckle_tierod_connection, rl_knuckle_zero, rl_knuckle_X, rl_knuckle_Y, rl_knuckle_Z, rl_knuckle_wheel_normal, rl_knuckle_wheel_centre]); %NO TOCAR
 
 

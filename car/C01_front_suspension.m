@@ -1,15 +1,15 @@
 addpath('functions'); %NO TOCAR
 
 %% Left Front Local Knuckle Definition
-fl_knuckle_upper_connection = v3( -7.14000000, 75.00000000, 24.00000000 ); %TOCAR
-fl_knuckle_lower_connection = v3( -1.00000000, -79.00000000, 22.00000000 ); %TOCAR
-fl_knuckle_tierod_connection = v3( 62.83805199, -48.63592517, 23.00000000 ); %TOCAR
+fl_knuckle_upper_connection = v3(  5.50000000,	   85.34270525,	    9.25325138); %TOCAR
+fl_knuckle_lower_connection = v3(  8.00000000,	  -88.43786947,	  -12.15496784); %TOCAR
+fl_knuckle_tierod_connection = v3( 68.00000000,	  -78.53979221,	  -15.47582113 ); %TOCAR
 fl_knuckle_zero = v3(0,0,0); % NO TOCAR
 fl_knuckle_X = v3(1,0,0); % NO TOCAR
 fl_knuckle_Y = v3(0,1,0); % NO TOCAR
 fl_knuckle_Z = v3(0,0,1); % NO TOCAR
 fl_knuckle_wheel_normal = v3(0,0,-1); % NO TOCAR: Direction Outside The Car
-fl_knuckle_wheel_centre = v3(0,0,-31.14105609); % SOLO TOCAR Z
+fl_knuckle_wheel_centre = v3(0,0,-62.03224968); % SOLO TOCAR Z
 fl_knuckle = solid([fl_knuckle_upper_connection, fl_knuckle_lower_connection, fl_knuckle_tierod_connection, fl_knuckle_zero, fl_knuckle_X, fl_knuckle_Y, fl_knuckle_Z, fl_knuckle_wheel_normal, fl_knuckle_wheel_centre]); %NO TOCAR
 
 
