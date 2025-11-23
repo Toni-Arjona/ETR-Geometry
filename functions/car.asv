@@ -154,7 +154,7 @@ classdef car < handle
             toe_sld.Value = value;
             obj.set_steering_wheel(0);
         end
-        function r_toe_callback(obj, fig, ax, value, toe_sld)
+        function r_toe_callback(obj, fig, ax, steering_sld, value, toe_sld)
             obj.set_toe_rear(value);
             obj.common_callback(fig, ax);
             toe_sld.Value = value;
@@ -520,19 +520,19 @@ classdef car < handle
             % Slider Height
             obj.fl_label = uilabel(f, 'Text','FL W H', 'Position',[400,160,100,140]);
             fl_sld = uislider(f, 'Limits', [-30,30], 'Value', 0,'Orientation','vertical','Position',[400, 50, 3, 100]);
-            fl_sld.ValueChangedFcn = @(source, event) fl_callback(obj, f, ax, event.Value);
+            fl_sld.ValueChangedFcn = @(source, event) fl_callback(obj, f, ax, event.Value, fl_lbl);
 
             obj.fr_label = uilabel(f, 'Text','FR W H', 'Position',[500,160,100,140]);
             fr_sld = uislider(f, 'Limits', [-30,30], 'Value', 0,'Orientation','vertical','Position',[500, 50, 3, 100]);
-            fr_sld.ValueChangedFcn = @(source, event) fr_callback(obj, f, ax, event.Value);
+            fr_sld.ValueChangedFcn = @(source, event) fr_callback(obj, f, ax, event.Value, fr_lbl);
 
             obj.rl_label = uilabel(f, 'Text','RL W H', 'Position',[600,160,100,140]);
             rl_sld = uislider(f, 'Limits', [-30,30], 'Value', 0,'Orientation','vertical','Position',[600, 50, 3, 100]);
-            rl_sld.ValueChangedFcn = @(source, event) rl_callback(obj, f, ax, event.Value);
+            rl_sld.ValueChangedFcn = @(source, event) rl_callback(obj, f, ax, event.Value, rl_lbl);
 
             obj.rr_label = uilabel(f, 'Text','RR W H', 'Position',[700,160,100,140]);
             rr_sld = uislider(f, 'Limits', [-30,30], 'Value', 0,'Orientation','vertical','Position',[700, 50, 3, 100]);
-            rr_sld.ValueChangedFcn = @(source, event) rr_callback(obj, f, ax, event.Value);
+            rr_sld.ValueChangedFcn = @(source, event) rr_callback(obj, f, ax, event.Value, rr_lbl);
 
 
             % Toe Slider
@@ -542,13 +542,13 @@ classdef car < handle
             
             uilabel(f, 'Text','Rear Toe', 'Position',[20,350,100,30]);
             rtoe_sld = uislider(f, 'Limits', [-3,3], 'Value', 0, 'Position', [20,350,100,3]);
-            rtoe_sld.ValueChangedFcn = @(source, event) r_toe_callback(obj, f, ax, event.Value);
+            rtoe_sld.ValueChangedFcn = @(source, event) r_toe_callback(obj, f, ax, steering_sld, event.Value);
             
             % Reset toe buttons
             f_btn = uibutton(f, 'Text','Reset Front Toe', 'Position',[400, 400, 200,30]);
             r_btn = uibutton(f, 'Text','Reset Rear Toe', 'Position',[400, 350, 200,30]);
             f_btn.ButtonPushedFcn = @(src, event) f_toe_callback(obj, f, ax, steering_sld, 0, ftoe_sld);
-            r_btn.ButtonPushedFcn = @(src, event) r_toe_callback(obj, f, ax, 0, rtoe_sld);
+            r_btn.ButtonPushedFcn = @(src, event) r_toe_callback(obj, f, ax, steering_sld, 0, rtoe_sld);
 
 
             obj.common_callback(f, ax);

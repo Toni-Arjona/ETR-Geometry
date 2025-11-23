@@ -80,12 +80,12 @@ classdef steering < handle
             end
         end
 
-        function plot3d(obj, color)
-            obj.rack_centre.plot3d(color);
+        function plot3d(obj, ax, color)
+            obj.rack_centre.plot3d(ax, color);
             k = point_plane_projection(obj.rack_centre, v3(0,1,0), 0);
-            k.plot3d(color);
+            k.plot3d(ax, color);
 
-            plot3dline(obj.left_clevi(), obj.right_clevi(), color);
+            plot3dline(ax, obj.left_clevi(), obj.right_clevi(), color);
         end
 
     end
