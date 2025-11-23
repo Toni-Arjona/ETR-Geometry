@@ -3,19 +3,19 @@ clc
 
 g=9.81; %m/s^2
 
-l = 1.535; %longitud cotxe
-a = 0.775328; %anterior car.a = 0.78; Distancia ruedas del a cg 
+l = 1.6; %longitud cotxe
+a = 0.8; %anterior car.a = 0.78; Distancia ruedas del a cg 
 b = l-a; %Distancia ruedas tras a cg
 Tf = 1.25; %Trackwidth front
-Tr = 1.15; %Trackwidth rear
-weight = 230 +70; %Pes
-Zrf=0.0963; %Roll center front
-Zrr=0.12; %Roll center rear
+Tr = 1.25; %Trackwidth rear
+weight = 205 +70; %Pes
+Zrf=0.07; %Roll center front
+Zrr=0.08; %Roll center rear
 H=0.1837;
 Kf= 336.38; %roll stiffnes front maxima ajustabilidad +150 de lo que de el muelle
 Kr= 313.41; %roll stiffnes rear maxima ajustabilidad +250 de lo que de el muelle
-h= 0.235; %COG height
-copx = 0.84; % centre de pressions
+h= 0.3; %COG height
+copx = 0.425; % centre de pressions
 lambdaHy=1;
 lambdaVy=1;
 lambdauy=0.59; %scaling factor
@@ -24,10 +24,10 @@ lambdaCy=1;
 lambdaEy=1;
 lambdaKyalpha=1;
 lambdaKygamma=1;
-PF=0.85; %Front pressure Bar
-PR=0.85; %Rrear pressure Bar
-gammaF0=-1.5; %Front Camber deg en negatiu
-gammaR0=-1; %Rear Camber deg en negatiu
+PF=0.827; %Front pressure Bar
+PR=0.827; %Rrear pressure Bar
+gammaF0=-2; %Front Camber deg en negatiu
+gammaR0=-1.5; %Rear Camber deg en negatiu
 
 %Propietats del neumàtic
 PCY1 = 1.5000; %shape factor (Afilar cantonades i estirar i atxatar)
