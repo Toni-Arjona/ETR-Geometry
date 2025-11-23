@@ -135,8 +135,8 @@ classdef v3
             end
         end
 
-        function plot3d(obj, color)
-            plot3(obj.x, obj.y, obj.z, 'ro', 'MarkerSize',6, 'MarkerFaceColor', color, 'Color','k');
+        function plot3d(obj, ax, color)
+            plot3(ax, obj.x, obj.y, obj.z, 'ro', 'MarkerSize',6, 'MarkerFaceColor', color, 'Color','k');
         end
 
         function m = apply_rotation(obj, R)

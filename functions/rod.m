@@ -75,8 +75,8 @@ classdef rod < handle
             fprintf("Distance: %14.8f\n", obj.length);
         end
 
-        function plot3d(obj, color)
-            plot3dline(obj.p1, obj.p2, color);
+        function plot3d(obj, ax, color)
+            plot3dline(ax, obj.p1, obj.p2, color);
         end
     end
 end
