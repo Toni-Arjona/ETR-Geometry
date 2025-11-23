@@ -262,19 +262,20 @@ classdef solid < handle
         end
 
         function alone_plot3d(obj)
-            figure
-            hold on
-
-            obj.plot3d('k');
-
-            grid on
-            xlabel('X');
-            ylabel('Y');
-            zlabel('Z');
-            axis equal
-            view(3);
+            f = figure("Name",'Alone Plot');
+            ax = axes(f);
 
 
+
+            grid(ax, "on");
+            xlabel(ax, 'X');
+            ylabel(ax, 'Y');
+            zlabel(ax, 'Z');
+            axis(ax, 'equal');
+            axis(ax, 'tight');
+            view(ax, 3);
+
+            obj.plot3d(ax,'k');
         end
     end
 end

@@ -1,4 +1,9 @@
-clear; clc;
+clc;
+clear;
+addpath(genpath("car/"));
+addpath(genpath("functions/"));
+addpath(genpath("functions teresa/"));
+
 %% Front Knuckle
 % Global coordinates definition
 global_upper_wishbone = v3(-105.5, -549.00 , 285 ); 
@@ -35,9 +40,6 @@ fprintf("Local Front-Knuckle Lower Wishbone Coordinate:\t");knf.coord(2).print()
 fprintf("Local Front-Knuckle Tierod Coordinate:\t\t\t"); knf.coord(3).print();
 fprintf("Local Front-Knuckle CAD Centre Coordinate:\t\t"); knf.coord(4).print();
 fprintf("Local Front-Knuckle Wheel Centre Coordinate:\t"); knf.coord(5).print();
-
-knf.alone_plot3d();
-
 
 
 %% Rear Knuckle
@@ -76,6 +78,3 @@ fprintf("Local Rear-Knuckle Lower Wishbone Coordinate:\t");knr.coord(2).print();
 fprintf("Local Rear-Knuckle Tierod Coordinate:\t\t\t"); knr.coord(3).print();
 fprintf("Local Rear-Knuckle CAD Centre Coordinate:\t\t"); knr.coord(4).print();
 fprintf("Local Rear-Knuckle Wheel Centre Coordinate:\t\t"); knr.coord(5).print();
-
-knr.alone_plot3d();
-
