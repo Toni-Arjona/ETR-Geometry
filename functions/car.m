@@ -147,17 +147,29 @@ classdef car < handle
             obj.update_labels();
         end
 
-        function f_toe_callback(obj, fig, ax, steering_sld, value, toe_sld)
+        function f_toe_callback(obj, fig, ax, steering_sld, value, toe_sld, str_lbl)
             obj.set_toe_front(value);
             obj.common_callback(fig, ax);
             steering_sld.Value = 0;
             toe_sld.Value = value;
             obj.set_steering_wheel(0);
+            update_label(str_lbl, "Steering Wheel Angle:", 0);
         end
         function r_toe_callback(obj, fig, ax, value, toe_sld)
             obj.set_toe_rear(value);
             obj.common_callback(fig, ax);
             toe_sld.Value = value;
+        end
+
+        function h_callback(obj, fig, ax, fl, fr, rl, rr)
+            obj.fl_callback(fig, ax, 0);
+            obj.fr_callback(fig, ax, 0);
+            obj.rl_callback(fig, ax, 0);
+            obj.rr_callback(fig, ax, 0);
+            fl.Value = 0;
+            fr.Value = 0;
+            rl.Value = 0;
+            rr.Value = 0;
         end
 
     end
@@ -513,7 +525,8 @@ classdef car < handle
 
             % Slider Steering
             str_lbl = uilabel(f, "Text","Steering Wheel Angle Slider", 'Position',[20,50,200,30]);
-            steering_sld = uislider(f, "Limits",[-120,120], "Value",0, 'Position',[20,35,200,3]);
+            update_label(str_lbl, "Steering Wheel Angle: ", 0);
+            steering_sld = uislider(f, "Limits",[-obj.f_steer.max_to_side,obj.f_steer.max_to_side], "Value",0, 'Position',[20,35,200,3]);
             steering_sld.ValueChangedFcn = @(source, event) steering_callback(obj, f, ax, event.Value*(-1), str_lbl);
 
 
@@ -547,8 +560,12 @@ classdef car < handle
             % Reset toe buttons
             f_btn = uibutton(f, 'Text','Reset Front Toe', 'Position',[400, 400, 200,30]);
             r_btn = uibutton(f, 'Text','Reset Rear Toe', 'Position',[400, 350, 200,30]);
-            f_btn.ButtonPushedFcn = @(src, event) f_toe_callback(obj, f, ax, steering_sld, 0, ftoe_sld);
+            f_btn.ButtonPushedFcn = @(src, event) f_toe_callback(obj, f, ax, steering_sld, 0, ftoe_sld, str_lbl);
             r_btn.ButtonPushedFcn = @(src, event) r_toe_callback(obj, f, ax, 0, rtoe_sld);
+
+            % Reset height buttons
+            h_btn = uibutton(f, 'Text','Reset Heights', 'Position',[600,350,200,80]);
+            h_btn.ButtonPushedFcn = @(src, event) h_callback(obj, f, ax, fl_sld, fr_sld, rl_sld, rr_sld);
 
 
             obj.common_callback(f, ax);

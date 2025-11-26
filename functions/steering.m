@@ -4,16 +4,18 @@ classdef steering < handle
         rack_right_direction (1,1) v3
         pinion_diameter (1,1) double
         rack_centre_distance (1,1) double
-        front_pinion (1,1)
+        front_pinion (1,1) double
+        max_to_side (1,1) double
     end
     
     methods (Access = public)
-        function obj = steering(rack_centre, pinion_diameter, rack_centre_distance, front_pinion)
+        function obj = steering(rack_centre, pinion_diameter, rack_centre_distance, front_pinion, max_to_side)
             arguments 
                 rack_centre (1,1) v3
                 pinion_diameter (1,1) double
                 rack_centre_distance (1,1) double
                 front_pinion (1,1)
+                max_to_side (1,1) double
             end
             obj.rack_centre = point_plane_projection(rack_centre, v3(0,1,0), 0);
 
@@ -21,6 +23,7 @@ classdef steering < handle
             obj.pinion_diameter = abs(pinion_diameter);
             obj.rack_centre_distance = abs(rack_centre_distance);  
             obj.front_pinion = front_pinion;
+            obj.max_to_side = max_to_side;
         end
         
         function point = left_clevi(obj)
