@@ -71,20 +71,20 @@ g=9.81; % m/s^2
 m = 275; % vechicle mass in kg
 W = m*g; % vehicle weight in N
 h = 0.3; % cog height m
-l = 1.53; % wheel base m
+l = 1.6; % wheel base m
 cogx= 0.8; % Front axle -> Mass center distance in m
-R = 0.223969; %efective rolling radius in m
-R0= (18*0.0245)/2; %unloaded radius in m
-CAMdeg = 1; %inclination angle en graus
+%R = 0.223969; %efective rolling radius in m
+R= (16*0.0245)/2; %unloaded radius in m
+CAMdeg = 1.5; %inclination angle en graus
 CAM = CAMdeg*pi/180; %Camber in radians
-VREF= 40/3.6; %en m/s
+VREF= 50/3.6; %en m/s
 
 %Data for Fx
 slip = 1.0:0.02:2.0;
 VV = (0:5:90)/3.6; %Vehicle Velocity m/s
-FZ = m*g/4; % signle wheel load 
+FZ = m*g/4; % single wheel load 
 DFZ = (FZ-1080)/1080; %diferencial de carrega
-PI = 0.8; %pressio en bar
+PI = 0.82737; %pressio en bar
 DPI = (PI-0.84)/0.84;
 
 %Fx MF-Tyre 5.2, 6.0, 6.1
@@ -115,8 +115,13 @@ for i = 1:length(slip)
         
 
         %Rolling Resistance MF-Tyre 5.2, 6.0
-        My(i,j)=-R0.*FZ.*LMY.*(QSY1+QSY2.*(Fx(i,j)/FZ)+QSY3.*abs(V(i,j)/VREF)+QSY4.*(V(i,j)/VREF).^4);
+        My(i,j)=-R.*FZ.*LMY.*(QSY1+QSY2.*(Fx(i,j)/FZ)+QSY3.*abs(V(i,j)/VREF)+QSY4.*(V(i,j)/VREF).^4);
     end
 end
 
 plot(VV,My)
+xlabel('Vehicle velocity [m/s]')
+ylabel('Rolling ')
+legendCell_VS = cellstr(num2str(VS*180/pi, 'VS=%-d'));
+legendCell_SI = cellstr(num2str(SI*180/pi, 'SI=%-d'));
+legend([legendCell_VS;legendCell_SI], 'NumColumns',2)
