@@ -149,10 +149,10 @@ for i = 1:length(SI);
             
             %Camber variation
             rollangle(i,j)=Ay(i,j)*weight*g*H/(Kr+Kf);
-            gammaFL(i,j)=abs((gammaF0+0.55333*rollangle(i,j))*pi/180); %rollangle i camber en deg 
-            gammaFR(i,j)=abs((gammaF0-0.55333*rollangle(i,j))*pi/180); %rollangle i camber en deg 
-            gammaRL(i,j)=abs((gammaR0+0.55333*rollangle(i,j))*pi/180); %rollangle i camber en deg 
-            gammaRR(i,j)=abs((gammaR0-0.55333*rollangle(i,j))*pi/180); %rollangle i camber en deg 
+            gammaFL(i,j)=abs((gammaF0+0.5898422078*rollangle(i,j))*pi/180); %rollangle i camber en deg 
+            gammaFR(i,j)=abs((gammaF0-0.5898422078*rollangle(i,j))*pi/180); %rollangle i camber en deg 
+            gammaRL(i,j)=abs((gammaR0+0.5898422078*rollangle(i,j))*pi/180); %rollangle i camber en deg 
+            gammaRR(i,j)=abs((gammaR0-0.5898422078*rollangle(i,j))*pi/180); %rollangle i camber en deg 
             
             
             %Front Left wheel
@@ -309,5 +309,6 @@ legend([legendCell_VS;legendCell_SI], 'NumColumns',2)
 xlabel('Lateral accel [gs]')
 ylabel('Yaw Accel [deg/s^2]')
 %}
+
 
 
