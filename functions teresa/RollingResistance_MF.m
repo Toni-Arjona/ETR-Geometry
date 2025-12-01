@@ -80,7 +80,7 @@ CAM = CAMdeg*pi/180; %Camber in radians
 VREF= 50/3.6; %en m/s
 
 %Data for Fx
-slip = 1.05:0.01:1.3;
+slip = 1:0.02:1.3;
 VV = (0:5:90)/3.6; %Vehicle Velocity m/s
 FZ = m*g/4; % single wheel load 
 DFZ = (FZ-1080)/1080; %diferencial de carrega

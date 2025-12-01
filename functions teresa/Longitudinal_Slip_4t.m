@@ -2,33 +2,33 @@ clear all
 clc
 
 g=9.81; % m/s^2
-m = 276; % vechicle mass in kg
+m = 275; % vechicle mass in kg
 W = m*g; % vehicle weight in N
-h = 0.235; % cog height m
-l = 1.535; % wheel base m
-cogx= 0.775328; % Front axle -> Mass center distance in m
-R = 0.223969; %efective rolling radius
-CAMdeg = 1.3; %inclination angle en graus
+h = 0.3; % cog height m
+l = 1.6; % wheel base m
+cogx= 0.8; % Front axle -> Mass center distance in m
+R = (16*0.0254)/2; %efective rolling radius
+CAMdeg = 1.5; %inclination angle en graus
 CAM = CAMdeg*pi/180; %Camber in radians
 
 %Longitudinal Coefficients
-PCX1= 1.5000;
-PDX1=1.9513;
-PDX2=-1.0000;
-PPX1=-6.7004;
-PPX2=-16.5293;
-PPX3=-2.1873;
-PPX4=-5.6683;
-PDX3=15.0000;
-PEX1=-7.8385e-13;
-PEX2=-0.9950;
-PEX3=-0.6000;
-PEX4=0.9000;
-PKX1=25.1313;
-PKX2=-5.7390e-06;
-PKX3=-0.6401;
-PHX1=6.0893e-04;
-PHX2=-0.0018;
+PCX1= 1.56182385630461;
+PDX1=2.85110165444411;
+PDX2=- 0.407371062621199;
+PPX1=- 0.705319191164713;
+PPX2=- 0.589490385312056;
+PPX3=- 0.242820291164767;
+PPX4=0.205179565555030;
+PDX3=19.2614164371048;
+PEX1=0.422733521935518;
+PEX2=0.0201014651759272;
+PEX3=0.00229620366835657;
+PEX4=0.00999560321822648 ;
+PKX1=52.2555801076937;
+PKX2=- 0.00614387636030559;
+PKX3=- 0.155693449933703;
+PHX1=0.000340072159079639;
+PHX2=- 0.00161506337261505;
 %PDXP1=
 %PDXP2=
 %PDXP3=
@@ -42,8 +42,8 @@ PHX2=-0.0018;
 SVX=1;
 
 %Scaling coefficients
-LCX=1; %Scale factor of Fx shape factor; valor inventat
-LMUX=1; %Scale factor of Fx peak friction coefficient; valor inventat
+LCX=0.995; %Scale factor of Fx shape factor; valor inventat
+LMUX=0.78; %Scale factor of Fx peak friction coefficient; valor inventat
 LEX=1; %Scale factor of Fx curvature factor; valor inventat
 LKXk=1; %Scale factor of slip stiffness; valor inventat 
 LHX=1; %Scale factor of Fx horizontal shift; valor inventat
@@ -52,10 +52,8 @@ LXA=1; %Scale factor of alpha influence on Fx; valor inventat
 %Data
 slip = 0:0.01:1.0; %vehicle slip
 VV = (0:5:90)/3.6; %Vehicle Velocity m/s
-PI = 0.8; %pressio en bar
+PI = 0.82737; %pressio en bar
 DPI = (PI-0.97)/0.97;
-
-
 
 
 for i = 1:length(slip)
