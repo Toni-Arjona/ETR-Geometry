@@ -80,7 +80,7 @@ CAM = CAMdeg*pi/180; %Camber in radians
 VREF= 50/3.6; %en m/s
 
 %Data for Fx
-slip = 1.0:0.02:2.0;
+slip = 1:0.02:1.3;
 VV = (0:5:90)/3.6; %Vehicle Velocity m/s
 FZ = m*g/4; % single wheel load 
 DFZ = (FZ-1080)/1080; %diferencial de carrega
@@ -119,4 +119,8 @@ for i = 1:length(slip)
     end
 end
 
-plot(VV,My)
+plot(VV, My)
+xlabel('Vehicle velocity [m/s]')
+ylabel('Rolling resistance moment (My) [Nm]')
+legendCell_slip = cellstr(num2str(slip', 'slip=%.2f')); % Adjusted to show 2 decimal places
+legend(legendCell_slip, 'Location', 'best')
