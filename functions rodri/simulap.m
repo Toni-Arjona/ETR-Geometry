@@ -5,14 +5,15 @@ load("datos_circuito.mat")
 
 %PARÁMETROS COCHE (datos cogido del FSAE con aero que hay en OptimumLap)
 m = 200 + 70; % peso coche + piloto [kg]
+g = 9.81; % gravedad [m/s^2]
 df_coeff = 1.2; % coeficiente downforce
 dr_coeff = 0.8; % coeficiente drag
 air_d = 1.2; % densidad del aire [kg/m^3]
 area = 1.1; % área frontal del coche [m^2]
-tire_d = 16*0.0254; % diámetro de la rueda [m]
-lat_mu = 1.5; % coeficiente lateral neumático
-long_mu = 1.4; % coeficiente longitudinal neumático
-rolling_res = 0.03; % coeficiente rolling resistance
+tire_d = 2*effective_rolling_radius(m*g/4, 0.827) % diámetro de la rueda [m]
+lat_mu = 1.6; % coeficiente lateral neumático
+long_mu = 1.7; % coeficiente longitudinal neumático
+rolling_res = 0.01035; % coeficiente rolling resistance
 gear_ratio = 12; % ratio reducción rpms transmi
 
 %PARÁMETROS NEUMÁTICO
@@ -20,9 +21,9 @@ coeff_long_max = 2.1
 coeff_lat_max = 1.9
 
 %PARÁMETROS SIMU
-v = 18.7196; % velocidad inicial [m/s] (se ha cogido velocidad final de vuelta de una simu forward cualquiera)
+v = 23.6875; % velocidad inicial [m/s] (se ha cogido velocidad final de vuelta de una simu forward cualquiera)
 d = 0.01; % intervalo para evaluación splines (como el vector radio se define a partir de esta evaluación, y los bucles iteran sobre el radio, acaba siendo el intervalo de simulación, en metros)
-g = 9.81; % gravedad [m/s^2]
+
 effcy = 0.95; %eficiencia transmi (ni puta idea, eso ponía predeterminado en el optimum)
 
 % vectores velocidad angular y par motor
@@ -60,41 +61,33 @@ v_resultante_forward = zeros(1, length(radio));
 idx = 1;
 
 for r = radio
-
-    % CÁLCULO VELOCIDAD MÁXIMA SEGÚN RADIO DE CURVA 
-    % (filtrar valores recta)
-    
-    denom_vmax= m/abs(r) - 0.5*lat_mu*air_d*area*df_coeff;
-    
-    if denom_vmax > 0
-        v_max_curva = sqrt(lat_mu*m*g / denom_vmax);
-    
-    else
-        v_max_curva = 1000; 
-    end
-    
     % CÁLCULO POTENCIA DISPONIBLE
     v_ang= v/(tire_d/2)*gear_ratio; % revoluciones motor a velocidad dada [rad/s]
     par = interp1(v_ang_vector, par_vector, v_ang); % encontrar par motor a velocidad dada [Nm]
     pwr = effcy*par*v_ang/1000; % potencia motor a velocidad dada [kW]
-    if pwr > 40000
-        pwr = 40000;
-    end
     
+    if pwr > 40
+        pwr = 40;
+    end
+
+    % CÁLCULO VELOCIDAD MÁXIMA SEGÚN RADIO DE CURVA 
+    v_max_curva = sqrt(lat_mu*m*g / abs(m/abs(r) - 0.5*lat_mu*air_d*area*df_coeff));
+    
+   
     % CÁLCULO CARGA VERTICAL TOTAL
     dForce = 0.5*air_d*area*df_coeff*v^2; % cálculo downforce [N]
     z_load = dForce + m*g; % cálculo fuerza vertical total [N]
     
     % CÁLCULO RESISTENCIA A AVANCE 
     dragForce = 0.5*air_d*area*dr_coeff*v^2; % cálculo drag [N]
-    rollingForce = z_load*rolling_resistance_coeff(m, -2, 0.827, v, ); % cálculo resistencia rodadura [N]
-        
+    rollingForce = -z_load*rolling_resistance_coeff(m, -2, 0.827, v, tire_d/2, 1.08); % cálculo resistencia rodadura [N]
+
     % CÁLCULO GRIP LONGITUDINAL Y FUERZA LONGITUDINAL ACTUAL
     long_grip = z_load*long_mu/m; % cálculo grip longitudinal [m/s^2]
     motor_acc = 2*pwr*1000/(m*v); % cálculo aceleración (longitudinal) actual proveniente de motores [m/s^2]
     
     % CÁLCULO DE FUERZA NETA Y ACELERACIÓN
-    net_acc = motor_acc - (dragForce - rollingForce)/m; % aceleración neta
+    net_acc = motor_acc - (dragForce + rollingForce)/m; % aceleración neta
 
 
     if v_max_curva < v
@@ -121,14 +114,7 @@ v = v_resultante_forward(end);
 for r = radio_backward
 
     % CÁLCULO VELOCIDAD MÁXIMA SEGÚN RADIO DE CURVA (filtrar valores recta)
-    denom_vmax = m/abs(r) - 0.5*lat_mu*air_d*area*df_coeff;
-    
-    if denom_vmax > 0
-        v_max_curva = sqrt(lat_mu*m*g / denom_vmax);
-    
-    else
-        v_max_curva = 1000; 
-    end
+    v_max_curva = sqrt(lat_mu*m*g / abs(m/abs(r) - 0.5*lat_mu*air_d*area*df_coeff));
    
     % CÁLCULO CARGA VERTICAL TOTAL
     dForce = 0.5*air_d*area*df_coeff*v^2; % cálculo downforce [N]
@@ -136,7 +122,7 @@ for r = radio_backward
     
     % CÁLCULO RESISTENCIA A AVANCE 
     dragForce = 0.5*air_d*area*dr_coeff*v^2; % cálculo drag [N]
-    rollingForce = z_load*rolling_res; % cálculo resistencia rodadura [N]
+    rollingForce = -z_load*rolling_resistance_coeff(m, -2, 0.827, v, tire_d/2, 1.08); % cálculo resistencia rodadura [N]
     resistant_acc = (dragForce + rollingForce)/m; % fuerza resistente al avance total [N]
         
     % CÁLCULO GRIP LONGITUDINAL Y FUERZA LONGITUDINAL ACTUAL
@@ -203,27 +189,37 @@ xlabel('x [m]')
 ylabel('y [m]')
 title('Mapa de aceleración lateral')
 
-
-
 figure(3)
-plot(d_interval, v_resultante)
-xlabel('elapsed distance [m]')
-ylabel('v_resultante')
-hold on
-plot(d_interval, g_long)
-grid on
+% Crear vector Z de ceros para engañar a la función surface (pintar en 2D)
+z = zeros(size(x_track)); 
+
+%Pintar la línea usando la velocidad como mapa de color
+surface([x_track; x_track], [y_track; y_track], [z; z], [g_long; g_long], ...
+        'facecol', 'no', ...
+        'edgecol', 'interp', ...
+        'linew', 2); % Grosor de línea
+
+colorbar; % Añade la barra lateral de leyenda
+c = colorbar;
+c.Label.String = 'Longitudinal acceleration [g]';
+colormap(turbo); % 'turbo', 'jet' o 'parula' son buenas paletas
+axis equal
+xlabel('x [m]')
+ylabel('y [m]')
+title('Mapa de aceleración longitudinal')
 
 
 figure(4)
+plot(d_interval, v_resultante)
+xlabel('elapsed distance [m]')
+ylabel('v_resultante')
+
+
+figure(5)
 plot(d_interval, lat_acc)
 xlabel('elapsed distance [m]')
 ylabel('lateral acceleration [m/s^2]')
 
-figure(5)
-plot(radio, lat_acc)
-xlim([-50, 50])
-xlabel('radio de curva')
-ylabel('lateral acceleration [m/s^2]')
 
 figure(6)
 plot(d_interval, g_long/g)
@@ -236,5 +232,4 @@ figure(7)
 plot(d_interval, lat_acc/g)
 xlabel('elapsed distance [m]')
 ylabel('lateral acceleration [g]')
-
 
