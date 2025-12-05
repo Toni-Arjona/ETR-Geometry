@@ -87,7 +87,7 @@ for r = radio
     
     % CÁLCULO RESISTENCIA A AVANCE 
     dragForce = 0.5*air_d*area*dr_coeff*v^2; % cálculo drag [N]
-    rollingForce = z_load*rolling_res; % cálculo resistencia rodadura [N]
+    rollingForce = z_load*rolling_resistance_coeff(m, -2, 0.827, v, ); % cálculo resistencia rodadura [N]
         
     % CÁLCULO GRIP LONGITUDINAL Y FUERZA LONGITUDINAL ACTUAL
     long_grip = z_load*long_mu/m; % cálculo grip longitudinal [m/s^2]
@@ -99,7 +99,7 @@ for r = radio
 
     if v_max_curva < v
         v = v_max_curva; 
-        
+
 
     elseif v < v_max_curva
         v = sqrt(v^2 + 2*min(0.5*long_grip, net_acc)*d);
