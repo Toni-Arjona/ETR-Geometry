@@ -50,10 +50,11 @@ LHX=1; %Scale factor of Fx horizontal shift; valor inventat
 LXA=1; %Scale factor of alpha influence on Fx; valor inventat
 
 %Data
-slip = 0:0.01:1.0; %vehicle slip
+slip = 1:0.01:2.0; %vehicle slip
 VV = (0:5:90)/3.6; %Vehicle Velocity m/s
-PI = 0.82737; %pressio en bar
-DPI = (PI-0.97)/0.97;
+PI = 0.95; %pressio en bar
+P0= 0.82737;% reference (nominal) tyre pressure
+DPI = (PI-P0)/P0;
 
 
 for i = 1:length(slip)
@@ -65,7 +66,7 @@ for i = 1:length(slip)
 
         for k=1:100
 
-            V(i,j) = VV(j)*(slip(i)+1); % Wheel velocity m/s
+            V(i,j) = VV(j)*(slip(i)); % Wheel velocity m/s
             k(i,j) = (V(i,j)-VV(j))/VV(j); %slip(i)
             WTx(i,j) = (h/l)*m*Acx(i,j); %Longitudinal weight transfer N
             WTF(i,j) = -WTx(i,j); 
@@ -250,8 +251,9 @@ plot3(slip,Fx2,V)
 figure(2)
 plot(slip,Fx2)
 
-figure(3)
-plot(slip,Acx)
+figure (3)
+plot(slip, Fx2./(FZRR+FZRL))
+
 
 %figure(4)
 %plot(slip,VmaxAccel)

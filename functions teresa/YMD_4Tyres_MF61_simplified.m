@@ -24,8 +24,8 @@ lambdaCy=1;
 lambdaEy=1;
 lambdaKyalpha=1;
 lambdaKygamma=1;
-PF=0.827; %Front pressure Bar
-PR=0.827; %Rrear pressure Bar
+PF=0.95; %Front pressure Bar
+PR=0.95; %Rrear pressure Bar
 gammaF0=-2; %Front Camber deg en negatiu
 gammaR0=-1.5; %Rear Camber deg en negatiu
 
@@ -58,7 +58,7 @@ PPY3 = -0.9607;
 PPY4 = -2;
 PPY5 = 0.0000;
 Fz0 = 1080;
-P0=0.97;
+P0=0.82737;
 %Turn slip
 z0=1;
 z1=1;
