@@ -122,9 +122,4 @@ end
 %% For a specific slip ratio
 tol = 1e-10;                % adjust tolerance as needed
 idx = find(abs(slip - slip_ratio) <= tol); 
-if isempty(idx)
-    disp('No element equal to given slip_ratio = %d\n within tolerance.');
-else
-    fprintf('First index idx = %d\n', idx);
-end
 RR_coeff= My(idx)/(FZ*r_eff);
