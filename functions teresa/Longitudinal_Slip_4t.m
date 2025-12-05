@@ -1,5 +1,6 @@
 clear all
 clc
+close all
 
 g=9.81; % m/s^2
 m = 275; % vechicle mass in kg

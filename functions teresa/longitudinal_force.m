@@ -47,7 +47,6 @@ LHX=1; %Scale factor of Fx horizontal shift; valor inventat
 LXA=1; %Scale factor of alpha influence on Fx; valor inventat
 
 %Data
-VV = (0:5:90)/3.6; %Vehicle Velocity m/s
 PI = pressure; %pressio en bar
 P0= 0.82737;% reference (nominal) tyre pressure
 DPI = (PI-P0)/P0;
