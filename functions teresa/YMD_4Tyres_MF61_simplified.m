@@ -1,5 +1,6 @@
 clear all
 clc
+close all
 
 g=9.81; %m/s^2
 
@@ -16,48 +17,48 @@ Kf= 18370.86641/57.2958; %roll stiffnes front maxima ajustabilidad +150 de lo qu
 Kr= 18370.86641/57.2958; %roll stiffnes rear maxima ajustabilidad +250 de lo que de el muelle, en nm/deg
 h= 0.3; % COG height
 copx = 0.425; % centre de pressions, en % desde front axle
-lambdaHy=1;
+lambdaHy=0;
 lambdaVy=1;
-lambdauy=0.59; %scaling factor
+lambdauy=0.805; %scaling factor
 lambdaKygamma=1;
-lambdaCy=1;
+lambdaCy=1.22;
 lambdaEy=1;
 lambdaKyalpha=1;
-lambdaKygamma=1;
+lambdaKygamma=1.07;
 PF=0.95; %Front pressure Bar
 PR=0.95; %Rrear pressure Bar
 gammaF0=-2; %Front Camber deg en negatiu
 gammaR0=-1.5; %Rear Camber deg en negatiu
 
 %Propietats del neumàtic
-PCY1 = 1.53041; %shape factor (Afilar cantonades i estirar i atxatar)
-PDY1 = 2.40275; %estirar o aixafar gràfica
-PDY2 = -0.34354;
-PDY3 = 3.89743;
-PEY1 = -0.0286; %afilar cantonades
-PEY2 = -0.28076;
-PEY3 = -0.70403; %en negatiu s'afila la dreta i en postiu l'esquerra
-PEY4 = 32.03640;
-PEY5 = -4682.10000;
-PKY1 = -53.24210;
-PKY2 = 2.38205; %rotar sobre el centre antihorari
-PKY3 = 1.36502; 
-PKY4 = 2; 
-PKY5 = -1.68740; 
-PKY6 = 3.56920;
-PKY7 = 1.92960;
-PHY1 = -0.0001; %Desplaçar lateralment
-PHY2 = 0.00071; %Desplaçar lateralment
-PVY1 = 0.04412; %pujar i baixar la grafica sencera
-PVY2 = 0.01247; %pujar i baixar la grafica sencera
-PVY3 = 1.54004; %pujar i baixar la grafica sencera
-PVY4 = -2.1293;
-PPY1 = 0.2239; 
-PPY2 = 0.9444;
-PPY3 = -0.9607;
-PPY4 = -2;
-PPY5 = 0.0000;
-Fz0 = 1080;
+PCY1 = 1.477553032924075; %shape factor (Afilar cantonades i estirar i atxatar)
+PDY1 = 2.419662634889429; %estirar o aixafar gràfica
+PDY2 =- 0.096991237613422;
+PDY3 = 9.699367924763585;
+PEY1 = - 0.001014423462658; %afilar cantonades
+PEY2 = - 0.001567587511733;
+PEY3 = -26.252507850904447; %en negatiu s'afila la dreta i en postiu l'esquerra
+PEY4 = 4.418491888020646e+03;
+PEY5 = 0;%No esta
+PKY1 = - 48.096691177591670;
+PKY2 = 1.79989978802; %rotar sobre el centre antihorari
+PKY3 = 0.776633692944650; 
+PKY4 = 1; 
+PKY5 = 1; 
+PKY6 = 1;
+PKY7 = 1;
+PHY1 = 9.632469743033963e-05; %Desplaçar lateralment
+PHY2 = 4.485102635543676e-04; %Desplaçar lateralment
+PVY1 = - 0.005996641445337; %pujar i baixar la grafica sencera
+PVY2 = 0.031420448279870; %pujar i baixar la grafica sencera
+PVY3 = - 0.840635268453471; %pujar i baixar la grafica sencera
+PVY4 = - 0.482847397434584;
+PPY1 = 0.006522910697878; 
+PPY2 = 0.732182121539935;
+PPY3 = - 0.248004155399173;
+PPY4 =  0.344037334268957;
+PPY5 = 0;
+Fz0 = 1000;
 P0=0.82737;
 %Turn slip
 z0=1;
@@ -293,6 +294,8 @@ legendCell_VS = cellstr(num2str(VS*180/pi, 'VS=%-d'));
 legendCell_SI = cellstr(num2str(SI*180/pi, 'SI=%-d'));
 legend([legendCell_VS;legendCell_SI], 'NumColumns',2)
 
+figure(2)
+plot(alphaFL.*180/pi, FyFL./FzFL)
 %{
 figure
 for i=1:N

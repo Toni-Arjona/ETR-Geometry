@@ -1,4 +1,4 @@
-function RR_coeff=rolling_resistance_coeff(car_mass, camber_deg, tire_pressure, car_velocity, r_eff, slip_ratio)
+function rolling_resistance_coeff(car_mass, camber_deg, tire_pressure, car_velocity, r_eff, slip_ratio)
 %Longitudinal Coefficients
 PCX1 = 1.56182385630461; %Shape factor Cfx for longitudinal force
 PDX1 = 2.85110165444411; %Longitudinal friction Mux at Fznom
@@ -117,14 +117,4 @@ for i = 1:length(slip)
 end
 
 %plot(slip, RR_coeff)
-
-
-%% For a specific slip ratio
-tol = 1e-10;                % adjust tolerance as needed
-idx = find(abs(slip - slip_ratio) <= tol); 
-if isempty(idx)
-    disp('No element equal to given slip_ratio = %d\n within tolerance.');
-else
-    fprintf('First index idx = %d\n', idx);
-end
-RR_coeff= My(idx)/(FZ*r_eff);
+rolling_resistance_coeff(275, 1.5, 0.9, 50/3.6, 0.2015)
