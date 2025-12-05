@@ -16,8 +16,7 @@ rolling_res = 0.03; % coeficiente rolling resistance
 gear_ratio = 12; % ratio reducción rpms transmi
 
 %PARÁMETROS NEUMÁTICO
-coeff_long_max = 2.1
-coeff_lat_max = 1.9
+coeff_x_max = 
 
 %PARÁMETROS SIMU
 v = 18.7196; % velocidad inicial [m/s] (se ha cogido velocidad final de vuelta de una simu forward cualquiera)
@@ -99,7 +98,6 @@ for r = radio
 
     if v_max_curva < v
         v = v_max_curva; 
-        
 
     elseif v < v_max_curva
         v = sqrt(v^2 + 2*min(0.5*long_grip, net_acc)*d);
