@@ -77,10 +77,10 @@ for i = 1:length(slip)
             FZFR(i,j) = FZf(i,j)/2; % Front right wheel load
             FZRL(i,j) = FZr(i,j)/2; % Rear left wheel load
             FZRR(i,j) = FZr(i,j)/2; % Rear right wheel load
-            DFZFL(i,j) = (FZFL(i,j)-1080)/1080; %load diferential FL
-            DFZFR(i,j) = (FZFR(i,j)-1080)/1080; %load diferential FR
-            DFZRL(i,j) = (FZRL(i,j)-1080)/1080; %load diferential RL
-            DFZRR(i,j) = (FZRR(i,j)-1080)/1080; %load diferential RR
+            DFZFL(i,j) = (FZFL(i,j)-1000)/1000; %load diferential FL
+            DFZFR(i,j) = (FZFR(i,j)-1000)/1000; %load diferential FR
+            DFZRL(i,j) = (FZRL(i,j)-1000)/1000; %load diferential RL
+            DFZRR(i,j) = (FZRR(i,j)-1000)/1000; %load diferential RR
             
             
             %FRONT LEFT
