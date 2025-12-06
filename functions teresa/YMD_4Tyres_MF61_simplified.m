@@ -296,6 +296,8 @@ legend([legendCell_VS;legendCell_SI], 'NumColumns',2)
 
 figure(2)
 plot(alphaFL.*180/pi, FyFL./FzFL)
+figure(3)
+plot(Betadg, weight.*Ay)
 %{
 figure
 for i=1:N
