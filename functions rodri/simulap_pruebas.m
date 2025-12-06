@@ -27,7 +27,7 @@ long_mu_available= long_mu;
 
 %PARÁMETROS SIMU
 v = 23.6875; % velocidad inicial [m/s] (se ha cogido velocidad final de vuelta de una simu forward cualquiera)
-d = 1; % intervalo para evaluación splines (como el vector radio se define a partir de esta evaluación, y los bucles iteran sobre el radio, acaba siendo el intervalo de simulación, en metros)
+d = 0.01; % intervalo para evaluación splines (como el vector radio se define a partir de esta evaluación, y los bucles iteran sobre el radio, acaba siendo el intervalo de simulación, en metros)
 
 effcy = 0.9; %eficiencia transmi (ni puta idea, eso ponía predeterminado en el optimum)
 
@@ -39,13 +39,13 @@ v_ang_vector(diff(v_ang_vector)==0) = []; % limpiar valores de v_ang repetidos
 
 % DEFINICIÓN TRAYECTO CIRCUITO CON SPLINES
 %distancia recorrida total e intervalo de evaluación para splines
-d_total = [0; cumsum(sqrt(diff(circuito.X).^2 + diff(circuito.Y).^2))];
+d_total = [0; cumsum(sqrt(diff(0.8*circuito.X).^2 + diff(0.8*circuito.Y).^2))];
 d_interval = 0: d : max(d_total);
 
 
 % definir exprsión splines circuito x e y, y evalurar para intervalo simu
-x_spline = csaps(d_total, circuito.X, 1); x_track = ppval(x_spline, d_interval);
-y_spline = csaps(d_total, circuito.Y, 1); y_track = ppval(y_spline, d_interval);
+x_spline = csaps(d_total, 0.8*circuito.X, 1); x_track = ppval(x_spline, d_interval);
+y_spline = csaps(d_total, 0.8*circuito.Y, 1); y_track = ppval(y_spline, d_interval);
 
 
 % DEFINICIÓN RADIO INSTANTÁNEO DE CURVATURA
@@ -89,8 +89,7 @@ for r = radio
     end 
 
     % CÁLCULO VELOCIDAD MÁXIMA SEGÚN RADIO DE CURVA 
-    lat_mu_available= sqrt(abs(1-(long_mu_available./long_grip).^2))*lat_mu*g;
-    v_max_curva = sqrt(lat_mu_available*m*g / abs(m/abs(r) - 0.5*lat_mu_available*air_d*area*df_coeff));
+    v_max_curva = sqrt(lat_mu*m*g / abs(m/abs(r) - 0.5*lat_mu*air_d*area*df_coeff));
     
     % CÁLCULO RESISTENCIA A AVANCE 
     dragForce = 0.5*air_d*area*dr_coeff*v^2; % cálculo drag [N]
@@ -141,8 +140,7 @@ for r = radio_backward
     end 
 
     % CÁLCULO VELOCIDAD MÁXIMA SEGÚN RADIO DE CURVA (filtrar valores recta)
-    lat_mu_available= sqrt(abs(1-(long_mu_available./long_grip).^2))*lat_mu*g;
-    v_max_curva = sqrt(lat_mu_available*m*g / abs(m/abs(r) - 0.5*lat_mu_available*air_d*area*df_coeff));
+    v_max_curva = sqrt(lat_mu*m*g / abs(m/abs(r) - 0.5*lat_mu*air_d*area*df_coeff));
     
     % CÁLCULO RESISTENCIA A AVANCE 
     dragForce = 0.5*air_d*area*dr_coeff*v^2; % cálculo drag [N]
