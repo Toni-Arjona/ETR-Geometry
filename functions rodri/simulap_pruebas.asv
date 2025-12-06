@@ -279,7 +279,7 @@ figure(3)
 z = zeros(size(x_track)); 
 
 %Pintar la línea usando la velocidad como mapa de color
-surface([x_track; x_track], [y_track; y_track], [z; z], [g_long/g; g_long/g], ...
+surface([x_track; x_track], [y_track; y_track], [z; z], [g_long; g_long], ...
         'facecol', 'no', ...
         'edgecol', 'interp', ...
         'linew', 2); % Grosor de línea
@@ -300,6 +300,12 @@ xlabel('elapsed distance [m]')
 ylabel('v_resultante')
 
 
+figure(5)
+plot(d_interval, lat_acc)
+xlabel('elapsed distance [m]')
+ylabel('lateral acceleration [m/s^2]')
+
+
 figure(6)
 plot(d_interval, g_long/g)
 xlabel('elapsed distance [m]')
@@ -313,13 +319,9 @@ xlabel('elapsed distance [m]')
 ylabel('lateral acceleration [g]')
 
 figure(8)
-centros = 2.5:5:97.5;
+plot(d_interval, radio)
+ylim([-200, 200])
 
-% Multiplicamos por 100 para pasar de tanto por uno a porcentaje real
-bar(centros, vector_porcentajes * 100, 1); % El '1' une las barras visualmente
+figure(10)
+plot(1:20, vector_porcentajes)
 
-% Etiquetas y formato
-xlabel('Radio de giro [m]');
-ylabel('Porcentaje [%]');
-title('Distribución de Radios de Giro');
-grid on;
