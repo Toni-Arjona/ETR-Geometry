@@ -7,10 +7,10 @@ load("datos_circuito.mat")
 %PARÁMETROS COCHE (datos cogido del FSAE con aero que hay en OptimumLap)
 m = 200 + 70; % peso coche + piloto [kg]
 g = 9.81; % gravedad [m/s^2]
-df_coeff = 4.18; % coeficiente downforce
-dr_coeff = 1.3; % coeficiente drag
+df_coeff = ; % coeficiente downforce
+dr_coeff = 0.8; % coeficiente drag
 air_d = 1.2; % densidad del aire [kg/m^3]
-area = 0.563; % área frontal del coche [m^2]
+area = 1.1; % área frontal del coche [m^2]
 tire_d = 2*effective_rolling_radius(m*g/4, 0.827); % diámetro de la rueda [m]
 rolling_res = 0.01035; % coeficiente rolling resistance
 gear_ratio = 11.3; % ratio reducción rpms transmi
