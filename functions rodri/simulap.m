@@ -10,15 +10,15 @@ df_coeff = 1.2; % coeficiente downforce
 dr_coeff = 0.8; % coeficiente drag
 air_d = 1.2; % densidad del aire [kg/m^3]
 area = 1.1; % área frontal del coche [m^2]
-tire_d = 2*effective_rolling_radius(m*g/4, 0.827) % diámetro de la rueda [m]
+tire_d = 2*effective_rolling_radius(m*g/4, 0.827); % diámetro de la rueda [m]
 lat_mu = 1.6; % coeficiente lateral neumático
 long_mu = 1.7; % coeficiente longitudinal neumático
 rolling_res = 0.01035; % coeficiente rolling resistance
 gear_ratio = 12; % ratio reducción rpms transmi
 
 %PARÁMETROS NEUMÁTICO
-coeff_long_max = 2.1
-coeff_lat_max = 1.9
+coeff_long_max = 2.1;
+coeff_lat_max = 1.9;
 
 %PARÁMETROS SIMU
 v = 23.6875; % velocidad inicial [m/s] (se ha cogido velocidad final de vuelta de una simu forward cualquiera)
@@ -232,4 +232,8 @@ figure(7)
 plot(d_interval, lat_acc/g)
 xlabel('elapsed distance [m]')
 ylabel('lateral acceleration [g]')
+
+figure(8)
+plot(d_interval, radio)
+ylim([-200, 200])
 
