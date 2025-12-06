@@ -1,18 +1,19 @@
 clc
 clear all
+close all
 
 load("datos_circuito.mat")
 
 %PARÁMETROS COCHE (datos cogido del FSAE con aero que hay en OptimumLap)
 m = 200 + 70; % peso coche + piloto [kg]
 g = 9.81; % gravedad [m/s^2]
-df_coeff = 1.2; % coeficiente downforce
-dr_coeff = 0.8; % coeficiente drag
+df_coeff = 4.18; % coeficiente downforce
+dr_coeff = 1.3; % coeficiente drag
 air_d = 1.2; % densidad del aire [kg/m^3]
-area = 1.1; % área frontal del coche [m^2]
+area = 0.563; % área frontal del coche [m^2]
 tire_d = 2*effective_rolling_radius(m*g/4, 0.827); % diámetro de la rueda [m]
 rolling_res = 0.01035; % coeficiente rolling resistance
-gear_ratio = 12; % ratio reducción rpms transmi
+gear_ratio = 11.3; % ratio reducción rpms transmi
 
 %PARÁMETROS NEUMÁTICO
 coeff_long_max = 2.1;
@@ -20,9 +21,13 @@ coeff_lat_max = 1.9;
 sf= 0.9;
 lat_mu = sf*coeff_lat_max; % coeficiente lateral neumático
 long_mu = sf*coeff_long_max; % coeficiente longitudinal neumático
+%Parametros iniciales
+lat_mu_available= lat_mu;
+long_mu_available= long_mu;
+
 %PARÁMETROS SIMU
 v = 23.6875; % velocidad inicial [m/s] (se ha cogido velocidad final de vuelta de una simu forward cualquiera)
-d = 0.01; % intervalo para evaluación splines (como el vector radio se define a partir de esta evaluación, y los bucles iteran sobre el radio, acaba siendo el intervalo de simulación, en metros)
+d = 1; % intervalo para evaluación splines (como el vector radio se define a partir de esta evaluación, y los bucles iteran sobre el radio, acaba siendo el intervalo de simulación, en metros)
 
 effcy = 0.9; %eficiencia transmi (ni puta idea, eso ponía predeterminado en el optimum)
 
@@ -69,34 +74,41 @@ for r = radio
     if pwr > 40
         pwr = 40;
     end
-
-    % CÁLCULO VELOCIDAD MÁXIMA SEGÚN RADIO DE CURVA 
-    v_max_curva = sqrt(lat_mu*m*g / abs(m/abs(r) - 0.5*lat_mu*air_d*area*df_coeff));
     
-   
     % CÁLCULO CARGA VERTICAL TOTAL
     dForce = 0.5*air_d*area*df_coeff*v^2; % cálculo downforce [N]
     z_load = dForce + m*g; % cálculo fuerza vertical total [N]
+    % CÁLCULO GRIP LONGITUDINAL Y FUERZA LONGITUDINAL ACTUAL
+    long_grip = z_load*long_mu/m; % cálculo grip longitudinal [m/s^2]
+    motor_acc = 2*pwr*1000/(m*v); % cálculo aceleración (longitudinal) actual proveniente de motores [m/s^2]
+    % LIMITAR FUERZA LONGITUDINAL [m/s^2]
+    if long_grip < 4618/m
+        long_grip= long_grip;
+    else
+        long_grip= 4618/m;
+    end 
+
+    % CÁLCULO VELOCIDAD MÁXIMA SEGÚN RADIO DE CURVA 
+    lat_mu_available= sqrt(abs(1-(long_mu_available./long_grip).^2))*lat_mu*g;
+    v_max_curva = sqrt(lat_mu_available*m*g / abs(m/abs(r) - 0.5*lat_mu_available*air_d*area*df_coeff));
     
     % CÁLCULO RESISTENCIA A AVANCE 
     dragForce = 0.5*air_d*area*dr_coeff*v^2; % cálculo drag [N]
     rollingForce = -z_load*rolling_resistance_coeff(m, -2, 0.827, v, tire_d/2, 1.08); % cálculo resistencia rodadura [N]
 
-    % CÁLCULO GRIP LONGITUDINAL Y FUERZA LONGITUDINAL ACTUAL
-    long_grip = z_load*long_mu/m; % cálculo grip longitudinal [m/s^2]
-    motor_acc = 2*pwr*1000/(m*v); % cálculo aceleración (longitudinal) actual proveniente de motores [m/s^2]
     
     % CÁLCULO DE FUERZA NETA Y ACELERACIÓN
     net_acc = motor_acc - (dragForce + rollingForce)/m; % aceleración neta
 
-
+    % LIMITAR VELOCIDAD
     if v_max_curva < v
         v = v_max_curva; 
 
 
     elseif v < v_max_curva
-        long_grip_available= sqrt(1-((v_max_curva^2)/radio)/(lat_mu*z_load/m)
-        v = sqrt(v^2 + 2*min(0.5*long_grip, net_acc)*d);
+        long_grip_available= sqrt(abs(1-((v^2./abs(r))./(lat_mu*z_load./m)).^2))*long_grip;
+
+        v = sqrt(v^2 + 2*min(0.5*long_grip_available, net_acc)*d);
     end
 
     v_resultante_forward(idx) = v;
@@ -113,27 +125,37 @@ radio_backward = flip(radio);
 v = v_resultante_forward(end);
 
 for r = radio_backward
-
-    % CÁLCULO VELOCIDAD MÁXIMA SEGÚN RADIO DE CURVA (filtrar valores recta)
-    v_max_curva = sqrt(lat_mu*m*g / abs(m/abs(r) - 0.5*lat_mu*air_d*area*df_coeff));
-   
+    
     % CÁLCULO CARGA VERTICAL TOTAL
     dForce = 0.5*air_d*area*df_coeff*v^2; % cálculo downforce [N]
     z_load = dForce + m*g; % cálculo fuerza vertical total [N]
+
+    % CÁLCULO GRIP LONGITUDINAL Y FUERZA LONGITUDINAL ACTUAL
+    long_grip = z_load*long_mu/m; % cálculo grip longitudinal [m/s^2]
+    
+    % LIMITAR FUERZA LONGITUDINAL [m/s^2]
+    if long_grip < 4618/m
+        long_grip= long_grip;
+    else
+        long_grip= 4618/m;
+    end 
+
+    % CÁLCULO VELOCIDAD MÁXIMA SEGÚN RADIO DE CURVA (filtrar valores recta)
+    lat_mu_available= sqrt(abs(1-(long_mu_available./long_grip).^2))*lat_mu*g;
+    v_max_curva = sqrt(lat_mu_available*m*g / abs(m/abs(r) - 0.5*lat_mu_available*air_d*area*df_coeff));
     
     % CÁLCULO RESISTENCIA A AVANCE 
     dragForce = 0.5*air_d*area*dr_coeff*v^2; % cálculo drag [N]
     rollingForce = -z_load*rolling_resistance_coeff(m, -2, 0.827, v, tire_d/2, 1.08); % cálculo resistencia rodadura [N]
     resistant_acc = (dragForce + rollingForce)/m; % fuerza resistente al avance total [N]
-        
-    % CÁLCULO GRIP LONGITUDINAL Y FUERZA LONGITUDINAL ACTUAL
-    long_grip = z_load*long_mu/m; % cálculo grip longitudinal [m/s^2]
-    
+       
+    %LIMITAR VELOCIDAD
     if v_max_curva < v
         v = v_max_curva; 
 
     elseif v < v_max_curva
-        v = sqrt(v^2 + 2*(0.5*long_grip  + resistant_acc)*d);
+        long_grip_available= sqrt(abs(1-((v^2./abs(r))./(lat_mu*z_load./m)).^2))*long_grip;
+        v = sqrt(v^2 + 2*(long_grip_available  + resistant_acc)*d);
     end
 
     v_resultante_backward(idx_b) = v;
@@ -150,6 +172,89 @@ lat_acc = v_resultante.^2./radio;
 dt = d ./ v_resultante; 
 tiempo_total = sum(dt)
 g_long = [diff(v_resultante),0]./dt;
+
+radio_0_5 = [];
+radio_5_10 = [];
+radio_10_15 = [];
+radio_15_20 = [];
+radio_20_25 = [];
+radio_25_30 = [];
+radio_30_35 = [];
+radio_35_40 = [];
+radio_40_45 = [];
+radio_45_50 = [];
+radio_50_55 = [];
+radio_55_60 = [];
+radio_60_65 = [];
+radio_65_70 = [];
+radio_70_75 = [];
+radio_75_80 = [];
+radio_80_85 = [];
+radio_85_90 = [];
+radio_90_95 = [];
+radio_95_100 = [];
+
+
+idx_p = 1
+for p = abs(radio)
+    if p > 0 && p < 5
+        radio_0_5(idx_p) = p;
+    if p > 5 && p < 10
+        radio_5_10(idx_p) = p;
+    elseif p > 10 && p < 15
+        radio_10_15(idx_p) = p;
+    elseif p > 15 && p < 20
+        radio_15_20(idx_p) = p;
+    elseif p > 20 && p < 25
+        radio_20_25(idx_p) = p;
+    elseif p > 25 && p < 30
+        radio_25_30(idx_p) = p;
+    elseif p > 30 && p < 35
+        radio_30_35(idx_p) = p;
+    elseif p > 35 && p < 40
+        radio_35_40(idx_p) = p;
+    elseif p > 40 && p < 45
+        radio_40_45(idx_p) = p;
+    elseif p > 45 && p < 50
+        radio_45_50(idx_p) = p;
+    elseif p > 50 && p < 55
+        radio_50_55(idx_p) = p;
+    elseif p > 55 && p < 60
+        radio_55_60(idx_p) = p;
+    elseif p > 60 && p < 65
+        radio_60_65(idx_p) = p;
+    elseif p > 65 && p < 70
+        radio_65_70(idx_p) = p;
+    elseif p > 70 && p < 75
+        radio_70_75(idx_p) = p;
+    elseif p > 75 && p < 80
+        radio_75_80(idx_p) = p;
+    elseif p > 80 && p < 85
+        radio_80_85(idx_p) = p;
+    elseif p > 85 && p < 90
+        radio_85_90(idx_p) = p;
+    elseif p > 90 && p < 95
+        radio_90_95(idx_p) = p;
+    elseif p > 95 && p < 100
+        radio_95_100(idx_p) = p;
+        
+    else
+        recta(idx_p) = p;
+    end
+    idx_p = idx_p + 1;
+    end
+end
+
+
+
+
+       
+
+
+
+           
+
+
 
 
 figure(1)

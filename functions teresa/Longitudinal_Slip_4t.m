@@ -254,7 +254,8 @@ plot(slip,Fx2)
 
 figure (3)
 plot(slip, Fx2./(FZRR+FZRL))
-
+figure (4)
+plot(Fx2, (FZRR+FZRL))
 
 %figure(4)
 %plot(slip,VmaxAccel)
