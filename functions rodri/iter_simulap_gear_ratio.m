@@ -1,7 +1,7 @@
 clc; clear;
 
 % Rango de ratios a probar (ej: de 8 a 16 con saltos de 0.5)
-gear_ratio = 10.7:0.01:10.9; 
+gear_ratio = 10.5:0.05:12; 
 tiempos = zeros(size(gear_ratio));
 
 % Bucle de optimización

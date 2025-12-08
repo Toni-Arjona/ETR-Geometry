@@ -4,6 +4,10 @@ close all
 
 
 
+circuito_performance = readtable("C:\Users\rodri\OneDrive\Escritorio\ETECH\GitHub\ETR-Geometry\functions rodri\datos\puntos_circuito_performance_spline.csv");
+curva_motor = readtable("C:\Users\rodri\OneDrive\Escritorio\ETECH\GitHub\ETR-Geometry\functions rodri\datos\PAR RPM.xlsx");
+
+
 %PARÁMETROS COCHE (datos cogido del FSAE con aero que hay en OptimumLap)
     m = 200 + 70; % peso coche + piloto [kg]
     g = 9.81; % gravedad [m/s^2]
@@ -27,11 +31,11 @@ close all
     long_mu_available = long_mu;
 
 %PARÁMETROS SIMU
-    v = 19.56; % velocidad inicial [m/s] (se ha cogido velocidad final de vuelta de una simu forward cualquiera)
+    v = 16; % velocidad inicial [m/s] (se ha cogido velocidad final de vuelta de una simu forward cualquiera)
     d = 0.01; % intervalo para evaluación splines (como el vector radio se define a partir de esta evaluación, y los bucles iteran sobre el radio, acaba siendo el intervalo de simulación, en metros)
 
 % CARGA DATOS CIRCUITO Y MOTOR
-    load("datos_circuito.mat")
+    %load("datos_circuito.mat")
 
 % DATOS CURVAS PAR/POTENCIA MOTOR
     par_vector = curva_motor.P;
@@ -41,13 +45,13 @@ close all
 
 % DEFINICIÓN TRAYECTO CIRCUITO CON SPLINES
     % 1. Distancia recorrida total e intervalo de evaluación para splines
-    d_total = [0; cumsum(sqrt(diff(0.8*circuito.X).^2 + diff(0.8*circuito.Y).^2))];
+    d_total = [0; cumsum(sqrt(diff(0.85*circuito_performance.X).^2 + diff(0.85*circuito_performance.Y).^2))];
     d_interval = 0: d : max(d_total);
     
     
     % 2. Definir exprsión splines circuito x e y, y evalurar para intervalo simu
-    x_spline = csaps(d_total, 0.8*circuito.X, 1); x_track = ppval(x_spline, d_interval);
-    y_spline = csaps(d_total, 0.8*circuito.Y, 1); y_track = ppval(y_spline, d_interval);
+    x_spline = csaps(d_total, 0.85*circuito_performance.X, 1); x_track = ppval(x_spline, d_interval);
+    y_spline = csaps(d_total, 0.85*circuito_performance.Y, 1); y_track = ppval(y_spline, d_interval);
     
     
     % 3. Cálculo curvatura circuito
@@ -193,7 +197,7 @@ close all
 p = abs(radio);
 
     % 1. Definir la recta (lo que queda fuera del rango 0 a 100)
-        idx_recta = p <= 0 | p >= 100;
+        idx_recta = p <= 0 | p >= 50;
         recta = radio(idx_recta);
 
     % 2. Denominador para los porcentajes (% de secciones con radio > 100m)
@@ -210,16 +214,6 @@ p = abs(radio);
         radio_35_40 = radio(p >= 35 & p < 40);
         radio_40_45 = radio(p >= 40 & p < 45);
         radio_45_50 = radio(p >= 45 & p < 50);
-        radio_50_55 = radio(p >= 50 & p < 55);
-        radio_55_60 = radio(p >= 55 & p < 60);
-        radio_60_65 = radio(p >= 60 & p < 65);
-        radio_65_70 = radio(p >= 65 & p < 70);
-        radio_70_75 = radio(p >= 70 & p < 75);
-        radio_75_80 = radio(p >= 75 & p < 80);
-        radio_80_85 = radio(p >= 80 & p < 85);
-        radio_85_90 = radio(p >= 85 & p < 90);
-        radio_90_95 = radio(p >= 90 & p < 95);
-        radio_95_100= radio(p >= 95 & p < 100);
 
     % 4. Calcular porcentajes
         porcentaje_0_5   = length(radio_0_5) / total_curva;
@@ -232,27 +226,12 @@ p = abs(radio);
         porcentaje_35_40 = length(radio_35_40) / total_curva;
         porcentaje_40_45 = length(radio_40_45) / total_curva;
         porcentaje_45_50 = length(radio_45_50) / total_curva;
-        porcentaje_50_55 = length(radio_50_55) / total_curva;
-        porcentaje_55_60 = length(radio_55_60) / total_curva;
-        porcentaje_60_65 = length(radio_60_65) / total_curva;
-        porcentaje_65_70 = length(radio_65_70) / total_curva;
-        porcentaje_70_75 = length(radio_70_75) / total_curva;
-        porcentaje_75_80 = length(radio_75_80) / total_curva;
-        porcentaje_80_85 = length(radio_80_85) / total_curva;
-        porcentaje_85_90 = length(radio_85_90) / total_curva;
-        porcentaje_90_95 = length(radio_90_95) / total_curva;
-        porcentaje_95_100= length(radio_95_100)/ total_curva;
+       
         
     % 5. Almacenar porcentajes en un mimso vector
         vector_porcentajes = [porcentaje_0_5, porcentaje_5_10, porcentaje_10_15, porcentaje_15_20, ...
                               porcentaje_20_25, porcentaje_25_30, porcentaje_30_35, porcentaje_35_40, ...
-                              porcentaje_40_45, porcentaje_45_50, porcentaje_50_55, porcentaje_55_60, ...
-                              porcentaje_60_65, porcentaje_65_70, porcentaje_70_75, porcentaje_75_80, ...
-                              porcentaje_80_85, porcentaje_85_90, porcentaje_90_95, porcentaje_95_100];
-
-
-
-
+                              porcentaje_40_45, porcentaje_45_50];
 
 
 
@@ -324,20 +303,8 @@ p = abs(radio);
         title('Mapa de aceleración longitudinal')
 
     % 4. MAPA RADIOS DE CURVA CON ESCALA DE COLORES 
-        curvas = zeros(1, length(radio));
-        idx_c = 1;
-
-        for k = abs(radio)
-            if k > 50
-                curvas(idx_c) = 50;
-
-            else
-                curvas(idx_c) = k;
-            
-            idx_c = idx_c + 1; 
-            end
-        end
-        
+        curvas = abs(radio);
+        curvas(curvas > 50) = 50;
 
         figure(4)
         % Crear vector Z de ceros para engañar a la función surface (pintar en 2D)
@@ -382,8 +349,8 @@ p = abs(radio);
 
     % 8. DISTRIBUCIÓN RADIOS DE CURVA
         figure(8)
-        centros = 2.5:5:97.5;
-        bar(centros, vector_porcentajes * 100, 1); 
+        centros = 2.5:5:47.5;
+        bar(centros, vector_porcentajes * 50, 1); 
         xlabel('Radio de giro [m]');
         ylabel('Porcentaje [%]');
         title('Distribución de Radios de Giro');
