@@ -225,3 +225,4 @@ end
     
 VmaxAccel =sqrt(2*75*Acx )*3.6; %Maximum acceleration velocity in 75 m;
 Long_force_coef =Fx2/(FZRR+FZRL);
+
