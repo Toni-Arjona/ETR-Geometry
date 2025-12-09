@@ -30,7 +30,7 @@ load('datos_circuito.mat')
 
 %PARÁMETROS SIMU
     v = 0; % velocidad inicial [m/s] (se ha cogido velocidad final de vuelta de una simu forward cualquiera)
-    d = 0.1; % intervalo para evaluación splines (como el vector radio se define a partir de esta evaluación, y los bucles iteran sobre el radio, acaba siendo el intervalo de simulación, en metros)
+    d = 0.01; % intervalo para evaluación splines (como el vector radio se define a partir de esta evaluación, y los bucles iteran sobre el radio, acaba siendo el intervalo de simulación, en metros)
 
 % CARGA DATOS CIRCUITO Y MOTOR
     %load("datos_circuito.mat")
@@ -193,45 +193,19 @@ load('datos_circuito.mat')
         
 
 % PORCENTAJES RADIOS DE CURVA
-p = abs(radio);
-
-    % 1. Definir la recta (lo que queda fuera del rango 0 a 100)
-        idx_recta = p <= 0 | p >= 50;
-        recta = radio(idx_recta);
-
-    % 2. Denominador para los porcentajes (% de secciones con radio > 100m)
-        total_curva = length(radio) - length(recta);
-
-    % 3. Extraer vectores usando indexación lógica (corrige tu error de índices)
-        radio_0_5   = radio(p > 0  & p < 5);
-        radio_5_10  = radio(p >= 5 & p < 10);
-        radio_10_15 = radio(p >= 10 & p < 15);
-        radio_15_20 = radio(p >= 15 & p < 20);
-        radio_20_25 = radio(p >= 20 & p < 25);
-        radio_25_30 = radio(p >= 25 & p < 30);
-        radio_30_35 = radio(p >= 30 & p < 35);
-        radio_35_40 = radio(p >= 35 & p < 40);
-        radio_40_45 = radio(p >= 40 & p < 45);
-        radio_45_50 = radio(p >= 45 & p < 50);
-
-    % 4. Calcular porcentajes
-        porcentaje_0_5   = length(radio_0_5) / total_curva;
-        porcentaje_5_10  = length(radio_5_10) / total_curva;
-        porcentaje_10_15 = length(radio_10_15) / total_curva;
-        porcentaje_15_20 = length(radio_15_20) / total_curva;
-        porcentaje_20_25 = length(radio_20_25) / total_curva;
-        porcentaje_25_30 = length(radio_25_30) / total_curva;
-        porcentaje_30_35 = length(radio_30_35) / total_curva;
-        porcentaje_35_40 = length(radio_35_40) / total_curva;
-        porcentaje_40_45 = length(radio_40_45) / total_curva;
-        porcentaje_45_50 = length(radio_45_50) / total_curva;
-       
-        
-    % 5. Almacenar porcentajes en un mimso vector
-        vector_porcentajes = [porcentaje_0_5, porcentaje_5_10, porcentaje_10_15, porcentaje_15_20, ...
-                              porcentaje_20_25, porcentaje_25_30, porcentaje_30_35, porcentaje_35_40, ...
-                              porcentaje_40_45, porcentaje_45_50];
-
+    % 1. filtro valores rectas (radios mayores a 50m)
+    curvas = radio(abs(radio) < 50); 
+    
+    % 2. Creación cell arrays
+    radio_curva = cell(1, 50);
+    pctaje_curva = cell(1, 50);
+    
+    % 3. Bucle para dividir según radio
+    for interval = 1:50
+        radio_curva{interval} = radio((abs(radio) > (interval - 1)) & (abs(radio) < interval));
+        pctaje_curva{interval} = 100*length(radio_curva{interval})/length(curvas);
+    
+    end
 
 
        
@@ -348,11 +322,13 @@ p = abs(radio);
 
     % 8. DISTRIBUCIÓN RADIOS DE CURVA
         figure(8)
-        centros = 2.5:5:47.5;
-        bar(centros, vector_porcentajes * 50, 1); 
-        xlabel('Radio de giro [m]');
-        ylabel('Porcentaje [%]');
-        title('Distribución de Radios de Giro');
-        grid on;
+        bar(0.5:1:49.5, cell2mat(pctaje_curva), 1)
+        xlabel('Radio de curva [m]')
+        ylabel('Porcentaje del total de curvas [%]')
+        grid on
+        
+        
+        figure(9)
+        plot(lat_acc, g_long)
      
         
