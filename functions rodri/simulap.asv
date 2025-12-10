@@ -28,13 +28,15 @@ g = 9.81; % gravedad [m/s^2]
         sf= 0.9; % porcentaje del agarre máximo al que se llega
         lat_mu = sf*coeff_lat_max; % coeficiente lateral neumático
         long_mu = sf*coeff_long_max; % coeficiente longitudinal neumático
+        camber_deg = -1.5
+        slip_ratio = 1.12
 
         % Parámetros iniciales grip disponible
         lat_mu_available = lat_mu;
         long_mu_available = long_mu;
 
 %PARÁMETROS SIMU
-    v = 0; % velocidad inicial [m/s] (se ha cogido velocidad final de vuelta de una simu forward cualquiera)
+    v = 5; % velocidad inicial [m/s] (se ha cogido velocidad final de vuelta de una simu forward cualquiera)
     d = 0.01; % intervalo para evaluación splines (como el vector radio se define a partir de esta evaluación, y los bucles iteran sobre el radio, acaba siendo el intervalo de simulación, en metros)
 
 % CARGA DATOS CIRCUITO Y MOTOR
@@ -82,8 +84,8 @@ g = 9.81; % gravedad [m/s^2]
             pwr = effcy*par*v_ang/1000; % potencia motor a velocidad dada [kW]
             
             % Limitación motor a 40kW (máximo total con dos motores 80kW)
-                if pwr > 40
-                    pwr = 40;
+                if pwr > 20
+                    pwr = 20;
                 end
         
         % CÁLCULO CARGA VERTICAL TOTAL
@@ -91,19 +93,22 @@ g = 9.81; % gravedad [m/s^2]
             z_load = dForce + m*g; % cálculo fuerza vertical total [N]
        
         % CÁLCULO GRIP LONGITUDINAL MÁXIMO Y FUERZA MOTOR 
-            long_grip = z_load*long_mu/m; % cálculo grip longitudinal máx [m/s^2]
-            motor_acc = 2*pwr*1000/(m*v); % cálculo aceleración (longitudinal) actual proveniente de motores [m/s^2]
-       
-            % Limitar agarre longitudinal por saturación neumático [m/s^2]
+            Long_force_coef = longitudinal_force(z_load/g, effective_rolling_radius(z_load/(4*g), 0.827), camber_deg, slip_ratio, v, 0.827)
+            long_grip = z_load*Long_force_coef/m; % cálculo grip longitudinal máx [m/s^2]
+            motor_acc = 4*pwr*1000/(m*v); % cálculo aceleración (longitudinal) actual proveniente de motores [m/s^2]
+        
+            %{
+            Limitar agarre longitudinal por saturación neumático [m/s^2]
                 if long_grip < 4618/m
-                    long_grip= long_grip;
+                    long_grip = long_grip;
                 else
-                    long_grip= 4618/m;
-                end 
+                    long_grip = 4618/m;
+                end
+            %}
         
         % CÁLCULO RESISTENCIA A AVANCE (drag + rolling resistance)
             dragForce = 0.5*air_d*area*dr_coeff*v^2; % cálculo drag [N]
-            rollingForce = -z_load*rolling_resistance_coeff(m, -2, 0.827, v, tire_radius, 1.08); % cálculo resistencia rodadura [N]
+            rollingForce = -z_load*rolling_resistance_coeff(z_load/(4*g), -2, 0.827, v, tire_radius, 1.08); % cálculo resistencia rodadura [N]
         
         % CÁLCULO ACELERACIÓN LONGITUDINAL NETA (MOTOR - PÉRDIDAS)
             net_acc = motor_acc - (dragForce + rollingForce)/m; % aceleración neta [m/s^2]
@@ -146,13 +151,14 @@ g = 9.81; % gravedad [m/s^2]
     
         % CÁLCULO GRIP LONGITUDINAL MÁXIMO
             long_grip = z_load*long_mu/m; % cálculo grip longitudinal max [m/s^2]
-    
-            % Limitar agarre longitudinal por saturación neumático [m/s^2]
+        %{
+            Limitar agarre longitudinal por saturación neumático [m/s^2]
                 if long_grip < 4618/m
                     long_grip= long_grip;
                 else
                     long_grip= 4618/m;
-                end    
+                end 
+        %}   
         
         % CÁLCULO RESISTENCIA A AVANCE (DRAG + ROLLING RESISTANCE)
             dragForce = 0.5*air_d*area*dr_coeff*v^2; % cálculo drag [N]
@@ -187,7 +193,7 @@ g = 9.81; % gravedad [m/s^2]
 % CÁLCULOS RESULTADOS
     lat_acc = v_resultante.^2./radio; % Cálculo aceleración lateral para cada punto de simu
     dt = d ./ v_resultante; % Cálculo tiempo transcurrido en cada intervalo de simu
-    g_long = [diff(v_resultante),0]./dt; % cálculo aceleración longitudinal para cada punto de simu
+    g_long =    [diff(v_resultante),0]./dt; % cálculo aceleración longitudinal para cada punto de simu
     dForce = 0.5*air_d*area*df_coeff*v_resultante.^2;
     
     
@@ -350,7 +356,7 @@ g = 9.81; % gravedad [m/s^2]
         plot (d_interval, (F_int + F_ext))
         xlabel(['distancia [m]'])
         ylabel(['Carga sobre neumáticos delanteros [N]'])
-        legend("rueda exterior", "rueda interior")
+        legend("rueda exterior", "rueda interior", "carga total")
         
         
         
