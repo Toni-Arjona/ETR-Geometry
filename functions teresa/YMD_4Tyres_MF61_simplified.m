@@ -96,7 +96,7 @@ sliplim=17*pi/180; %Limit slip angle
 
 
 %Izz=car.weight*(a^2+car.h^2); %Moment inercia
-df=2.3*((V/3.6)^2) %Down Force
+df=4.5*0.56*0.5*1.225*((V/3.6)^2) %Down Force
 dfR=(df*copx)/l %dfR=df*copx/(1.53*2); Down Force front
 dfF=df-dfR %dfF=df*(1.53-copx)/(1.53*2); Down Force rear
 %Vy=(V./3.6)*tan(VS);
@@ -285,6 +285,7 @@ for i=1:M
     plot(Ay(i,:),YawMoment(i,:))
     hold on
 end
+grid on
 % legendCell_VS = cellstr(num2str(VS', 'VS=%-d'));
 % legendCell_SI = cellstr(num2str(SI', 'SI=%-d'));
 % legend([legendCell_VS;legendCell_SI], 'NumColumns',2)

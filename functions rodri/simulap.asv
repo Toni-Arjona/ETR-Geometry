@@ -193,15 +193,15 @@ g = 9.81; % gravedad [m/s^2]
     
     tiempo_total = sum(dt) % cálculo tiempo de vuelta
 
-% LOAD TRASNFER 
+% LOAD TRASNFER (como si todas las curvas
     for lt = 1:length(abs(radio))
         [fz_FR, fz_FL, fz_RR, fz_RL] = normal_load_per_tire_complete(m, abs(lat_acc(lt)/g), 1.25, 1.25, 0.07, ...
         0.08, 18370.86641/57.2958, 18370.86641/57.2958, 0.225, 1.6, 0.8, v_resultante(lt));
 
         RL(lt) = fz_RL;
         RR(lt) = fz_RR;
-        F_ext(lt) = fz_FL;
-        F_int(lt) = fz_FR;
+        FL(lt) = fz_FL;
+        FR(lt) = fz_FR;
         
     end
 
@@ -344,12 +344,8 @@ g = 9.81; % gravedad [m/s^2]
         grid on
 
         figure(9)
-        plot(d_interval, F_ext)
-        hold on
-        plot (d_interval, F_int)
-        xlabel(['distancia [m]'])
-        ylabel(['Carga sobre neumáticos delanteros [N]'])
-        legend("rueda exterior", "rueda interior")
+        plot(radio, FL, '.')
+        xlim([-50, 50])
         
         
         
