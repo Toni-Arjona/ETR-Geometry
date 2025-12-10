@@ -347,9 +347,10 @@ g = 9.81; % gravedad [m/s^2]
         plot(d_interval, F_ext)
         hold on
         plot (d_interval, F_int)
+        plot (d_interval, (F_int + F_ext))
         xlabel(['distancia [m]'])
         ylabel(['Carga sobre neumáticos delanteros [N]'])
-        legend("rueda exterior", "rueda interior")
+        legend("rueda exterior", "rueda interior", "carga total")
         
         
         
