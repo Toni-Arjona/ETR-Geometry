@@ -261,7 +261,7 @@ g = 9.81; % gravedad [m/s^2]
         z = zeros(size(x_track)); 
         
         %Pintar la línea usando la velocidad como mapa de color
-        surface([x_track; x_track], [y_track; y_track], [z; z], [lat_acc/g; lat_acc/g], ...
+        surface([x_track; x_track], [y_track; y_track], [z; z], [abs(lat_acc/g); abs(lat_acc/g)], ...
                 'facecol', 'no', ...
                 'edgecol', 'interp', ...
                 'linew', 2); % Grosor de línea
@@ -357,6 +357,10 @@ g = 9.81; % gravedad [m/s^2]
         xlabel(['distancia [m]'])
         ylabel(['Carga sobre neumáticos delanteros [N]'])
         legend("rueda exterior", "rueda interior", "carga total")
+
+        figure(10)
+        plot(radio, lat_acc/g)
+        xlim([-50, 50])
         
         
         
