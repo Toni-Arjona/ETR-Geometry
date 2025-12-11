@@ -3,12 +3,11 @@ clear all
 close all
 
 
-
 load('datos_circuito.mat')
 g = 9.81; % gravedad [m/s^2]
 
-%PARÁMETROS COCHE (datos cogido del FSAE con aero que hay en OptimumLap)
-    m = 200 + 70; % peso coche + piloto [kg]
+%PARÁMETROS COCHE 
+        m = 200 + 70; % peso coche + piloto [kg]
     
 
     % AERO
@@ -18,18 +17,19 @@ g = 9.81; % gravedad [m/s^2]
         area = 0.563; % área frontal del coche [m^2]
 
     %TRANSMI
-        gear_ratio = 13; % ratio reducción rpms transmisión
+        gear_ratio =  12;% ratio reducción rpms transmisión
         effcy = 0.9; % eficiencia transmi
 
     % NEUMÁTICO
         tire_radius = effective_rolling_radius(m*g/4, 0.827); % radio efectivo de la rueda [m]    
         coeff_long_max = 2.1; % coeficiente longitudinal máximo 
         coeff_lat_max = 1.9; % coeficiente lateral máximo
-        sf= 0.9; % porcentaje del agarre máximo al que se llega
+        sf= 0.9 ; % porcentaje del agarre máximo al que se llega
+        sf_braking = 0.7 % porcentaje de frenada máxima 
         lat_mu = sf*coeff_lat_max; % coeficiente lateral neumático
         long_mu = sf*coeff_long_max; % coeficiente longitudinal neumático
-        camber_deg = -2
-        slip_ratio = 1.12
+        camber_deg = -2;
+        slip_ratio = 1.08
 
         % Parámetros iniciales grip disponible
         lat_mu_available = lat_mu;
@@ -37,7 +37,7 @@ g = 9.81; % gravedad [m/s^2]
 
 %PARÁMETROS SIMU
     v = 10; % velocidad inicial [m/s] (se ha cogido velocidad final de vuelta de una simu forward cualquiera)
-    d = 0.01; % intervalo para evaluación splines (como el vector radio se define a partir de esta evaluación, y los bucles iteran sobre el radio, acaba siendo el intervalo de simulación, en metros)
+    d = 0.1; % intervalo para evaluación splines (como el vector radio se define a partir de esta evaluación, y los bucles iteran sobre el radio, acaba siendo el intervalo de simulación, en metros)
 
 % CARGA DATOS CIRCUITO Y MOTOR
 % DATOS CURVAS PAR/POTENCIA MOTOR
@@ -93,7 +93,7 @@ g = 9.81; % gravedad [m/s^2]
             z_load = dForce + m*g; % cálculo fuerza vertical total [N]
        
         % CÁLCULO GRIP LONGITUDINAL MÁXIMO Y FUERZA MOTOR 
-            Long_force_coef = longitudinal_force(z_load/g, effective_rolling_radius(z_load/(4*g), 0.827), camber_deg, slip_ratio, v, 0.827)
+            Long_force_coef = longitudinal_force(m, z_load/g, effective_rolling_radius(z_load/(4*g), 0.827), camber_deg, slip_ratio, v, 0.827);
             long_grip = z_load*Long_force_coef/m; % cálculo grip longitudinal máx [m/s^2]
             motor_acc = 4*pwr*1000/(m*v); % cálculo aceleración (longitudinal) actual proveniente de motores [m/s^2]
         
@@ -123,7 +123,7 @@ g = 9.81; % gravedad [m/s^2]
         
             elseif v < v_max_curva
                 long_grip_available= sqrt(abs(1-((v^2./abs(r))./(lat_mu*z_load./m)).^2))*long_grip;
-                v = min(sqrt(v^2 + 2*min(0.5*long_grip_available, net_acc)*d), v_max_curva);
+                v = min(sqrt(v^2 + 2*min(long_grip_available, net_acc)*d), v_max_curva);
             end
     
         % ALMACENAR VELOCIDAD FINAL DE BUCLE EN VECTOR
@@ -150,7 +150,7 @@ g = 9.81; % gravedad [m/s^2]
             z_load = dForce + m*g; % cálculo fuerza vertical total [N]
     
         % CÁLCULO GRIP LONGITUDINAL MÁXIMO
-            Long_force_coef = longitudinal_force(z_load/g, effective_rolling_radius(z_load/(4*g), 0.827), camber_deg, slip_ratio, v, 0.827)
+            Long_force_coef = longitudinal_force(m, z_load/g, effective_rolling_radius(z_load/(4*g), 0.827), camber_deg, slip_ratio, v, 0.827);
             long_grip = z_load*Long_force_coef/m; % cálculo grip longitudinal máx [m/s^2]
         %{
             Limitar agarre longitudinal por saturación neumático [m/s^2]
@@ -176,7 +176,7 @@ g = 9.81; % gravedad [m/s^2]
     
                 elseif v < v_max_curva
                     long_grip_available= sqrt(abs(1-((v^2./abs(r))./(lat_mu*z_load./m)).^2))*long_grip;
-                    v = min(sqrt(v^2 + 2*(long_grip_available  + resistant_acc)*d), v_max_curva);
+                    v = min(sqrt(v^2 + 2*(sf_braking*long_grip_available  + resistant_acc)*d), v_max_curva);
                 end
     
         % ALMACENAR VELOCIDAD FINAL DE BUCLE EN VECTOR
@@ -229,7 +229,6 @@ g = 9.81; % gravedad [m/s^2]
         pctaje_curva{interval} = 100*length(radio_curva{interval})/length(curvas);
     
     end
-
 
        
 % PLOTS

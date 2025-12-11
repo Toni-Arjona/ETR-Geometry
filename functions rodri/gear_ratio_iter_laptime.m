@@ -1,0 +1,18 @@
+tiempo = zeros(1, 50)
+idx = 1
+
+for gear_ratio = 10:0.1:15
+    tiempo = simulap_func(gear_ratio)
+
+    tiempos(idx) = tiempo; % Store the result for the current gear ratio
+    idx = idx + 1; % Increment the index for the next iteration
+
+end
+
+
+% After the loop, process the results for further analysis or plotting
+plot(10:0.1:15, tiempos);
+xlabel('Gear Ratio');
+ylabel('Time');
+title('Time vs Gear Ratio');
+

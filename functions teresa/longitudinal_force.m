@@ -1,10 +1,10 @@
-function Long_force_coef = longitudinal_force(m, r_eff, camber_deg, slip_ratio, velocity, pressure)
+function Long_force_coef = longitudinal_force(m, z_load, r_eff, camber_deg, slip_ratio, velocity, pressure)
 %The function is for the Hoosier 16x7.5-10 R20 tire
 %Take into account that the slip ratio for maximum force is 1.12
 
 %Car inputs
 g=9.81; % m/s^2
-W = m*g; % vehicle weight in N
+W = z_load; % vehicle weight in N
 h = 0.3; % cog height m
 l = 1.6; % wheel base m
 cogx= 0.8; % Front axle -> Mass center distance in m
@@ -221,7 +221,7 @@ for k=1:100
      %Total
      Fx4 =FxFL +FxFR +FxRL +FxRR ; %Only 4WD
      Fx2 =FxRL +FxRR ; %2WD
-     Acx =Fx2 /m; %Longitudinal acceleration
+     Acx = Fx4/m; %Longitudinal acceleration
 end
     
 VmaxAccel =sqrt(2*75*Acx)*3.6; %Maximum acceleration velocity in 75 m;

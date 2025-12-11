@@ -1,14 +1,10 @@
-clc
-clear all
-close all
-
-
+function tiempo_total = simulap_func(gear_ratio)
 
 load('datos_circuito.mat')
 g = 9.81; % gravedad [m/s^2]
 
-%PARÁMETROS COCHE (datos cogido del FSAE con aero que hay en OptimumLap)
-    m = 200 + 70; % peso coche + piloto [kg]
+%PARÁMETROS COCHE 
+        m = 200 + 70; % peso coche + piloto [kg]
     
 
     % AERO
@@ -18,26 +14,27 @@ g = 9.81; % gravedad [m/s^2]
         area = 0.563; % área frontal del coche [m^2]
 
     %TRANSMI
-        gear_ratio = 10.85; % ratio reducción rpms transmisión
+        %gear_ratio =  9;% ratio reducción rpms transmisión
         effcy = 0.9; % eficiencia transmi
 
     % NEUMÁTICO
         tire_radius = effective_rolling_radius(m*g/4, 0.827); % radio efectivo de la rueda [m]    
         coeff_long_max = 2.1; % coeficiente longitudinal máximo 
         coeff_lat_max = 1.9; % coeficiente lateral máximo
-        sf= 0.9; % porcentaje del agarre máximo al que se llega
+        sf= 0.9 ; % porcentaje del agarre máximo al que se llega
+        sf_braking = 0.7 % porcentaje de frenada máxima 
         lat_mu = sf*coeff_lat_max; % coeficiente lateral neumático
         long_mu = sf*coeff_long_max; % coeficiente longitudinal neumático
-        camber_deg = -1.5
-        slip_ratio = 1.12
+        camber_deg = -2;
+        slip_ratio = 1.08
 
         % Parámetros iniciales grip disponible
         lat_mu_available = lat_mu;
         long_mu_available = long_mu;
 
 %PARÁMETROS SIMU
-    v = 5; % velocidad inicial [m/s] (se ha cogido velocidad final de vuelta de una simu forward cualquiera)
-    d = 0.01; % intervalo para evaluación splines (como el vector radio se define a partir de esta evaluación, y los bucles iteran sobre el radio, acaba siendo el intervalo de simulación, en metros)
+    v = 10; % velocidad inicial [m/s] (se ha cogido velocidad final de vuelta de una simu forward cualquiera)
+    d = 0.1; % intervalo para evaluación splines (como el vector radio se define a partir de esta evaluación, y los bucles iteran sobre el radio, acaba siendo el intervalo de simulación, en metros)
 
 % CARGA DATOS CIRCUITO Y MOTOR
 % DATOS CURVAS PAR/POTENCIA MOTOR
@@ -93,7 +90,7 @@ g = 9.81; % gravedad [m/s^2]
             z_load = dForce + m*g; % cálculo fuerza vertical total [N]
        
         % CÁLCULO GRIP LONGITUDINAL MÁXIMO Y FUERZA MOTOR 
-            Long_force_coef = longitudinal_force(z_load/g, effective_rolling_radius(z_load/(4*g), 0.827), camber_deg, slip_ratio, v, 0.827)
+            Long_force_coef = longitudinal_force(m, z_load/g, effective_rolling_radius(z_load/(4*g), 0.827), camber_deg, slip_ratio, v, 0.827);
             long_grip = z_load*Long_force_coef/m; % cálculo grip longitudinal máx [m/s^2]
             motor_acc = 4*pwr*1000/(m*v); % cálculo aceleración (longitudinal) actual proveniente de motores [m/s^2]
         
@@ -108,7 +105,7 @@ g = 9.81; % gravedad [m/s^2]
         
         % CÁLCULO RESISTENCIA A AVANCE (drag + rolling resistance)
             dragForce = 0.5*air_d*area*dr_coeff*v^2; % cálculo drag [N]
-            rollingForce = -z_load*rolling_resistance_coeff(z_load/(4*g), -2, 0.827, v, tire_radius, 1.08); % cálculo resistencia rodadura [N]
+            rollingForce = -z_load*rolling_resistance_coeff(z_load/g, camber_deg, 0.827, v, tire_radius, 1.08); % cálculo resistencia rodadura [N]
         
         % CÁLCULO ACELERACIÓN LONGITUDINAL NETA (MOTOR - PÉRDIDAS)
             net_acc = motor_acc - (dragForce + rollingForce)/m; % aceleración neta [m/s^2]
@@ -123,7 +120,7 @@ g = 9.81; % gravedad [m/s^2]
         
             elseif v < v_max_curva
                 long_grip_available= sqrt(abs(1-((v^2./abs(r))./(lat_mu*z_load./m)).^2))*long_grip;
-                v = min(sqrt(v^2 + 2*min(0.5*long_grip_available, net_acc)*d), v_max_curva);
+                v = min(sqrt(v^2 + 2*min(long_grip_available, net_acc)*d), v_max_curva);
             end
     
         % ALMACENAR VELOCIDAD FINAL DE BUCLE EN VECTOR
@@ -150,7 +147,8 @@ g = 9.81; % gravedad [m/s^2]
             z_load = dForce + m*g; % cálculo fuerza vertical total [N]
     
         % CÁLCULO GRIP LONGITUDINAL MÁXIMO
-            long_grip = z_load*long_mu/m; % cálculo grip longitudinal max [m/s^2]
+            Long_force_coef = longitudinal_force(m, z_load/g, effective_rolling_radius(z_load/(4*g), 0.827), camber_deg, slip_ratio, v, 0.827);
+            long_grip = z_load*Long_force_coef/m; % cálculo grip longitudinal máx [m/s^2]
         %{
             Limitar agarre longitudinal por saturación neumático [m/s^2]
                 if long_grip < 4618/m
@@ -162,7 +160,7 @@ g = 9.81; % gravedad [m/s^2]
         
         % CÁLCULO RESISTENCIA A AVANCE (DRAG + ROLLING RESISTANCE)
             dragForce = 0.5*air_d*area*dr_coeff*v^2; % cálculo drag [N]
-            rollingForce = -z_load*rolling_resistance_coeff(m, -2, 0.827, v, tire_radius, 1.08); % cálculo resistencia rodadura [N]
+            rollingForce = -z_load*rolling_resistance_coeff(z_load/g, camber_deg, 0.827, v, tire_radius, 1.08); % cálculo resistencia rodadura [N]
             resistant_acc = (dragForce + rollingForce)/m; % aceleración resistente al avance total [m/s^2]
            
         % DEFINIR FACTOR LIMITANTE (GRIP LATERAL / GRIP LONGITUDINAL / POTENCIA)
@@ -175,7 +173,7 @@ g = 9.81; % gravedad [m/s^2]
     
                 elseif v < v_max_curva
                     long_grip_available= sqrt(abs(1-((v^2./abs(r))./(lat_mu*z_load./m)).^2))*long_grip;
-                    v = min(sqrt(v^2 + 2*(long_grip_available  + resistant_acc)*d), v_max_curva);
+                    v = min(sqrt(v^2 + 2*(sf_braking*long_grip_available  + resistant_acc)*d), v_max_curva);
                 end
     
         % ALMACENAR VELOCIDAD FINAL DE BUCLE EN VECTOR
@@ -228,136 +226,4 @@ g = 9.81; % gravedad [m/s^2]
         pctaje_curva{interval} = 100*length(radio_curva{interval})/length(curvas);
     
     end
-
-
-       
-% PLOTS
-
-    % 1. MAPA VELOCIDAD CON ESCALA DE COLORES       
-        figure(1)
-    
-        % Crear vector Z de ceros para engañar a la función surface (pintar en 2D)
-        z = zeros(size(x_track)); 
-        
-        % Pintar la línea usando la velocidad como mapa de color
-        surface([x_track; x_track], [y_track; y_track], [z; z], [v_resultante*3.6; v_resultante*3.6], ...
-                'facecol', 'no', ...
-                'edgecol', 'interp', ...
-                'linew', 2); % Grosor de línea
-        
-        colorbar; % Añade la barra lateral de leyenda
-        c = colorbar;
-        c.Label.String = 'Velocidad [Km/h]';
-        colormap(turbo); % turbo es una paleta de colores
-        axis equal
-        xlabel('x [m]')
-        ylabel('y [m]')
-        title('Mapa de Velocidad')
-
-
-    % 2. MAPA ACELERACIÓN LATERAL CON ESCALA DE COLORES  
-        figure(2)
-        % Crear vector Z de ceros para engañar a la función surface (pintar en 2D)
-        z = zeros(size(x_track)); 
-        
-        %Pintar la línea usando la velocidad como mapa de color
-        surface([x_track; x_track], [y_track; y_track], [z; z], [lat_acc/g; lat_acc/g], ...
-                'facecol', 'no', ...
-                'edgecol', 'interp', ...
-                'linew', 2); % Grosor de línea
-        
-        colorbar; % Añade la barra lateral de leyenda
-        c = colorbar;
-        c.Label.String = 'Lateral acceleration [g]';
-        colormap(turbo); % % turbo es una paleta de colores
-        axis equal
-        xlabel('x [m]')
-        ylabel('y [m]')
-        title('Mapa de aceleración lateral')
-
-
-    % 3. MAPA ACELERACIÓN LONGITUDINAL CON ESCALA DE COLORES 
-
-        figure(3)
-        % Crear vector Z de ceros para engañar a la función surface (pintar en 2D)
-        z = zeros(size(x_track)); 
-        
-        %Pintar la línea usando la velocidad como mapa de color
-        surface([x_track; x_track], [y_track; y_track], [z; z], [g_long/g; g_long/g], ...
-                'facecol', 'no', ...
-                'edgecol', 'interp', ...
-                'linew', 2); % Grosor de línea
-        
-        colorbar; % Añade la barra lateral de leyenda
-        c = colorbar;
-        c.Label.String = 'Longitudinal acceleration [g]';
-        colormap(turbo); % turbo es una paleta de colores
-        axis equal
-        xlabel('x [m]')
-        ylabel('y [m]')
-        title('Mapa de aceleración longitudinal')
-
-    % 4. MAPA RADIOS DE CURVA CON ESCALA DE COLORES 
-        curvas = abs(radio);
-        curvas(curvas > 50) = 50;
-
-        figure(4)
-        % Crear vector Z de ceros para engañar a la función surface (pintar en 2D)
-        z = zeros(size(x_track)); 
-        
-        %Pintar la línea usando la velocidad como mapa de color
-        surface([x_track; x_track], [y_track; y_track], [z; z], [curvas; curvas], ...
-                'facecol', 'no', ...
-                'edgecol', 'interp', ...
-                'linew', 2); % Grosor de línea
-        
-        colorbar; % Añade la barra lateral de leyenda
-        c = colorbar;
-        c.Label.String = 'radio de curva [m]';
-        colormap(turbo); % turbo es una paleta de colores
-        axis equal
-        xlabel('x [m]')
-        ylabel('y [m]')
-        title('Mapa de radio de curva')
-
-
-    % 5. GRÁFICA VELOCIDAD VS DISTANCIA 
-        figure(5)
-        plot(d_interval, v_resultante)
-        xlabel('elapsed distance [m]')
-        ylabel('v_resultante')
-
-    
-    % 6. GRÁFICA ACELERACIÓN LONGITUDINAL (G) VS DISTANCIAL
-        figure(6)
-        plot(d_interval, g_long/g)
-        xlabel('elapsed distance [m]')
-        ylabel('longitudinal acceleration [g]')
-        ylim([-2.5, 1.5])
-
-    % 7. GRÁFICA ACELERACIÓN LATERAL (G) VS DISTANCIA
-        figure(7)
-        plot(d_interval, lat_acc/g)
-        xlabel('elapsed distance [m]')
-        ylabel('lateral acceleration [g]')
-        
-
-    % 8. DISTRIBUCIÓN RADIOS DE CURVA
-        figure(8)
-        bar(0.5:1:49.5, cell2mat(pctaje_curva), 1)
-        xlabel('Radio de curva [m]')
-        ylabel('Porcentaje del total de curvas [%]')
-        grid on
-
-        figure(9)
-        plot(d_interval, F_ext)
-        hold on
-        plot (d_interval, F_int)
-        plot (d_interval, (F_int + F_ext))
-        xlabel(['distancia [m]'])
-        ylabel(['Carga sobre neumáticos delanteros [N]'])
-        legend("rueda exterior", "rueda interior", "carga total")
-        
-        
-        
-        
+end
