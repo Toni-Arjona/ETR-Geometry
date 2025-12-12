@@ -88,7 +88,7 @@ MZ=@(SA)  a0m + a1m*cos(SA*wm) + b1m*sin(SA*wm) + a2m*cos(2*SA*wm) + b2m*sin(2*S
 
 %Inputs
 V=50; %velocitat en X en km/h
-deltadg=-15:1:15; %Steering angles en graus
+deltadg=-15:2:15; %Steering angles en graus
 SI=deltadg'.*pi/180; %Steering angle en rad
 Betadg=-6:1:6; %Slip angle en graus
 VS=Betadg'.*pi/180; %Slip angle rad
@@ -296,9 +296,19 @@ legendCell_SI = cellstr(num2str(SI*180/pi, 'SI=%-d'));
 legend([legendCell_VS;legendCell_SI], 'NumColumns',2)
 
 figure(2)
-plot(alphaFL.*180/pi, FyFL./FzFL)
+plot(deltadg, FyFR)
+xlabel('Steering input [deg]')
+ylabel('FYFR [N]')
+
 figure(3)
-plot(Betadg, weight.*Ay)
+plot(deltadg, FyFL)
+xlabel('Steering input [deg]')
+ylabel('FYFL[N]')
+
+figure(4)
+plot(alphaFL*180/pi, FyFL)
+xlabel('Slip Angle [º]')
+ylabel('FYFL[N]')
 %{
 figure
 for i=1:N
