@@ -1,66 +1,66 @@
 clear all
 clc
+close all
 
 car = struct();%Definiciones del coche
 
 g=9.81; %m/s^2
 
-car.l=1.53; %longitud cotxe
+car.l=1.6; %longitud cotxe
 car.a = 0.8;%Distancia ruedas del a cg
 car.b = car.l-car.a;%Distancia ruedas tras a cg
 car.Tf = 1.25;%Trackwith front
-car.Tr = 1.15;%Trackwith rear
-car.weight = 200+86; %Pes
-car.Zrf=0.0963; %Roll center front
-car.Zrr=0.12; %Roll center rear
-car.H=0.1837;
-car.Kf= 336.38; %roll stiffnes front
-car.Kr= 313.41; %roll stiffnes rear
-car.h= 0.28; 
-car.copx=0.84; %centre de pressions
-car.lambdaHy=1;
+car.Tr = 1.25;%Trackwith rear
+car.weight = 205+70; %Pes
+car.Zrf=0.07; %Roll center front
+car.Zrr=0.08; %Roll center rear
+car.H=0.225;
+car.Kf= 18370.86641/57.2958; %roll stiffnes front
+car.Kr= 18370.86641/57.2958; %roll stiffnes rear
+car.h= 0.3; 
+car.copx=0.8; %centre de pressions
+car.lambdaHy=0;
 car.lambdaVy=1;
-car.lambdauy=0.6; %scaling factor
+car.lambdauy=0.805; %scaling factor
 car.lambdaKygamma=1;
-car.lambdaCy=1;
-car.lambdaEy=1;
+car.lambdaCy=1.22;
+car.lambdaEy=1.07;
 car.lambdaKyalpha=1;
-car.lambdaKygamma=1;
-car.PF=0.75; %Front pressure Bar
-car.PR=0.75; %Rrear pressure Bar
-gammaF0=-1.5; %Front Camber deg
-gammaR0=-1; %Rear Camber deg
+car.PF=0.95; %Front pressure Bar
+car.PR=0.95; %Rrear pressure Bar
+gammaF0=-2; %Front Camber deg
+gammaR0=-1.5; %Rear Camber deg
 
 tire = struct();%Valores adimensionales modelo de neumatico
-tire.PCY1 = 1.5000; %shape factor (Afilar cantonades i estirar i atxatar)
-tire.PDY1 = 2.35; %estirar o aixafar gràfica
-tire.PDY2 = -0.4982;
-tire.PDY3 = 10;
-tire.PEY1 = -0.0028; %afilar cantonades
-tire.PEY2 = 0.0019;
-tire.PEY3 = -1.5129; %en negatiu s'afila la dreta i en postiu l'esquerra
-tire.PEY4 = 230.59;
-tire.PEY5 = -3.8505e+04;
-tire.PKY1 = -25.5913;
-tire.PKY2 = 1; %rotar sobre el centre antihorari
-tire.PKY3 = 1.0000; 
-tire.PKY4 = 2.0000; 
-tire.PKY5 = -1.7614; 
-tire.PKY6 = 4.1319;
-tire.PKY7 = 2.4839;
-tire.PHY1 = 0; %Desplaçar lateralment
-tire.PHY2 = 0; %Desplaçar lateralment
-tire.PVY1 = 0; %pujar i baixar la grafica sencera
-tire.PVY2 = 0; %pujar i baixar la grafica sencera
-tire.PVY3 = 0; %pujar i baixar la grafica sencera
-tire.PVY4 = 2.9407;
-tire.PPY1 = 0.2347; 
-tire.PPY2 = 0.9613;
-tire.PPY3 = -1.0855;
-tire.PPY4 = -2;
-tire.PPY5 = 0.0000;
-tire.Fz0 = 1080;
-tire.P0=0.97;
+tire.PCY1 = 1.477553032924075; %shape factor (Afilar cantonades i estirar i atxatar)
+tire.PDY1 = 2.419662634889429; %estirar o aixafar gràfica
+tire.PDY2 = - 0.096991237613422;
+tire.PDY3 = 9.699367924763585;
+tire.PEY1 = - 0.001014423462658; %afilar cantonades
+tire.PEY2 = - 0.001567587511733;
+tire.PEY3 = -26.252507850904447; %en negatiu s'afila la dreta i en postiu l'esquerra
+tire.PEY4 = 4.418491888020646e+03;
+tire.PEY5 = 0;%No esta
+tire.PKY1 = - 48.096691177591670;
+tire.PKY2 = 1.79989978802; %rotar sobre el centre antihorari
+tire.PKY3 = 0.776633692944650; 
+tire.PKY4 = 1; 
+tire.PKY5 = 1; 
+tire.PKY6 = 1;
+tire.PKY7 = 1;
+tire.PHY1 = 9.632469743033963e-05; %Desplaçar lateralment
+tire.PHY2 = 4.485102635543676e-04; %Desplaçar lateralment
+tire.PVY1 = - 0.005996641445337; %pujar i baixar la grafica sencera
+tire.PVY2 = 0.031420448279870; %pujar i baixar la grafica sencera
+tire.PVY3 = - 0.840635268453471; %pujar i baixar la grafica sencera
+tire.PVY4 = - 0.482847397434584;
+tire.PPY1 = 0.006522910697878; 
+tire.PPY2 = 0.732182121539935;
+tire.PPY3 = - 0.248004155399173;
+tire.PPY4 =  0.344037334268957;
+tire.PPY5 = 0;
+tire.Fz0 = 1000;
+tire.P0=0.82737;
 %Turn slip
 z0=1;
 z1=1;
@@ -89,7 +89,7 @@ MZ=@(SA)  a0m + a1m*cos(SA*wm) + b1m*sin(SA*wm) + a2m*cos(2*SA*wm) + b2m*sin(2*S
 
 %Imputs
 Radi=9.125; %Radi de gir
-deltadg=0:1:18;%Steering angles en graus
+deltadg=-0:1:20;%Steering angles en graus
 SI=deltadg'.*pi/180; %Steering angle en rad
 R=sign(SI)*Radi;
 Betadg=0:1:9; %Slip angle en graus
@@ -110,7 +110,7 @@ for i = 1:length(SI);
             Ay(i,j)=0;
             for k=1:10     
                 
-                df(i,j)=1.93*(w(i,j)*R(i)).^2; %Down Force
+                df(i,j)=4.18*0.563*0.5*1.225*(w(i,j)*R(i)).^2; %Down Force
                 dfR(i,j)=df(i,j)*car.copx/(1.53*2); %Down Force front
                 dfF(i,j)=df(i,j)*(1.53-car.copx)/(1.53*2); %Down Force rear
 
@@ -154,10 +154,10 @@ for i = 1:length(SI);
 
                 %Camber variation
                 rollangle(i,j)=Ay(i,j)*car.weight*g*car.H/(car.Kr+car.Kf);
-                gammaFL(i,j)=abs((gammaF0+0.55333*rollangle(i,j))*pi/180); %rollangle i camber en deg 
-                gammaFR(i,j)=abs((gammaF0-0.55333*rollangle(i,j))*pi/180); %rollangle i camber en deg 
-                gammaRL(i,j)=abs((gammaR0+0.55333*rollangle(i,j))*pi/180); %rollangle i camber en deg 
-                gammaRR(i,j)=abs((gammaR0-0.55333*rollangle(i,j))*pi/180); %rollangle i camber en deg 
+                gammaFL(i,j)=abs((gammaF0+0.58984220783*rollangle(i,j))*pi/180); %rollangle i camber en deg 
+                gammaFR(i,j)=abs((gammaF0-0.5898422078*rollangle(i,j))*pi/180); %rollangle i camber en deg 
+                gammaRL(i,j)=abs((gammaR0+0.5898422078*rollangle(i,j))*pi/180); %rollangle i camber en deg 
+                gammaRR(i,j)=abs((gammaR0-0.5898422078*rollangle(i,j))*pi/180); %rollangle i camber en deg 
 
 
                 %Front Left wheel
@@ -465,6 +465,23 @@ legendCell_VS = cellstr(num2str(VS*180/pi, 'VS=%-d'));
 legendCell_SI = cellstr(num2str(SI*180/pi, 'SI=%-d'));
 legend([legendCell_VS;legendCell_SI], 'NumColumns',2)
 
+figure(1)
+plot(deltadg, FyFR)
+xlabel('Steering input [deg]')
+ylabel('FYFR [N]')
+
+figure(2)
+plot(deltadg, FyFL)
+xlabel('Steering input [deg]')
+ylabel('FYFL[N]')
+
+figure(3)
+plot(alphaFL*180/pi, FyFL)
+xlabel('Slip Angle [º]')
+ylabel('FYFL[N]')
+legendCell_VS = cellstr(num2str(VS*180/pi, 'VS=%-d'));
+legendCell_SI = cellstr(num2str(SI*180/pi, 'SI=%-d'));
+legend([legendCell_VS;legendCell_SI], 'NumColumns',2)
 
 %{
 figure
