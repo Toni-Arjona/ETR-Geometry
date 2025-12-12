@@ -88,7 +88,7 @@ MZ=@(SA)  a0m + a1m*cos(SA*wm) + b1m*sin(SA*wm) + a2m*cos(2*SA*wm) + b2m*sin(2*S
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %Imputs
-Radi=9.125; %Radi de gir
+Radi=10; %Radi de gir
 deltadg=-0:1:20;%Steering angles en graus
 SI=deltadg'.*pi/180; %Steering angle en rad
 R=sign(SI)*Radi;
@@ -465,20 +465,21 @@ legendCell_VS = cellstr(num2str(VS*180/pi, 'VS=%-d'));
 legendCell_SI = cellstr(num2str(SI*180/pi, 'SI=%-d'));
 legend([legendCell_VS;legendCell_SI], 'NumColumns',2)
 
-figure(1)
+figure(2)
 plot(deltadg, FyFR)
 xlabel('Steering input [deg]')
 ylabel('FYFR [N]')
 
-figure(2)
+figure(3)
 plot(deltadg, FyFL)
 xlabel('Steering input [deg]')
 ylabel('FYFL[N]')
 
-figure(3)
-plot(alphaFL*180/pi, FyFL)
+figure(4)
+plot3(alphaFL*180/pi, FzFL, FyFL)
 xlabel('Slip Angle [º]')
-ylabel('FYFL[N]')
+ylabel('FZFL[N]')
+zlabel('FYFL[N]')
 legendCell_VS = cellstr(num2str(VS*180/pi, 'VS=%-d'));
 legendCell_SI = cellstr(num2str(SI*180/pi, 'SI=%-d'));
 legend([legendCell_VS;legendCell_SI], 'NumColumns',2)
