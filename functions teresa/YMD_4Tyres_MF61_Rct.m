@@ -93,7 +93,7 @@ deltadg=-0:1:20;%Steering angles en graus
 SI=deltadg'.*pi/180; %Steering angle en rad
 R=sign(SI)*Radi;
 Betadg=0:1:9; %Slip angle en graus
-VS=Betadg'.*pi/180; %Slip angle rad
+VS=Betadg'.*pi/180; % Slip angle rad
 sliplim=15*pi/180; %Limit slip angle
 
 
@@ -464,6 +464,7 @@ ylabel('Yaw Moment [kg m]')
 legendCell_VS = cellstr(num2str(VS*180/pi, 'VS=%-d'));
 legendCell_SI = cellstr(num2str(SI*180/pi, 'SI=%-d'));
 legend([legendCell_VS;legendCell_SI], 'NumColumns',2)
+grid on
 
 figure(2)
 plot(deltadg, FyFR)
@@ -500,3 +501,23 @@ legend([legendCell_VS;legendCell_SI], 'NumColumns',2)
 xlabel('Lateral accel [gs]')
 ylabel('Yaw Accel [deg/s^2]')
 %}
+
+
+figure(6)
+plot(deltadg, FyFR) 
+xlabel('Steering input [deg]')
+ylabel('FYFR [N]')
+
+figure(7)
+plot(deltadg, FyFR)
+xlabel('Steering input [deg]')
+ylabel('FYFL[N]')
+
+figure(8)
+plot3(alphaFL*180/pi, FzFR, FyFR)
+xlabel('Slip Angle [º]')
+ylabel('FZFL[N]')
+zlabel('FYFL[N]')
+legendCell_VS = cellstr(num2str(VS*180/pi, 'VS=%-d'));
+legendCell_SI = cellstr(num2str(SI*180/pi, 'SI=%-d'));
+legend([legendCell_VS;legendCell_SI], 'NumColumns',2)

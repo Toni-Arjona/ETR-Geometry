@@ -350,6 +350,7 @@ g = 9.81; % gravedad [m/s^2]
         grid on
 
         figure(9)
+        yyaxis left
         plot(d_interval, F_ext)
         hold on
         plot (d_interval, F_int)
@@ -358,10 +359,11 @@ g = 9.81; % gravedad [m/s^2]
         ylabel(['Carga sobre neumáticos delanteros [N]'])
         legend("rueda exterior", "rueda interior", "carga total")
 
-        figure(10)
-        plot(radio, lat_acc/g)
-        xlim([-50, 50])
-        
+        yyaxis right
+        plot(d_interval, abs(curvatura))
+       
+
+       
         
         
         

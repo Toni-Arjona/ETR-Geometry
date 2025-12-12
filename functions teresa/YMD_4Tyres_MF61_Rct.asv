@@ -1,5 +1,6 @@
 clear all
 clc
+close all
 
 car = struct();%Definiciones del coche
 
@@ -58,7 +59,7 @@ tire.PPY2 = 0.732182121539935;
 tire.PPY3 = - 0.248004155399173;
 tire.PPY4 =  0.344037334268957;
 tire.PPY5 = 0;
-tire.Fz0 = 10o0;
+tire.Fz0 = 1000;
 tire.P0=0.82737;
 %Turn slip
 z0=1;
@@ -87,8 +88,8 @@ MZ=@(SA)  a0m + a1m*cos(SA*wm) + b1m*sin(SA*wm) + a2m*cos(2*SA*wm) + b2m*sin(2*S
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %Imputs
-Radi=9.125; %Radi de gir
-deltadg=0:1:18;%Steering angles en graus
+Radi=10; %Radi de gir
+deltadg=-0:1:20;%Steering angles en graus
 SI=deltadg'.*pi/180; %Steering angle en rad
 R=sign(SI)*Radi;
 Betadg=0:1:9; %Slip angle en graus
@@ -109,7 +110,7 @@ for i = 1:length(SI);
             Ay(i,j)=0;
             for k=1:10     
                 
-                df(i,j)=1.93*(w(i,j)*R(i)).^2; %Down Force
+                df(i,j)=4.18*0.563*0.5*1.225*(w(i,j)*R(i)).^2; %Down Force
                 dfR(i,j)=df(i,j)*car.copx/(1.53*2); %Down Force front
                 dfF(i,j)=df(i,j)*(1.53-car.copx)/(1.53*2); %Down Force rear
 
@@ -153,10 +154,10 @@ for i = 1:length(SI);
 
                 %Camber variation
                 rollangle(i,j)=Ay(i,j)*car.weight*g*car.H/(car.Kr+car.Kf);
-                gammaFL(i,j)=abs((gammaF0+0.55333*rollangle(i,j))*pi/180); %rollangle i camber en deg 
-                gammaFR(i,j)=abs((gammaF0-0.55333*rollangle(i,j))*pi/180); %rollangle i camber en deg 
-                gammaRL(i,j)=abs((gammaR0+0.55333*rollangle(i,j))*pi/180); %rollangle i camber en deg 
-                gammaRR(i,j)=abs((gammaR0-0.55333*rollangle(i,j))*pi/180); %rollangle i camber en deg 
+                gammaFL(i,j)=abs((gammaF0+0.58984220783*rollangle(i,j))*pi/180); %rollangle i camber en deg 
+                gammaFR(i,j)=abs((gammaF0-0.5898422078*rollangle(i,j))*pi/180); %rollangle i camber en deg 
+                gammaRL(i,j)=abs((gammaR0+0.5898422078*rollangle(i,j))*pi/180); %rollangle i camber en deg 
+                gammaRR(i,j)=abs((gammaR0-0.5898422078*rollangle(i,j))*pi/180); %rollangle i camber en deg 
 
 
                 %Front Left wheel
@@ -464,6 +465,24 @@ legendCell_VS = cellstr(num2str(VS*180/pi, 'VS=%-d'));
 legendCell_SI = cellstr(num2str(SI*180/pi, 'SI=%-d'));
 legend([legendCell_VS;legendCell_SI], 'NumColumns',2)
 
+figure(2)
+plot(deltadg, FyFR)
+xlabel('Steering input [deg]')
+ylabel('FYFR [N]')
+
+figure(3)
+plot(deltadg, FyFL)
+xlabel('Steering input [deg]')
+ylabel('FYFL[N]')
+
+figure(4)
+plot3(alphaFL*180/pi, FzFL, FyFL)
+xlabel('Slip Angle [º]')
+ylabel('FZFL[N]')
+zlabel('FYFL[N]')
+legendCell_VS = cellstr(num2str(VS*180/pi, 'VS=%-d'));
+legendCell_SI = cellstr(num2str(SI*180/pi, 'SI=%-d'));
+legend([legendCell_VS;legendCell_SI], 'NumColumns',2)
 
 %{
 figure
@@ -481,3 +500,57 @@ legend([legendCell_VS;legendCell_SI], 'NumColumns',2)
 xlabel('Lateral accel [gs]')
 ylabel('Yaw Accel [deg/s^2]')
 %}
+
+%% --- CÓDIGO AÑADIDO: Calcular Slip Óptimo para una Fz específica ---
+
+% 1. DEFINE AQUÍ LA CARGA VERTICAL A CONSULTAR
+Target_Fz = 130; % <--- Pon aquí los Newtons (ej. 3000, 1000, etc)
+
+% Configuración auxiliar (usa valores del workspace)
+gamma_rad = gammaF0 * pi/180; % Usamos el camber estático delantero
+dpi_t = (car.PF - tire.P0) / tire.P0;
+dfz_t = (Target_Fz - tire.Fz0) / tire.Fz0;
+
+% Barrido de ángulos de 0 a 20 grados con alta precisión
+alpha_vec_deg = 0:0.01:20;
+alpha_vec_rad = alpha_vec_deg .* pi/180;
+
+% --- Cálculo de coeficientes (copiado de tu lógica MF61) ---
+% Shifts
+Shy0_t = (tire.PHY1 + tire.PHY2 * dfz_t) * car.lambdaHy;
+Svy0_t = Target_Fz * (tire.PVY1 + tire.PVY2 * dfz_t) * car.lambdaVy * car.lambdauy * z2;
+Svygamma_t = Target_Fz * (tire.PVY3 + tire.PVY4 * dfz_t) * gamma_rad * car.lambdaKygamma * car.lambdauy * z2;
+Svy_t = Svy0_t + Svygamma_t;
+
+% Stiffness
+Kygamma0_t = (tire.PKY6 + tire.PKY7 * dfz_t) * Target_Fz * car.lambdaKygamma * (1 + tire.PPY5 * dpi_t);
+Kyalpha0_t = tire.PKY1 * tire.Fz0 * (1 + tire.PPY1 * dpi_t) * sin(tire.PKY4 * atan(Target_Fz / ((tire.PKY2 * tire.Fz0 * (1 + tire.PPY2 * dpi_t))))) * car.lambdaKyalpha;
+Kyalpha_t = tire.PKY1 * tire.Fz0 * (1 + tire.PPY1 * dpi_t) * sin(tire.PKY4 * atan(Target_Fz / ((tire.PKY2 + tire.PKY5 * gamma_rad^2) * tire.Fz0 * (1 + tire.PPY2 * dpi_t)))) * (1 - tire.PKY3 * abs(gamma_rad)) * car.lambdaKyalpha * z3;
+
+Shygamma_t = ((Kygamma0_t * gamma_rad - Svygamma_t) / (Kyalpha_t + eps)) * z0 + z4 - 1;
+Shy_t = Shy0_t + Shygamma_t;
+
+% Shape Factors
+Cy_t = tire.PCY1 * car.lambdaCy;
+uy_t = (tire.PDY1 + tire.PDY2 * dfz_t) * (1 + tire.PPY3 * dpi_t + tire.PPY4 * dpi_t^2) * (1 - tire.PDY3 * gamma_rad^2) * car.lambdauy;
+Dy_t = uy_t * Target_Fz * z2;
+By_t = Kyalpha_t / (Cy_t * Dy_t + eps);
+
+% --- Bucle vectorial para encontrar el pico ---
+Fy_vec = zeros(size(alpha_vec_rad));
+for k = 1:length(alpha_vec_rad)
+    alphay_t = -(alpha_vec_rad(k) + Shy_t); 
+    Ey_t = (tire.PEY1 + tire.PEY2 * dfz_t) * (1 + tire.PEY5 * gamma_rad^2 - (tire.PEY3 + tire.PEY4 * gamma_rad) * sign(alphay_t)) * car.lambdaEy;
+    
+    % Fórmula Mágica
+    Fyp_t = Dy_t * sin(Cy_t * atan(By_t * alphay_t - Ey_t * (By_t * alphay_t - atan(By_t * alphay_t)))) + Svy_t;
+    Fy_vec(k) = -Fyp_t;
+end
+
+% --- Resultados ---
+[max_Fy, idx] = max(abs(Fy_vec));
+opt_slip = alpha_vec_deg(idx);
+
+fprintf('\n>>> RESULTADOS PARA Fz = %.0f N <<<\n', Target_Fz);
+fprintf('Slip Óptimo: %.2f grados\n', opt_slip);
+fprintf('Fy Máxima:   %.2f N\n', max_Fy);
