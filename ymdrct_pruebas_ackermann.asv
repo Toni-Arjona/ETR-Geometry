@@ -18,7 +18,7 @@ car.H=0.225;
 car.Kf= 18370.86641/57.2958; %roll stiffnes front
 car.Kr= 18370.86641/57.2958; %roll stiffnes rear
 car.h= 0.3; 
-car.copx=0.475; %centre de pressions
+car.copx=0.8; %centre de pressions
 car.lambdaHy=0;
 car.lambdaVy=1;
 car.lambdauy=0.805; %scaling factor
@@ -89,9 +89,9 @@ MZ=@(SA)  a0m + a1m*cos(SA*wm) + b1m*sin(SA*wm) + a2m*cos(2*SA*wm) + b2m*sin(2*S
 
 %Imputs
 Radi=10; %Radi de gir
-deltadg=-0:1:20;%Steering angles en graus
-SI=deltadg'.*pi/180; %Steering angle en rad
-R=sign(SI)*Radi;
+deltadg=-0:10:120;%Steering angles en graus
+%SI=deltadg'.*pi/180; %Steering angle en rad
+R=sign(deg2rad(deltadg))*Radi;
 Betadg=0:1:9; %Slip angle en graus
 VS=Betadg'.*pi/180; % Slip angle rad
 sliplim=15*pi/180; %Limit slip angle
@@ -102,7 +102,10 @@ Wf=g*car.weight*car.b/(car.l);
 Wr=g*car.weight*car.a/(car.l);
 
 
-for i = 1:length(SI);
+for i = 1:length(deltadg);
+    [intwheel_rad, extwheel_rad] = ackermann_function(deltadg(i))
+    intwheel_rad = deg2rad(intwheel_rad); 
+    extqheel_rad = deg2rad(extwheel_deg)
     Q=0; %es pel loop dels VS
     for j = 1:length(VS); 
         if Q==0
@@ -114,7 +117,7 @@ for i = 1:length(SI);
                 dfR(i,j)=df(i,j)*car.copx/(1.53*2); %Down Force front
                 dfF(i,j)=df(i,j)*(1.53-car.copx)/(1.53*2); %Down Force rear
 
-                alphaFL(i,j)=((tan(VS(j))*(w(i,j)*R(i)))+(w(i,j)*car.a))./((w(i,j)*R(i))-w(i,j)*car.Tf/2)-SI(i); %slip angle front right en rad
+                alphaFL(i,j)=((tan(VS(j))*(w(i,j)*R(i)))+(w(i,j)*car.a))./((w(i,j)*R(i))-w(i,j)*car.Tf/2)-extwheel_deg; %slip angle front right en rad
                 %alphaFL(i,j)=((tan(VS(j))*R)+car.a)./(R-car.Tf/2)-SI(i); %slip angle front left en rad
                 if alphaFL(i,j)>sliplim;
                     alphaFL(i,j)=sliplim;
@@ -122,7 +125,7 @@ for i = 1:length(SI);
                     alphaFL(i,j)=-sliplim;
                 end
 
-                alphaFR(i,j)=((tan(VS(j))*(w(i,j)*R(i)))+(w(i,j)*car.a))./((w(i,j)*R(i))+w(i,j)*car.Tf/2)-SI(i); %slip angle front right en rad
+                alphaFR(i,j)=((tan(VS(j))*(w(i,j)*R(i)))+(w(i,j)*car.a))./((w(i,j)*R(i))+w(i,j)*car.Tf/2)-intwheel_rad; %slip angle front right en rad
                 if alphaFR(i,j)>sliplim;
                     alphaFR(i,j)=sliplim;
                 elseif alphaFR(i,j)<-sliplim;
@@ -266,15 +269,15 @@ for i = 1:length(SI);
 
                 %Izz(i,j)=(car.a/car.l)*(FzFL(i,j)+FzFR(i,j))*car.a^2+(car.b/car.l)*(FzRR(i,j)+FzRL(i,j))*car.b^2;
                 if Q==0
-                    Ay(i,j)=(FyFL(i,j)*(cos(SI(i)))+FyFR(i,j)*(cos(SI(i)))+(FyRR(i,j)+FyRL(i,j)))/(car.weight*g); %Acceleracio lateral o centripeta en g
+                    Ay(i,j)=(FyFL(i,j)*(cos(extwheel_deg))+FyFR(i,j)*(cos(intwheel_rad))+(FyRR(i,j)+FyRL(i,j)))/(car.weight*g); %Acceleracio lateral o centripeta en g
                 end
                 %Ay(i,j)=(FyFL(i,j)*(cos(SI(i)-alphaFL(i,j)))+FyFR(i,j)*(cos(SI(i)-alphaFR(i,j)))+(FyRR(i,j)+FyRL(i,j)))/(car.weight*g); %Acceleracio lateral o centripeta
-                YawMoment(i,j)=(FyFL(i,j).*cos(SI(i))+FyFR(i,j).*cos(SI(i)))*car.a-(FyRR(i,j)+FyRL(i,j))*car.b +MZ(alphaFL(i,j))+MZ(alphaFR(i,j))+MZ(alphaRL(i,j))+MZ(alphaRR(i,j));
+                YawMoment(i,j)=(FyFL(i,j).*cos(extwheel_deg)+FyFR(i,j).*cos(intwheel_rad))*car.a-(FyRR(i,j)+FyRL(i,j))*car.b +MZ(alphaFL(i,j))+MZ(alphaFR(i,j))+MZ(alphaRL(i,j))+MZ(alphaRR(i,j));
                 %YawMoment(i,j)=(FyFL(i,j).*cos(SI(i)-alphaFL(i,j))+FyFR(i,j).*cos(SI(i)-alphaFL(i,j)))*car.a-(FyRR(i,j)+FyRL(i,j))*car.b-MZ(alphaFL(i,j))-MZ(alphaFR(i,j))-MZ(alphaRL(i,j))-MZ(alphaRR(i,j));
                 %YawAccel(i,j)=YawMoment(i,j)./Izz(i,j)*180/pi;
                 %w(i,j)=Ay(i,j)*g/(w(i,j)*R);
-                w(i,j)=-sign(SI(i))*sqrt(abs(Ay(i,j).*g/R(i)));  
-                 
+                %w(i,j)=-sign(SI(i))*sqrt(abs(Ay(i,j).*g/R(i)));  
+                 %{
                 if Ay(i,j)>0
                     Q=0;
                 elseif Ay(i,j)<=0 %&& j>1
@@ -462,7 +465,7 @@ end
 xlabel('Lateral accel [gs]')
 ylabel('Yaw Moment [kg m]')
 legendCell_VS = cellstr(num2str(VS*180/pi, 'VS=%-d'));
-legendCell_SI = cellstr(num2str(SI*180/pi, 'SI=%-d'));
+legendCell_SI = cellstr(num2str(deltadg, 'SI=%-d'));
 legend([legendCell_VS;legendCell_SI], 'NumColumns',2)
 grid on
 

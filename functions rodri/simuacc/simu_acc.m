@@ -31,7 +31,7 @@ effcy = 0.9; % eficiencia transmi
 % NEUMÁTICO
 tire_radius = effective_rolling_radius(m*g/4, 0.827); % radio efectivo de la rueda [m]    
 camber_deg = -2;
-slip_ratio = 1.05;
+slip_ratio = 1.08;
 v = 0.01; % v inicial muy pequeña, para v = 0 peta código
 
 
@@ -52,7 +52,7 @@ for x = d_total
             pwr = 20*effcy;
         end
     
-    pwrv(idx) = pwr/effcy; 
+    pwrv(idx) = pwr/effcy; % entrega de potencia total
 
     % CÁLCULO CARGA VERTICAL TOTAL
     dForce = 0.5*air_d*area*df_coeff*v^2; % cálculo downforce [N]

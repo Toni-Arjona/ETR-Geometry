@@ -1,12 +1,12 @@
 
 function [left_ackermann_percentage, right_ackermann_percentage] = Ackermann_steering(car, steering_wheel_angle)
-    %{
+    
     steer_angle_max= 120; %in deg
     steer_angle_min= -120; %in deg
     L= 1535; %in mm
     tf=1250; %in mm
     tr=1150; %in mm
-    %}
+    
     arguments
     car car
     end 

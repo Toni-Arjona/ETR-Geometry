@@ -18,7 +18,7 @@ car.H=0.225;
 car.Kf= 18370.86641/57.2958; %roll stiffnes front
 car.Kr= 18370.86641/57.2958; %roll stiffnes rear
 car.h= 0.3; 
-car.copx=0.8; %centre de pressions
+car.copx=0.475; %centre de pressions
 car.lambdaHy=0;
 car.lambdaVy=1;
 car.lambdauy=0.805; %scaling factor
@@ -88,7 +88,7 @@ MZ=@(SA)  a0m + a1m*cos(SA*wm) + b1m*sin(SA*wm) + a2m*cos(2*SA*wm) + b2m*sin(2*S
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %Imputs
-Radi=10; %Radi de gir
+Radi=8; %Radi de gir
 deltadg=-0:1:20;%Steering angles en graus
 SI=deltadg'.*pi/180; %Steering angle en rad
 R=sign(SI)*Radi;
@@ -521,3 +521,4 @@ zlabel('FYFL[N]')
 legendCell_VS = cellstr(num2str(VS*180/pi, 'VS=%-d'));
 legendCell_SI = cellstr(num2str(SI*180/pi, 'SI=%-d'));
 legend([legendCell_VS;legendCell_SI], 'NumColumns',2)
+grid on
