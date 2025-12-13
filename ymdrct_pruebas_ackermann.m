@@ -89,7 +89,7 @@ MZ=@(SA)  a0m + a1m*cos(SA*wm) + b1m*sin(SA*wm) + a2m*cos(2*SA*wm) + b2m*sin(2*S
 
 %Imputs
 Radi=10; %Radi de gir
-deltadg=-0:10:120;%Steering angles en graus
+deltadg=0:5:80;%Steering angles en graus
 %SI=deltadg'.*pi/180; %Steering angle en rad
 R=sign(deg2rad(deltadg))*Radi;
 Betadg=0:1:9; %Slip angle en graus
@@ -112,7 +112,7 @@ for i = 1:length(deltadg);
         if Q==0
             w(i,j)=0.0000000001;
             Ay(i,j)=0;
-            for k=1:10     
+            for k=1:100    
                 
                 df(i,j)=4.18*0.563*0.5*1.225*(w(i,j)*R(i)).^2; %Down Force
                 dfR(i,j)=df(i,j)*car.copx/(1.53*2); %Down Force front
@@ -455,12 +455,12 @@ Tskidpad= 2*pi/wmax
 %Plotting Yaw Moment versus Lateral Acceleration
 figure
 for i=1:N
-    plot(Ay(:,i),YawMoment(:,i))
+    plot(Ay(:,i),YawMoment(:,i), '.')
     hold on
 end
 
 for i=1:M
-    plot(Ay(i,:),YawMoment(i,:))
+    plot(Ay(i,:),YawMoment(i,:), '.')
     hold on
 end
 xlabel('Lateral accel [gs]')
@@ -523,5 +523,5 @@ xlabel('Slip Angle [º]')
 ylabel('FZFL[N]')
 zlabel('FYFL[N]')
 legendCell_VS = cellstr(num2str(VS*180/pi, 'VS=%-d'));
-legendCell_SI = cellstr(num2str(deltdg, 'SI=%-d'));
+legendCell_SI = cellstr(num2str(deltadg, 'SI=%-d'));
 legend([legendCell_VS;legendCell_SI], 'NumColumns',2)

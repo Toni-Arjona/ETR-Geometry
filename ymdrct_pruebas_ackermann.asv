@@ -102,22 +102,23 @@ Wf=g*car.weight*car.b/(car.l);
 Wr=g*car.weight*car.a/(car.l);
 
 
+
 for i = 1:length(deltadg);
-    [intwheel_rad, extwheel_rad] = ackermann_function(deltadg(i))
-    intwheel_rad = deg2rad(intwheel_rad); 
-    extqheel_rad = deg2rad(extwheel_deg)
+    [intwheel_deg, extwheel_deg] = ackermann_function(deltadg(i))
+    intwheel_rad = deg2rad(intwheel_deg); 
+    extwheel_rad = deg2rad(extwheel_deg)
     Q=0; %es pel loop dels VS
     for j = 1:length(VS); 
         if Q==0
             w(i,j)=0.0000000001;
             Ay(i,j)=0;
-            for k=1:10     
+            for k=1:100    
                 
                 df(i,j)=4.18*0.563*0.5*1.225*(w(i,j)*R(i)).^2; %Down Force
                 dfR(i,j)=df(i,j)*car.copx/(1.53*2); %Down Force front
                 dfF(i,j)=df(i,j)*(1.53-car.copx)/(1.53*2); %Down Force rear
 
-                alphaFL(i,j)=((tan(VS(j))*(w(i,j)*R(i)))+(w(i,j)*car.a))./((w(i,j)*R(i))-w(i,j)*car.Tf/2)-extwheel_deg; %slip angle front right en rad
+                alphaFL(i,j)=((tan(VS(j))*(w(i,j)*R(i)))+(w(i,j)*car.a))./((w(i,j)*R(i))-w(i,j)*car.Tf/2)-extwheel_rad; %slip angle front right en rad
                 %alphaFL(i,j)=((tan(VS(j))*R)+car.a)./(R-car.Tf/2)-SI(i); %slip angle front left en rad
                 if alphaFL(i,j)>sliplim;
                     alphaFL(i,j)=sliplim;
@@ -269,10 +270,10 @@ for i = 1:length(deltadg);
 
                 %Izz(i,j)=(car.a/car.l)*(FzFL(i,j)+FzFR(i,j))*car.a^2+(car.b/car.l)*(FzRR(i,j)+FzRL(i,j))*car.b^2;
                 if Q==0
-                    Ay(i,j)=(FyFL(i,j)*(cos(extwheel_deg))+FyFR(i,j)*(cos(intwheel_rad))+(FyRR(i,j)+FyRL(i,j)))/(car.weight*g); %Acceleracio lateral o centripeta en g
+                    Ay(i,j)=(FyFL(i,j)*(cos(extwheel_rad))+FyFR(i,j)*(cos(intwheel_rad))+(FyRR(i,j)+FyRL(i,j)))/(car.weight*g); %Acceleracio lateral o centripeta en g
                 end
                 %Ay(i,j)=(FyFL(i,j)*(cos(SI(i)-alphaFL(i,j)))+FyFR(i,j)*(cos(SI(i)-alphaFR(i,j)))+(FyRR(i,j)+FyRL(i,j)))/(car.weight*g); %Acceleracio lateral o centripeta
-                YawMoment(i,j)=(FyFL(i,j).*cos(extwheel_deg)+FyFR(i,j).*cos(intwheel_rad))*car.a-(FyRR(i,j)+FyRL(i,j))*car.b +MZ(alphaFL(i,j))+MZ(alphaFR(i,j))+MZ(alphaRL(i,j))+MZ(alphaRR(i,j));
+                YawMoment(i,j)=(FyFL(i,j).*cos(extwheel_rad)+FyFR(i,j).*cos(intwheel_rad))*car.a-(FyRR(i,j)+FyRL(i,j))*car.b +MZ(alphaFL(i,j))+MZ(alphaFR(i,j))+MZ(alphaRL(i,j))+MZ(alphaRR(i,j));
                 %YawMoment(i,j)=(FyFL(i,j).*cos(SI(i)-alphaFL(i,j))+FyFR(i,j).*cos(SI(i)-alphaFL(i,j)))*car.a-(FyRR(i,j)+FyRL(i,j))*car.b-MZ(alphaFL(i,j))-MZ(alphaFR(i,j))-MZ(alphaRL(i,j))-MZ(alphaRR(i,j));
                 %YawAccel(i,j)=YawMoment(i,j)./Izz(i,j)*180/pi;
                 %w(i,j)=Ay(i,j)*g/(w(i,j)*R);
@@ -485,7 +486,7 @@ xlabel('Slip Angle [º]')
 ylabel('FZFL[N]')
 zlabel('FYFL[N]')
 legendCell_VS = cellstr(num2str(VS*180/pi, 'VS=%-d'));
-legendCell_SI = cellstr(num2str(SI*180/pi, 'SI=%-d'));
+legendCell_SI = cellstr(num2str(deltadg, 'SI=%-d'));
 legend([legendCell_VS;legendCell_SI], 'NumColumns',2)
 
 %{
@@ -522,5 +523,5 @@ xlabel('Slip Angle [º]')
 ylabel('FZFL[N]')
 zlabel('FYFL[N]')
 legendCell_VS = cellstr(num2str(VS*180/pi, 'VS=%-d'));
-legendCell_SI = cellstr(num2str(SI*180/pi, 'SI=%-d'));
+legendCell_SI = cellstr(num2str(deltdg, 'SI=%-d'));
 legend([legendCell_VS;legendCell_SI], 'NumColumns',2)
