@@ -453,31 +453,20 @@ Tskidpad= 2*pi/wmax
 
 %Plotting Yaw Moment versus Lateral Acceleration
 figure
-hVS = gobjects(N,1);
-hSI = gobjects(M,1);
-cmpaVS= winter(N);
 for i=1:N
-    hVS(i)=plot(Ay(:,i),YawMoment(:,i), "Color",cmpaVS(i,:));
+    plot(Ay(:,i),YawMoment(:,i), "Color",)
     hold on
 end
 
-cmapSI=autumn(M);
 for i=1:M
-    hSI(i)=plot(Ay(i,:),YawMoment(i,:), 'Color',cmapSI(i,:));
+    plot(Ay(i,:),YawMoment(i,:))
     hold on
 end
 xlabel('Lateral accel [gs]')
 ylabel('Yaw Moment [kg m]')
-legendCell_VS = compose('VS = %.1f°', Betadg);
-legendCell_SI = compose('SI = %.1f°', deltadg);
-ax1 = gca;
-
-% First legend (VS)
-lgd1 = legend(ax1, hVS, legendCell_VS, 'Location','northwest');
-
-% Create invisible axes for second legend
-ax2 = axes('Position', ax1.Position, 'Visible','off');
-lgd2 = legend(ax2, hSI, legendCell_SI, 'Location','southeast');
+legendCell_VS = cellstr(num2str(VS*180/pi, 'VS=%-d'));
+legendCell_SI = cellstr(num2str(deltadg, 'SI=%-d'));
+legend([legendCell_VS;legendCell_SI], 'NumColumns',2)
 grid on
 
 figure(2)
