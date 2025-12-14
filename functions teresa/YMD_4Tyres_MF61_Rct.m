@@ -88,7 +88,7 @@ MZ=@(SA)  a0m + a1m*cos(SA*wm) + b1m*sin(SA*wm) + a2m*cos(2*SA*wm) + b2m*sin(2*S
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %Imputs
-Radi=8; %Radi de gir
+Radi=10; %Radi de gir
 deltadg=-0:1:20;%Steering angles en graus
 SI=deltadg'.*pi/180; %Steering angle en rad
 R=sign(SI)*Radi;

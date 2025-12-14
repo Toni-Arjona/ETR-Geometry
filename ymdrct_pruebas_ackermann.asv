@@ -88,11 +88,11 @@ MZ=@(SA)  a0m + a1m*cos(SA*wm) + b1m*sin(SA*wm) + a2m*cos(2*SA*wm) + b2m*sin(2*S
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %Imputs
-Radi=10; %Radi de gir
-deltadg=-0:10:120;%Steering angles en graus
+Radi=30; %Radi de gir
+deltadg=-39.9:4:40.1;%Steering angles en graus
 %SI=deltadg'.*pi/180; %Steering angle en rad
 R=sign(deg2rad(deltadg))*Radi;
-Betadg=0:1:9; %Slip angle en graus
+Betadg=-8.9:1:9.1; %Slip angle en graus
 VS=Betadg'.*pi/180; % Slip angle rad
 sliplim=15*pi/180; %Limit slip angle
 
@@ -455,18 +455,19 @@ Tskidpad= 2*pi/wmax
 %Plotting Yaw Moment versus Lateral Acceleration
 figure
 for i=1:N
-    plot(Ay(:,i),YawMoment(:,i))
+    plot(Ay(:,i),YawMoment(:,i), '.')
     hold on
 end
 
 for i=1:M
-    plot(Ay(i,:),YawMoment(i,:))
+    plot(Ay(i,:),YawMoment(i,:), ['.' ...
+       ])
     hold on
 end
 xlabel('Lateral accel [gs]')
 ylabel('Yaw Moment [kg m]')
 legendCell_VS = cellstr(num2str(VS*180/pi, 'VS=%-d'));
-legendCell_SI = cellstr(num2str(deltadg, 'SI=%-d'));
+legendCell_SI = cellstr(num2str(deltadg, 'wheel steer angle=%-d'));
 legend([legendCell_VS;legendCell_SI], 'NumColumns',2)
 grid on
 
@@ -523,5 +524,5 @@ xlabel('Slip Angle [º]')
 ylabel('FZFL[N]')
 zlabel('FYFL[N]')
 legendCell_VS = cellstr(num2str(VS*180/pi, 'VS=%-d'));
-legendCell_SI = cellstr(num2str(deltdg, 'SI=%-d'));
+legendCell_SI = cellstr(num2str(deltadg, 'SI=%-d'));
 legend([legendCell_VS;legendCell_SI], 'NumColumns',2)
