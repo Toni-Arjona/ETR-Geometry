@@ -89,10 +89,10 @@ MZ=@(SA)  a0m + a1m*cos(SA*wm) + b1m*sin(SA*wm) + a2m*cos(2*SA*wm) + b2m*sin(2*S
 
 %Imputs
 Radi=10; %Radi de gir
-deltadg=-59.9:4:60.1;%Steering angles en graus
+deltadg=0.1:4:80.1;%Steering angles en graus
 %SI=deltadg'.*pi/180; %Steering angle en rad
 R=sign(deg2rad(deltadg))*Radi;
-Betadg=-8.9:1:9.1; %Slip angle en graus
+Betadg=0.1:1:12.1; %Slip angle en graus
 VS=Betadg'.*pi/180; % Slip angle rad
 sliplim=15*pi/180; %Limit slip angle
 
@@ -455,12 +455,12 @@ Tskidpad= 2*pi/wmax
 %Plotting Yaw Moment versus Lateral Acceleration
 figure
 for i=1:N
-    plot(Ay(:,i),YawMoment(:,i), '.')
+    plot(Ay(:,i),YawMoment(:,i))
     hold on
 end
 
 for i=1:M
-    plot(Ay(i,:),YawMoment(i,:), ['.'])
+    plot(Ay(i,:),YawMoment(i,:))
     hold on
 end
 xlabel('Lateral accel [gs]')
