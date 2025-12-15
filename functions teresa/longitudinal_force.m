@@ -3,8 +3,8 @@ function Long_force_coef = longitudinal_force(m, z_load, r_eff, camber_deg, slip
 %Take into account that the slip ratio for maximum force is 1.12
 
 %Car inputs
-g=9.81; % m/s^2
-W = z_load; % vehicle weight in N
+g= 9.81; % m/s^2
+W = z_load; % total load on vehicle including aero
 h = 0.3; % cog height m
 l = 1.6; % wheel base m
 cogx= 0.8; % Front axle -> Mass center distance in m

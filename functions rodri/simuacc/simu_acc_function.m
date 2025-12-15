@@ -1,7 +1,5 @@
-close all
-clear all
-clc
-%function tiempo_acc = simu_acc(gear_ratio)
+function tiempo_acc = simu_acc_function(gear_ratio)
+
 load('datos_simulap.mat')
 
 par_vector = motor.P;
@@ -24,13 +22,13 @@ air_d = 1.225; % densidad del aire [kg/m^3]
 area = 0.563; % área frontal del coche [m^2]
 
 %TRANSMI
-gear_ratio =  9.6;% ratio reducción rpms transmisión
+%gear_ratio =  10.8;% ratio reducción rpms transmisión
 effcy = 0.9; % eficiencia transmi
 
 % NEUMÁTICO
 tire_radius = effective_rolling_radius(m*g/4, 0.827); % radio efectivo de la rueda [m]    
 camber_deg = -2;
-slip_ratio = 1.12;
+slip_ratio = 1.08;
 v = 0.01; % v inicial muy pequeña, para v = 0 peta código
 
 
@@ -76,34 +74,9 @@ for x = d_total
 
     v_resultante(idx) = v;
 
-    long_mu_v(idx) = Long_force_coef;
-
     idx = idx + 1;
 
 end
 
 dt = d_interval ./ v_resultante;
 tiempo_acc = sum(dt)
-
-
-
-%end
-
-
-figure(1)
-plot(d_total, net_accv/g)
-hold on
-plot(d_total, long_mu_v)
-
-
-figure(2)
-plot(d_total, v_resultante)
-
-figure(3)
-plot(d_total, 4*pwrv)
-
-
-
-
-
-            

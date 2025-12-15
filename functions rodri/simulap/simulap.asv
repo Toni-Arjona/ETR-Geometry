@@ -3,10 +3,18 @@ clear all
 close all
 
 
-load('datos_circuito.mat')
+load('datos_simulap.mat')
 g = 9.81; % gravedad [m/s^2]
 
-%PARÁMETROS COCHE 
+
+%% PARÁMETROS SIMU
+    v = 0.001; % velocidad inicial [m/s] (se ha cogido velocidad final de vuelta de una simu forward cualquiera)
+    d = 0.1; % intervalo para evaluación splines (como el vector radio se define a partir de esta evaluación, y los bucles iteran sobre el radio, acaba siendo el intervalo de simulación, en metros)
+    sf_lateral= 1 ; % porcentaje del agarre máximo lateral al que se llega
+    sf_braking = 1; % porcentaje de agarre de frenada máxima al que se llega
+    sf_accel = 1; % porcentaje de agarre de aceleración máxima al que se llega
+
+%% PARÁMETROS COCHE 
         m = 200 + 70; % peso coche + piloto [kg]
     
 
@@ -16,45 +24,40 @@ g = 9.81; % gravedad [m/s^2]
         air_d = 1.225; % densidad del aire [kg/m^3]
         area = 0.563; % área frontal del coche [m^2]
 
-    %TRANSMI
-        gear_ratio =  12;% ratio reducción rpms transmisión
+    % TRANSMI
+        gear_ratio =  11.9;% ratio reducción rpms transmisión
         effcy = 0.9; % eficiencia transmi
 
-    % NEUMÁTICO
-        tire_radius = effective_rolling_radius(m*g/4, 0.827); % radio efectivo de la rueda [m]    
-        coeff_long_max = 2.1; % coeficiente longitudinal máximo 
-        coeff_lat_max = 1.9; % coeficiente lateral máximo
-        sf= 0.9 ; % porcentaje del agarre máximo al que se llega
-        sf_braking = 0.7 % porcentaje de frenada máxima 
-        lat_mu = sf*coeff_lat_max; % coeficiente lateral neumático
-        long_mu = sf*coeff_long_max; % coeficiente longitudinal neumático
-        camber_deg = -2;
-        slip_ratio = 1.08
+%% NEUMÁTICO
+    tire_radius = effective_rolling_radius(m*g/4, 0.827); % radio efectivo de la rueda [m]    
+    
+    coeff_long_max = 2.1; % coeficiente longitudinal máximo 
+    coeff_lat_max = 1.9; % coeficiente lateral máximo        
+    lat_mu = sf_lateral*coeff_lat_max; % coeficiente lateral neumático
+    long_mu = sf_accel*coeff_long_max; % coeficiente longitudinal neumático
+    camber_deg = -2;
+    slip_ratio = 1.12;
 
-        % Parámetros iniciales grip disponible
-        lat_mu_available = lat_mu;
-        long_mu_available = long_mu;
+    % Parámetros iniciales grip disponible
+    lat_mu_available = lat_mu;
+    long_mu_available = long_mu;
 
-%PARÁMETROS SIMU
-    v = 10; % velocidad inicial [m/s] (se ha cogido velocidad final de vuelta de una simu forward cualquiera)
-    d = 0.1; % intervalo para evaluación splines (como el vector radio se define a partir de esta evaluación, y los bucles iteran sobre el radio, acaba siendo el intervalo de simulación, en metros)
-
-% CARGA DATOS CIRCUITO Y MOTOR
+%% CARGA DATOS CIRCUITO Y MOTOR
 % DATOS CURVAS PAR/POTENCIA MOTOR
-    par_vector = curva_motor.P;
-    v_ang_vector = curva_motor.W;
+    par_vector = motor.P;
+    v_ang_vector = motor.W;
     par_vector(diff(v_ang_vector)==0) = []; % limpiar valores de par correspondientes a valores de v_ang repetidos
     v_ang_vector(diff(v_ang_vector)==0) = []; % limpiar valores de v_ang repetidos
 
 % DEFINICIÓN TRAYECTO CIRCUITO CON SPLINES
     % 1. Distancia recorrida total e intervalo de evaluación para splines
-    d_total = [0; cumsum(sqrt(diff(circuito_v2.X).^2 + diff(circuito_v2.Y).^2))];
+    d_total = [0; cumsum(sqrt(diff(circuito.X).^2 + diff(circuito.Y).^2))];
     d_interval = 0: d : max(d_total);
     
     
     % 2. Definir exprsión splines circuito x e y, y evalurar para intervalo simu
-    x_spline = spline(d_total, circuito_v2.X); x_track = ppval(x_spline, d_interval);
-    y_spline = spline(d_total, circuito_v2.Y); y_track = ppval(y_spline, d_interval);
+    x_spline = spline(d_total, circuito.X); x_track = ppval(x_spline, d_interval);
+    y_spline = spline(d_total, circuito.Y); y_track = ppval(y_spline, d_interval);
     
     
     % 3. Cálculo curvatura circuito
@@ -72,7 +75,7 @@ g = 9.81; % gravedad [m/s^2]
 
 
 
-%FORWARD LOOP
+%% FORWARD LOOP
     % Creación vector velocidad resultante forward + índice idx
         v_resultante_forward = zeros(1, length(radio));
         idx = 1;
@@ -82,6 +85,8 @@ g = 9.81; % gravedad [m/s^2]
             v_ang= v/(tire_radius)*gear_ratio; % revoluciones motor a velocidad dada [rad/s]
             par = interp1(v_ang_vector, par_vector, v_ang); % encontrar par motor a velocidad dada [Nm]
             pwr = effcy*par*v_ang/1000; % potencia motor a velocidad dada [kW]
+
+            v_angv(idx) = v_ang;
             
             % Limitación motor a 40kW (máximo total con dos motores 80kW)
                 if pwr > 20*effcy
@@ -94,18 +99,9 @@ g = 9.81; % gravedad [m/s^2]
        
         % CÁLCULO GRIP LONGITUDINAL MÁXIMO Y FUERZA MOTOR 
             Long_force_coef = longitudinal_force(m, z_load/g, effective_rolling_radius(z_load/(4*g), 0.827), camber_deg, slip_ratio, v, 0.827);
-            long_grip = z_load*Long_force_coef/m; % cálculo grip longitudinal máx [m/s^2]
+            long_grip = sf_accel*z_load*Long_force_coef/m; % cálculo grip longitudinal máx [m/s^2]
             motor_acc = 4*pwr*1000/(m*v); % cálculo aceleración (longitudinal) actual proveniente de motores [m/s^2]
-        
-            %{
-            Limitar agarre longitudinal por saturación neumático [m/s^2]
-                if long_grip < 4618/m
-                    long_grip = long_grip;
-                else
-                    long_grip = 4618/m;
-                end
-            %}
-        
+                
         % CÁLCULO RESISTENCIA A AVANCE (drag + rolling resistance)
             dragForce = 0.5*air_d*area*dr_coeff*v^2; % cálculo drag [N]
             rollingForce = -z_load*rolling_resistance_coeff(z_load/g, camber_deg, 0.827, v, tire_radius, 1.08); % cálculo resistencia rodadura [N]
@@ -137,7 +133,7 @@ g = 9.81; % gravedad [m/s^2]
 
 
 
-%BACKWARD LOOP
+%% BACKWARD LOOP
     % vector velocidad backward + índice
         v_resultante_backward = zeros(1, length(radio));
         idx_b = 1;
@@ -152,14 +148,7 @@ g = 9.81; % gravedad [m/s^2]
         % CÁLCULO GRIP LONGITUDINAL MÁXIMO
             Long_force_coef = longitudinal_force(m, z_load/g, effective_rolling_radius(z_load/(4*g), 0.827), camber_deg, slip_ratio, v, 0.827);
             long_grip = z_load*Long_force_coef/m; % cálculo grip longitudinal máx [m/s^2]
-        %{
-            Limitar agarre longitudinal por saturación neumático [m/s^2]
-                if long_grip < 4618/m
-                    long_grip= long_grip;
-                else
-                    long_grip= 4618/m;
-                end 
-        %}   
+       
         
         % CÁLCULO RESISTENCIA A AVANCE (DRAG + ROLLING RESISTANCE)
             dragForce = 0.5*air_d*area*dr_coeff*v^2; % cálculo drag [N]
@@ -188,10 +177,10 @@ g = 9.81; % gravedad [m/s^2]
 
     
  
-% COMBINACIÓN BUCLE FORWARD Y BACKWARD
+%% COMBINACIÓN BUCLE FORWARD Y BACKWARD
     v_resultante = min(v_resultante_forward, flip(v_resultante_backward));
 
-% CÁLCULOS RESULTADOS
+%% CÁLCULOS RESULTADOS
     lat_acc = v_resultante.^2./radio; % Cálculo aceleración lateral para cada punto de simu
     dt = d ./ v_resultante; % Cálculo tiempo transcurrido en cada intervalo de simu
     g_long =    [diff(v_resultante),0]./dt; % cálculo aceleración longitudinal para cada punto de simu
@@ -200,7 +189,7 @@ g = 9.81; % gravedad [m/s^2]
     
     tiempo_total = sum(dt) % cálculo tiempo de vuelta
 
-% LOAD TRASNFER 
+%% LOAD TRASNFER 
     for lt = 1:length(abs(radio))
         [fz_FR, fz_FL, fz_RR, fz_RL] = normal_load_per_tire_complete(m, abs(lat_acc(lt)/g), 1.25, 1.25, 0.07, ...
         0.08, 18370.86641/57.2958, 18370.86641/57.2958, 0.225, 1.6, 0.8, v_resultante(lt));
@@ -215,7 +204,7 @@ g = 9.81; % gravedad [m/s^2]
     
         
 
-% PORCENTAJES RADIOS DE CURVA
+%% PORCENTAJES RADIOS DE CURVA
     % 1. filtro valores rectas (radios mayores a 50m)
     curvas = radio(abs(radio) < 50); 
     
@@ -231,7 +220,7 @@ g = 9.81; % gravedad [m/s^2]
     end
 
        
-% PLOTS
+%% PLOTS
 
     % 1. MAPA VELOCIDAD CON ESCALA DE COLORES       
         figure(1)
@@ -350,6 +339,7 @@ g = 9.81; % gravedad [m/s^2]
         grid on
 
         figure(9)
+       
         plot(d_interval, F_ext)
         hold on
         plot (d_interval, F_int)
@@ -358,10 +348,9 @@ g = 9.81; % gravedad [m/s^2]
         ylabel(['Carga sobre neumáticos delanteros [N]'])
         legend("rueda exterior", "rueda interior", "carga total")
 
-        figure(10)
-        plot(radio, lat_acc/g)
-        xlim([-50, 50])
-        
+       
+
+       
         
         
         

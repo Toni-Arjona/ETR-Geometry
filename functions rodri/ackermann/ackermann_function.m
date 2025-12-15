@@ -9,9 +9,9 @@ r_pinion = 35/2; % radio pinion
 % INPUTS geometría steering. Centro de coordenadas en KingPin rueda
 % izquierda
 l_rack = 600; %
-x_rack = 200; % posición en eje x rack
-y_tie_mangueta = -20;
-x_tie_mangueta = 50;
+x_rack = 60; % posición en eje x rack
+y_tie_mangueta = 25;
+x_tie_mangueta = 60;
 
 % cálculo puntos y ángulos para steer_angle = 0
 ax = x_rack;

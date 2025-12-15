@@ -1,18 +1,20 @@
+close all
+clear all
+clc
 
-
-% DATOS
+% DATOS (distancias todas en mm)
 % dimensiones coche
 wheelbase = 1600;
 front_track = 1250;
-rear_track = 1250;
-r_pinion = 35/2
+rear_track = 1250; 
+r_pinion = 35/2; % radio pinion
 
 % INPUTS geometría steering. Centro de coordenadas en KingPin rueda
 % izquierda
-l_rack = 600;
-x_rack = 200; % posición en eje x rack
-y_tie_mangueta = -20;
-x_tie_mangueta = 50;
+l_rack = 600; %
+x_rack = 60; % posición en eje x rack
+y_tie_mangueta = -25;
+x_tie_mangueta = 60;
 
 % cálculo puntos y ángulos para steer_angle = 0
 ax = x_rack;
@@ -45,7 +47,9 @@ for swheel_angle = 1:120 %rueda exterior
 
 end
 
-idx = 2
+
+
+idx = 2;
 for swheel_angle = 1:120 %rueda interior
     rack_disp = -deg2rad(swheel_angle)*r_pinion;
                                                                 
@@ -69,9 +73,24 @@ figure(1)
 plot(0:120, intwheel_deg);
 hold on
 plot(0:120, extwheel_deg);
-legend('rueda_interior', 'rueda_exterior')
+legend('rueda interior', 'rueda exterior')
+xlabel('Steering wheel angle [deg]')
+ylabel('Wheel steer angle [deg]')
 
 figure(2)
-plot(0:120, ack_pctge);
-ylim([-2, 2])
+plot(0:120, ack_pctge*100);
+xlabel('Steering wheel angle [deg]')
+ylabel('Porcentaje de ackermann [%]')
+ylim([-200, 200])
 grid on
+
+figure(3)
+plot(0:120, dynamic_toe)
+hold on
+plot(0:120, dynamic_toe_ack)
+grid on
+legend('Dynamic toe', 'Dynamic toe Ackermann')
+xlabel('Steering wheel angle [deg]')
+ylabel('Toe [deg]')
+
+

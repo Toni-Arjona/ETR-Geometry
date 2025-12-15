@@ -11,7 +11,7 @@ end
 
 
 % After the loop, process the results for further analysis or plotting
-plot(8:0.1:11, tiempos);
+plot(10:0.1:15, tiempos);
 xlabel('Gear Ratio');
 ylabel('Time');
 title('Time vs Gear Ratio');
