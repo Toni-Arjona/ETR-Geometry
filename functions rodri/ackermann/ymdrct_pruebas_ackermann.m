@@ -89,10 +89,10 @@ MZ=@(SA)  a0m + a1m*cos(SA*wm) + b1m*sin(SA*wm) + a2m*cos(2*SA*wm) + b2m*sin(2*S
 
 %Imputs
 Radi=10; %Radi de gir
-deltadg = 0.1:10:120; % Steering angles en graus
+deltadg = 0.1:5:60.1; % Steering angles en graus
 %SI=deltadg'.*pi/180; %Steering angle en rad
 R=sign(deg2rad(deltadg))*Radi;
-Betadg=0.1:0.5:9.1; %Slip angle en graus
+Betadg=0.1:0.5:10.1; %Slip angle en graus
 VS=Betadg'.*pi/180; % Slip angle rad
 sliplim=15*pi/180; %Limit slip angle
 
