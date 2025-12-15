@@ -88,20 +88,20 @@ MZ=@(SA)  a0m + a1m*cos(SA*wm) + b1m*sin(SA*wm) + a2m*cos(2*SA*wm) + b2m*sin(2*S
 
 %Inputs
 V=50; %velocitat en X en km/h
-deltadg=-15:2:15; %Steering angles en graus
+deltadg=-15:2:15; %Steering wheel angles en graus
 SI=deltadg'.*pi/180; %Steering angle en rad
-Betadg=-6:1:6; %Slip angle en graus
+Betadg=-7:1:7; %Slip angle en graus
 VS=Betadg'.*pi/180; %Slip angle rad
 sliplim=17*pi/180; %Limit slip angle
 
 
 %Izz=car.weight*(a^2+car.h^2); %Moment inercia
-df=4.18*0.563*0.5*1.225*((V/3.6)^2) %Down Force
-dfR=(df*copx)/l %dfR=df*copx/(1.53*2); Down Force front
-dfF=df-dfR %dfF=df*(1.53-copx)/(1.53*2); Down Force rear
+df=4.18*0.563*0.5*1.225*((V/3.6)^2); %Down Force
+dfR=(df*copx)/l; %dfR=df*copx/(1.53*2); Down Force front
+dfF=df-dfR; %dfF=df*(1.53-copx)/(1.53*2); Down Force rear
 %Vy=(V./3.6)*tan(VS);
-Wf=g*weight*b/l
-Wr=g*weight*a/l
+Wf=g*weight*b/l;
+Wr=g*weight*a/l;
 
 
 for i = 1:length(SI);
@@ -276,24 +276,32 @@ end
 
 %Plotting Yaw Moment versus Lateral Acceleration
 figure
+hVS = gobjects(N,1);
+hSI = gobjects(M,1);
+cmpaVS= winter(N);
 for i=1:N
-    plot(Ay(:,i),YawMoment(:,i))
+    hVS(i)=plot(Ay(:,i),YawMoment(:,i), "Color",cmpaVS(i,:));
     hold on
 end
 
+cmapSI=autumn(M);
 for i=1:M
-    plot(Ay(i,:),YawMoment(i,:))
+    hSI(i)=plot(Ay(i,:),YawMoment(i,:), 'Color',cmapSI(i,:));
     hold on
 end
-grid on
-% legendCell_VS = cellstr(num2str(VS', 'VS=%-d'));
-% legendCell_SI = cellstr(num2str(SI', 'SI=%-d'));
-% legend([legendCell_VS;legendCell_SI], 'NumColumns',2)
 xlabel('Lateral accel [gs]')
 ylabel('Yaw Moment [kg m]')
-legendCell_VS = cellstr(num2str(VS*180/pi, 'VS=%-d'));
-legendCell_SI = cellstr(num2str(SI*180/pi, 'SI=%-d'));
-legend([legendCell_VS;legendCell_SI], 'NumColumns',2)
+legendCell_VS = compose('VS = %.1f°', Betadg);
+legendCell_SI = compose('SI = %.1f°', deltadg);
+ax1 = gca;
+
+% First legend (VS)
+lgd1 = legend(ax1, hVS, legendCell_VS, 'Location','northwest');
+
+% Create invisible axes for second legend
+ax2 = axes('Position', ax1.Position, 'Visible','off');
+lgd2 = legend(ax2, hSI, legendCell_SI, 'Location','southeast');
+grid on
 
 figure(2)
 plot(deltadg, FyFR)
