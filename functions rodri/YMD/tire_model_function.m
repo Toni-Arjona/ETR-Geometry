@@ -1,5 +1,5 @@
 %% FUNCIÓN MODELO NEUMÁTICO PARA YMD
-function [Fy, Fx, Mz] = tire_model(tire_slip, CG_slip, steer, z_load)
+function [Fy, Mz] = tire_model_function(slip, camber, Fz)
 
 lambdaHy=0;
 lambdaVy=1;
@@ -13,8 +13,6 @@ lambdaKygamma=1.07;
 % Setup tires
 PF=0.827; %Front pressure Bar
 PR=0.827; %Rrear pressure Bar
-gammaF0=-2; %Front Camber deg en negatiu
-gammaR0=-1.5; %Rear Camber deg en negatiu
 
 %Propietats del neumàtic
 PCY1 = 1.477553032924075; 
@@ -68,5 +66,32 @@ a5m =       1.124;
 b5m =       3.801;
 wm =      0.2417;
 
-MZ=@(SA)  a0m + a1m*cos(SA*wm) + b1m*sin(SA*wm) + a2m*cos(2*SA*wm) + b2m*sin(2*SA*wm) + a3m*cos(3*SA*wm) + b3m*sin(3*SA*wm) + a4m*cos(4*SA*wm) + b4m*sin(4*SA*wm) + a5m*cos(5*SA*wm) + b5m*sin(5*SA*wm);
+MZz =@(SA)  a0m + a1m*cos(SA*wm) + b1m*sin(SA*wm) + a2m*cos(2*SA*wm) + b2m*sin(2*SA*wm) + a3m*cos(3*SA*wm) + b3m*sin(3*SA*wm) + a4m*cos(4*SA*wm) + b4m*sin(4*SA*wm) + a5m*cos(5*SA*wm) + b5m*sin(5*SA*wm);
 
+
+%% MAGIC FORMULA
+dfz = (Fz - Fz0)./Fz0;
+dpi = (PF - P0)/P0;
+Shy0 = (PHY1 + PHY2*dfz)*lambdaHy;
+Svy0 = Fz*(PVY1 + PVY2*dfz)*lambdaVy*lambdauy*z2;
+Svygamma = Fz*(PVY3 + PVY4*dfz)*camber*lambdaKygamma*lambdauy*z2;
+Svy = Svy0 + Svygamma;
+Kygamma0 = (PKY6 + PKY7*dfz)*Fz*lambdaKygamma*(1 + PPY5*dpi);
+Kyalpha0 = PKY1*Fz0*(1 + PPY1*dpi)*sin(PKY4*atan(Fz/((PKY2*Fz0*(1 + PPY2*dpi)))))*lambdaKyalpha;
+Kyalpha = PKY1*Fz0*(1 + PPY1*dpi)*sin(PKY4*atan(Fz/((PKY2 + PKY5*camber^2)*Fz0*(1 + PPY2*dpi))))*(1 - PKY3*abs(camber))*lambdaKyalpha*z3;
+Shygamma = ((Kygamma0*camber - Svygamma)/Kyalpha)*z0 + z4 - 1;
+Shy = Shy0 + Shygamma;
+alphay = -(slip + Shy);
+Cy = PCY1*lambdaCy;
+uy = (PDY1 + PDY2*dfz)*(1 + PPY3*dpi + PPY4*dpi^2)*(1 - PDY3*camber^2)*lambdauy;
+Dy = uy*Fz*z2;
+Ey = (PEY1 + PEY2*dfz)*(1 + PEY5*camber^2 - (PEY3 + PEY4*camber)*sign(alphay))*lambdaEy;
+By = Kyalpha/(Cy*Dy);
+
+
+
+Fy = Dy*sin(Cy*atan(By*alphay - Ey.*(By*alphay - atan(By*alphay)))) + Svy;
+
+Mz = MZz(slip);
+
+            
