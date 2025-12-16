@@ -56,7 +56,7 @@ for j = length(1, yawslip)
             dForce_rear = dForce*car.b*(1-car.copx); % downforce eje trasero [N]
             drag = 0.5*air_d*area*dr_coeff*v^2; % cálculo drag [N]
             drag_front = - drag*car.copz/car.l % carga que aporta el drag del eje delantero [N] (es negativa, por lo que realmente es carga que quita)
-            drag_rear = - drag_front % carga que aporta el drag sobre el eje trasero [N] (es positiva, por lo que aporta carga, exactamente la carga que se quita del eje delantero)
+            drag_rear = - drag_front % carga que aporta el drag sobre el eje trasero
 
             % SLIPS NEUMÁTICO
             FL_slip =  (Vy + yaw_vel*car.a)/(Vx - (yaw_vel*car.Tf/2)) - FL_steer; % front left slip angle [rad]
@@ -65,13 +65,9 @@ for j = length(1, yawslip)
             RR_slip =  (Vy - yaw_vel*car.b)/(Vx + (yaw_vel*car.Tr/2)); % rear right slip angle [rad]
 
             %WEIGHT TRASNFER
-            [FZ_FR, FZ_FL, FZ_RR, FZ_RL]= normal_load_per_tire_complete(car.weight, ay, car.Tf, car.Tf, car.Zrf, car.Zrf, car.Kf, car.Kr, H, car.l, car.a)
+            [FZ_FR, FZ_FL, FZ_RR, FZ_RL]= normal_load_per_tire_complete(car.weight, ay, car.Tf, car.Tf, car.Zrf, ...
+    car.Zrf, car.Kf, car.Kr, H, car.L, a)
 
-            % TOTAL LOADS
-            FZ_FR = FZ_FR + dForce_front/2;
-            FZ_FL = FZ_FL + dForce_front/2;
-            FZ_RR = FZ_RR + dForce_rear/2;
-            FZ_RL = FZ_RL + dForce_rear/2;
 
 
 

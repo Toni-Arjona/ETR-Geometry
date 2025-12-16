@@ -190,9 +190,9 @@ g = 9.81; % gravedad [m/s^2]
 %% LOAD TRASNFER 
     for lt = 1:length(abs(radio))
         [fz_FR, fz_FL, fz_RR, fz_RL] = normal_load_per_tire_complete(m, abs(lat_acc(lt)/g), 1.25, 1.25, 0.07, ...
-        0.08, 18370.86641/57.2958, 18370.86641/57.2958, 0.225, 1.6, 0.8, v_resultante(lt));
+        0.08, 18370.86641/57.2958, 18370.86641/57.2958, 0.225, 1.6, 0.8);
 
-        RL(lt) = fz_RL;
+        RL(lt) = fz_RL; % FALTA AÑADIR CARGA DE DOWNFORCE SOBRE CADA NEUMÁTICO
         RR(lt) = fz_RR;
         F_ext(lt) = fz_FL;
         F_int(lt) = fz_FR;

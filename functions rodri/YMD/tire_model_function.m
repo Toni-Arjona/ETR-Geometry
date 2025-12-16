@@ -1,41 +1,43 @@
 %% FUNCIÓN MODELO NEUMÁTICO PARA YMD
-function [Fy, Fx, Mz] = tire_model(slip_angle, CG_slip, steer, z_load)
+function [Fy, Fx, Mz] = tire_model(tire_slip, CG_slip, steer, z_load)
 
 lambdaHy=0;
 lambdaVy=1;
-lambdauy=0.805; %scaling factor
+lambdauy=0.805; 
 lambdaKygamma=1;
 lambdaCy=1.22;
 lambdaEy=1;
 lambdaKyalpha=1;
 lambdaKygamma=1.07;
-PF=0.95; %Front pressure Bar
-PR=0.95; %Rrear pressure Bar
+
+% Setup tires
+PF=0.827; %Front pressure Bar
+PR=0.827; %Rrear pressure Bar
 gammaF0=-2; %Front Camber deg en negatiu
 gammaR0=-1.5; %Rear Camber deg en negatiu
 
 %Propietats del neumàtic
-PCY1 = 1.477553032924075; %shape factor (Afilar cantonades i estirar i atxatar)
-PDY1 = 2.419662634889429; %estirar o aixafar gràfica
+PCY1 = 1.477553032924075; 
+PDY1 = 2.419662634889429; 
 PDY2 =- 0.096991237613422;
 PDY3 = 9.699367924763585;
-PEY1 = - 0.001014423462658; %afilar cantonades
+PEY1 = - 0.001014423462658; 
 PEY2 = - 0.001567587511733;
-PEY3 = -26.252507850904447; %en negatiu s'afila la dreta i en postiu l'esquerra
+PEY3 = -26.252507850904447; 
 PEY4 = 4.418491888020646e+03;
-PEY5 = 0;%No esta
+PEY5 = 0;
 PKY1 = - 48.096691177591670;
-PKY2 = 1.79989978802; %rotar sobre el centre antihorari
+PKY2 = 1.79989978802; 
 PKY3 = 0.776633692944650; 
 PKY4 = 1; 
 PKY5 = 1; 
 PKY6 = 1;
 PKY7 = 1;
-PHY1 = 9.632469743033963e-05; %Desplaçar lateralment
-PHY2 = 4.485102635543676e-04; %Desplaçar lateralment
-PVY1 = - 0.005996641445337; %pujar i baixar la grafica sencera
-PVY2 = 0.031420448279870; %pujar i baixar la grafica sencera
-PVY3 = - 0.840635268453471; %pujar i baixar la grafica sencera
+PHY1 = 9.632469743033963e-05; 
+PHY2 = 4.485102635543676e-04; 
+PVY1 = - 0.005996641445337; 
+PVY2 = 0.031420448279870; 
+PVY3 = - 0.840635268453471; 
 PVY4 = - 0.482847397434584;
 PPY1 = 0.006522910697878; 
 PPY2 = 0.732182121539935;
@@ -44,6 +46,7 @@ PPY4 =  0.344037334268957;
 PPY5 = 0;
 Fz0 = 1000;
 P0=0.82737;
+
 %Turn slip
 z0=1;
 z1=1;
