@@ -109,7 +109,7 @@ for i = 1:length(SI);
         Vy(j)=(V/3.6).*VS(j); 
         w(i,j)=0;
         Ay(i,j)=0;
-        for k=1:10     
+        for k= 1:100   
             
             alphaFL(i,j)=((tan(VS(j))*(V/3.6))+(w(i,j)*a))./((V/3.6)-w(i,j)*Tf/2)-SI(i); %slip angle front left en rad
             if alphaFL(i,j)>sliplim;

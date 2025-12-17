@@ -42,6 +42,10 @@ yaw_slip_int = deg2rad(0:1); % Intervalo Slip de CG en [rad]
 Wf = g*car.m*car.b/(car.l); % peso sobre eje delantero [N]
 Wr = g*car.m*car.a/(car.l); % peso sobre eje trasero [N]
 
+v = 0.1; % Velocidad inicial, aproximación inicial en función del radio de estudio [m/s]
+ay = v^2/(R*g); % aceleración lateral [m/s^2]
+yaw_vel = v/R; % Velocidad angular inicial [rad/s]
+
 idx_steer = 1;
 idx_yawslip = 1;
 yaw_moment_matrix = zeros(length(steer_int), length(yaw_slip_int));
@@ -58,6 +62,7 @@ for steer = rad2deg(steer_int)
             
             Vx = cos(yaw_slip)*v; % Velocidad x
             Vy = sin(yaw_slip)*v; % Velocidad y
+            
 
             % DOWNFORCE Y DRAG SOBRE CADA EJE
             dForce = 0.5*air_d*area*df_coeff*v^2; % downforce total [N]
