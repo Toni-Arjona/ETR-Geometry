@@ -6,12 +6,8 @@ car = struct(); % Definiciones del coche
 
 g=9.81; %m/s^2
 
-car.l=1.56; % Wheelbase [m]
-<<<<<<< HEAD
+car.l=1.6; % Wheelbase [m]
 car.a = 0.5*car.l;% Distancia CG a front axle [m]
-=======
-car.a = 0.76;% Distancia CG a front axle [m]
->>>>>>> 07c0b53c33d1cb1dd2468ed058fb093c309279d2
 car.b = car.l-car.a;% Distancia Cg a rear axle [m]
 car.Tf = 1.25;% Trackwith front [m]
 car.Tr = 1.25;% Trackwith rear [m]
@@ -21,7 +17,7 @@ car.Zrr=0.08; % Roll center height rear [m]
 car.H=0.225; % distancia CG a roll axis [m]
 car.Kf= 18370.86641; % roll stiffnes front [Nm/rad]
 car.Kr= 18370.86641; % roll stiffnes rear [Nm/rad]
-car.h= 0.3; 
+car.h= 0.26; 
 car.copx=475/1600; % centre de pressions en x (porcentaje de wheelbase desde eje delantero)
 car.copz = 0.595; % altura centro de presiones [m]
 
@@ -40,7 +36,7 @@ area = 0.563; % área frontal del coche [m^2]
 % Inputs
 R = 10; % Radio de giro [m]
 
-steer_int= 0:5:70; % Intervalo Steering wheel angle [rad]
+steer_int= 10:5:50; % Intervalo Steering wheel angle [rad]
 yaw_slip_int = deg2rad(0:0.5:12); % Intervalo Slip de CG en [rad]
 
 Wf = g*car.m*car.b/(car.l); % peso sobre eje delantero [N]
@@ -137,6 +133,7 @@ yaw_moment_ay_max
 ay_minimum 
 yaw_moment_ay_min
 
+figure(1)
 plot(ay_matrix, yaw_moment_matrix, '.')
 hold on
 plot(ay_matrix', yaw_moment_matrix', '.')
@@ -144,82 +141,54 @@ grid on
 
 
 
+% --- Configuración de Colores y Gráfico ---
 
+n_steer = length(steer_int);
+n_slip = length(yaw_slip_int);
 
+% Mapas de color personalizados (similares a la foto 2)
+cmap_steer = [zeros(n_steer,1), linspace(1,0.5,n_steer)', linspace(0.5,1,n_steer)']; 
+cmap_slip = [ones(n_slip,1), linspace(0,1,n_slip)', zeros(n_slip,1)];
 
-%% 1. Preparación de datos
-steer_vec_deg = rad2deg(steer_int);      
-slip_vec_deg  = rad2deg(yaw_slip_int);   
-
-[n_slip, n_steer] = size(ay_matrix);
-
-%% 2. Configuración de la Figura (MODO OSCURO)
-figure('Color', 'k'); 
-ax = gca;
-set(ax, 'Color', 'k', 'XColor', 'w', 'YColor', 'w');
-set(ax, 'GridColor', 'w', 'GridAlpha', 0.3);
+fig = figure('Color', [0.1 0.1 0.1]); % Fondo oscuro
+ax1 = axes('Color', [0.1 0.1 0.1], 'XColor', 'w', 'YColor', 'w');
 hold on; grid on;
+set(ax1, 'GridColor', [0.3 0.3 0.3], 'MinorGridColor', [0.2 0.2 0.2]);
 
-title('Diagrama de Manejo: Mz vs Ay', 'Color', 'w', 'FontSize', 12);
-xlabel('Aceleración Lateral A_y [m/s^2]', 'Color', 'w');
-ylabel('Momento de Guiñada M_z [Nm]', 'Color', 'w');
-
-%% 3. Graficar Líneas de STEER (Colores)
-colormap(turbo(n_steer)); 
-colores = colormap;
-
+% Plot isolíneas de Steer (Sólidas)
 for i = 1:n_steer
-    plot(ay_matrix(:, i), yaw_moment_matrix(:, i), '-', ...
-         'LineWidth', 1.5, 'Color', colores(i, :));
+    plot(ax1, ay_matrix(i, :), yaw_moment_matrix(i, :), 'Color', cmap_steer(i,:), 'LineWidth', 1.5);
 end
 
-% Barra de colores
-c = colorbar;
-c.Color = 'w'; 
-c.Label.String = 'Ángulo de Volante [deg]';
-c.Label.Color = 'w';
-clim([min(steer_vec_deg), max(steer_vec_deg)]); 
-
-%% 4. Graficar Isolíneas de YAW SLIP con etiquetas divididas
-% Color gris muy claro para las líneas transversales
-color_slip = [0.8 0.8 0.8]; 
-
+% Plot isolíneas de Slip (Discontinuas)
 for j = 1:n_slip
-    % Graficar la línea completa
-    plot(ay_matrix(j, :), yaw_moment_matrix(j, :), '--', ...
-         'Color', color_slip, 'LineWidth', 1.0); 
-     
-    % --- LÓGICA DE POSICIÓN DE ETIQUETAS ---
-    % Calculamos la media de Mz para saber si la línea está arriba o abajo
-    mz_promedio = mean(yaw_moment_matrix(j, :));
-    
-    if mz_promedio >= 0
-        % PARTE SUPERIOR -> ETIQUETA A LA IZQUIERDA (Columna 1)
-        idx = 1; 
-        alineacion = 'right'; % El texto acaba en el punto (se expande hacia la izquierda)
-        offset_x = -0.2; % Un pequeño margen extra a la izquierda
-    else
-        % PARTE INFERIOR -> ETIQUETA A LA DERECHA (Columna final)
-        idx = n_steer;
-        alineacion = 'left'; % El texto empieza en el punto (se expande hacia la derecha)
-        offset_x = 0.2; % Un pequeño margen extra a la derecha
-    end
-    
-    % Coordenadas del punto elegido
-    x_pos = ay_matrix(j, idx); 
-    y_pos = yaw_moment_matrix(j, idx);
-    
-    % Escribir etiqueta
-    txt = sprintf('%.1f°', slip_vec_deg(j));
-    text(x_pos, y_pos, txt, 'FontSize', 8, 'Color', 'w', ...
-         'HorizontalAlignment', alineacion, 'VerticalAlignment', 'middle');
+    plot(ax1, ay_matrix(:, j), yaw_moment_matrix(:, j), '--', 'Color', cmap_slip(j,:), 'LineWidth', 1);
 end
 
-axis tight;
-hold off;
-           
+xlabel('Aceleración Lateral (a_y) [g]');
+ylabel('Momento de Guiñada [N·m]');
+title('YMD con Mapas de Color', 'Color', 'w');
 
-           
+% --- Gestión de las dos Colorbars ---
 
+% Barra 1: Steer
+colormap(ax1, cmap_steer);
+cb1 = colorbar(ax1, 'Location', 'none');
+cb1.Label.String = 'Ángulo Volante (Steer) [deg]';
+cb1.Label.Color = 'w'; cb1.Color = 'w';
+cb1.Ticks = linspace(0, 1, 8);
+cb1.TickLabels = string(round(linspace(min(steer_int), max(steer_int), 8)));
 
+% Barra 2: Slip (usando un eje invisible para el segundo colormap)
+ax2 = axes('Position', ax1.Position, 'Visible', 'off');
+colormap(ax2, cmap_slip);
+cb2 = colorbar(ax2, 'Location', 'none');
+cb2.Label.String = 'Ángulo Deriva (Slip) [deg]';
+cb2.Label.Color = 'w'; cb2.Color = 'w';
+cb2.Ticks = linspace(0, 1, 7);
+cb2.TickLabels = string(round(rad2deg(linspace(min(yaw_slip_int), max(yaw_slip_int), 7)), 1));
 
+% --- Ajuste de Posiciones (Layout final) ---
+ax1.Position = [0.10 0.15 0.65 0.75]; % Espacio para el gráfico
+cb1.Position = [0.82 0.15 0.025 0.75]; % Posición barra Steer
+cb2.Position = [0.91 0.15 0.025 0.75]; % Posición barra Slip

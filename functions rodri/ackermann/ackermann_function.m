@@ -4,7 +4,7 @@ function [FL_steer, FR_steer] = ackermann_function(steering_wheel_angle)
 % DATOS (distancias todas en mm)
 % dimensiones coche
 wheelbase = 1600;
-front_track = 1250;
+front_track = 1150;
 rear_track = 1250; 
 r_pinion = 35/2; % radio pinion
 
