@@ -7,7 +7,11 @@ car = struct(); % Definiciones del coche
 g=9.81; %m/s^2
 
 car.l=1.56; % Wheelbase [m]
+<<<<<<< HEAD
 car.a = 0.5*car.l;% Distancia CG a front axle [m]
+=======
+car.a = 0.76;% Distancia CG a front axle [m]
+>>>>>>> 07c0b53c33d1cb1dd2468ed058fb093c309279d2
 car.b = car.l-car.a;% Distancia Cg a rear axle [m]
 car.Tf = 1.25;% Trackwith front [m]
 car.Tr = 1.25;% Trackwith rear [m]
@@ -51,6 +55,10 @@ v = 0.0001; % v inicial
 ay = sqrt(v*R)/g; % lat acc
 yaw_vel = v/R;
 
+ay_maximum=0;
+yaw_moment_ay_max=0;
+ay_minimum=0;
+yaw_moment_ay_min=0;
 
 for steer = steer_int
 
@@ -79,7 +87,7 @@ for steer = steer_int
             RR_slip =  min(atan2((Vy - yaw_vel*car.b), (Vx - (yaw_vel*car.Tr/2))), 15/57); % rear right slip angle [rad]
         
 
-             % CAMBER GAIN
+            % CAMBER GAIN
             roll = (car.h*car.m*ay)/(car.Kf + car.Kr); % roll [rads]
             camber_FL = gammaF0 - rolltocamber_ratio*roll ; % camber total Front Left [rads]
             camber_FR = gammaF0 + rolltocamber_ratio*roll ; % camber total Front Right [rads]
@@ -105,6 +113,14 @@ for steer = steer_int
             ay = (FY_RR + FY_RL + FY_FR*cos(FR_steer) + FY_FL*cos(FL_steer))/(car.m *g); % aceleración lateral resultante [g]
             yaw_moment = ((FY_FR*cos(FR_steer) + FY_FL*cos(FL_steer))*car.a - (FY_RR + FY_RL)*car.b - (MZ_RR + MZ_RL + MZ_FL + MZ_FR));
             v = sqrt(abs(ay*g*R));
+            
+            if ay> ay_maximum
+                ay_maximum = ay; % Update maximum lateral acceleration
+                yaw_moment_ay_max=yaw_moment;
+            elseif ay< ay_minimum
+                ay_minimum=ay;
+                yaw_moment_ay_min=yaw_moment;
+            end
 
         end
        
@@ -116,8 +132,10 @@ for steer = steer_int
     idx_yawslip = 1;
     idx_steer = idx_steer + 1;
 end
-
-
+ay_maximum 
+yaw_moment_ay_max
+ay_minimum 
+yaw_moment_ay_min
 
 plot(ay_matrix, yaw_moment_matrix, '.')
 hold on
