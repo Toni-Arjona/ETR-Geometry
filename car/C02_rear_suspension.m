@@ -1,5 +1,4 @@
 
-
 %% Left Rear Local Knuckle Definition
 rl_knuckle_upper_connection = v3(   0.00000000,	  85.80820547,	   -3.80436827); %TOCAR
 rl_knuckle_lower_connection = v3(   0.00000000,	  -87.78702810,	  -23.65241301); %TOCAR

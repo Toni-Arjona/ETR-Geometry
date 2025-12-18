@@ -89,23 +89,25 @@ classdef car < handle
         end
 
         function update_labels(obj)
-            obj.fl_label.Text = sprintf("FL\nSteer:%3.2f\nCamber:%3.2f\nCaster:%3.2f\nHeight:%3.2f\nDamper:%3.2f\nS. Radius:%3.2f\nTierod:%3.2f\n", ...
+            obj.fl_label.Text = sprintf("FL\nSteer:%3.2f\nCamber:%3.2f\nCaster:%3.2f\nHeight:%3.2f\nDamper:%3.2f\nS. Radius:%3.2f\nTierod:%3.2f\nT. Rad:%.1f\n", ...
                 obj.fl_steering_rad()*180/pi, ...
                 obj.fl_susp.camber_angle()*180/pi, ...
                 obj.fl_susp.caster_angle()*180/pi, ...
                 obj.fl_susp.get_contact_patch().z, ...
                 obj.fl_susp.get_damper_distance(), ...
                 obj.fl_susp.get_scrub_radius_X(), ...
-                obj.fl_tierod);
+                obj.fl_tierod, ...
+                obj.fl_virtual_turning_radius()/1000);
 
-            obj.fr_label.Text = sprintf("FR\nSteer:%3.2f\nCamber:%3.2f\nCaster:%3.2f\nHeight:%3.2f\nDamper:%3.2f\nS. Radius:%3.2f\nTierod:%3.2f\n", ...
+            obj.fr_label.Text = sprintf("FR\nSteer:%3.2f\nCamber:%3.2f\nCaster:%3.2f\nHeight:%3.2f\nDamper:%3.2f\nS. Radius:%3.2f\nTierod:%3.2f\nT. Rad:%.1f\n", ...
                 obj.fr_steering_rad()*180/pi, ...
                 obj.fr_susp.camber_angle()*180/pi, ...
                 obj.fr_susp.caster_angle()*180/pi, ...
                 obj.fr_susp.get_contact_patch().z, ...
                 obj.fr_susp.get_damper_distance(), ...
                 obj.fr_susp.get_scrub_radius_X(), ...
-                obj.fr_tierod);
+                obj.fr_tierod, ...
+                obj.fr_virtual_turning_radius()/1000);
 
             obj.rl_label.Text = sprintf("RL\nSteer:%3.2f\nCamber:%3.2f\nCaster:%3.2f\nHeight:%3.2f\nDamper:%3.2f\nS. Radius:%3.2f\nTierod:%3.2f\n", ...
                 obj.rl_steering_rad()*180/pi, ...
@@ -407,6 +409,24 @@ classdef car < handle
             obj.print_extended()
         end
 
+        function f = wheelbase(obj)
+            centre_front = obj.fl_susp.get_contact_patch() + (obj.fl_susp.get_contact_patch() - obj.fr_susp.get_contact_patch()).*0.5;
+            centre_back = obj.rl_susp.get_contact_patch() + (obj.rl_susp.get_contact_patch() - obj.rr_susp.get_contact_patch()).*0.5;
+            f = abs(centre_front.x - centre_back.x);
+        end
+
+        function r = fl_virtual_turning_radius(obj)
+            front_track = (obj.fl_susp.get_contact_patch().y);
+            wheel_base = obj.wheelbase();
+            r = front_track + abs(wheel_base/tan((obj.fl_steering_rad)))*sign(-obj.fl_steering_rad);
+        end
+
+        function r = fr_virtual_turning_radius(obj)
+            front_track = (obj.fr_susp.get_contact_patch().y);
+            wheel_base = obj.wheelbase();
+            r = front_track + abs(wheel_base/tan((obj.fr_steering_rad)))*sign(-obj.fr_steering_rad);
+        end
+
         function plot3dpoints(obj,ax)
             obj.fl_susp.plot3d(ax);
             obj.fr_susp.plot3d(ax);
@@ -510,14 +530,18 @@ classdef car < handle
 
         end
 
-        %% Interactive 3d model
-
-        function ui_plot3d(obj)
+        function prepare(obj)
             obj.set_front_dampers(180);
             obj.set_rear_dampers(180);
             obj.centre_steering();
             obj.set_toe_rear(0);
             obj.set_toe_front(0);
+        end
+
+        %% Interactive 3d model
+
+        function ui_plot3d(obj)
+            obj.prepare();
             f = uifigure("Name","UI Plot");
 
             ax = uiaxes(f);
@@ -531,19 +555,19 @@ classdef car < handle
 
 
             % Slider Height
-            obj.fl_label = uilabel(f, 'Text','FL W H', 'Position',[400,160,100,140]);
+            obj.fl_label = uilabel(f, 'Text','FL W H', 'Position',[400,120,100,200]);
             fl_sld = uislider(f, 'Limits', [-30,30], 'Value', 0,'Orientation','vertical','Position',[400, 50, 3, 100]);
             fl_sld.ValueChangedFcn = @(source, event) fl_callback(obj, f, ax, event.Value);
 
-            obj.fr_label = uilabel(f, 'Text','FR W H', 'Position',[500,160,100,140]);
+            obj.fr_label = uilabel(f, 'Text','FR W H', 'Position',[500,120,100,200]);
             fr_sld = uislider(f, 'Limits', [-30,30], 'Value', 0,'Orientation','vertical','Position',[500, 50, 3, 100]);
             fr_sld.ValueChangedFcn = @(source, event) fr_callback(obj, f, ax, event.Value);
 
-            obj.rl_label = uilabel(f, 'Text','RL W H', 'Position',[600,160,100,140]);
+            obj.rl_label = uilabel(f, 'Text','RL W H', 'Position',[600,120,100,200]);
             rl_sld = uislider(f, 'Limits', [-30,30], 'Value', 0,'Orientation','vertical','Position',[600, 50, 3, 100]);
             rl_sld.ValueChangedFcn = @(source, event) rl_callback(obj, f, ax, event.Value);
 
-            obj.rr_label = uilabel(f, 'Text','RR W H', 'Position',[700,160,100,140]);
+            obj.rr_label = uilabel(f, 'Text','RR W H', 'Position',[700,120,100,200]);
             rr_sld = uislider(f, 'Limits', [-30,30], 'Value', 0,'Orientation','vertical','Position',[700, 50, 3, 100]);
             rr_sld.ValueChangedFcn = @(source, event) rr_callback(obj, f, ax, event.Value);
 
@@ -571,7 +595,68 @@ classdef car < handle
             obj.common_callback(f, ax);
 
         end
+        %% Graphing functions
 
+        function graph(obj)
+            obj.prepare();
+            
+            steering_inputs = -obj.f_steer.max_to_side:1:obj.f_steer.max_to_side;
+            left = zeros(1,length(steering_inputs));
+            right = zeros(1,length(steering_inputs));
+            left_camber = zeros(1,length(steering_inputs));
+            right_camber = zeros(1,length(steering_inputs));
+            for i=1:length(steering_inputs)
+                obj.set_steering_wheel(steering_inputs(i))
+                left(i) = obj.fl_steering_rad*180/pi;
+                right(i) = obj.fr_steering_rad*180/pi;
+                left_camber(i) = obj.fl_susp.camber_angle()*180/pi;
+                right_camber(i) = obj.fr_susp.camber_angle()*180/pi;
+            end
+            graph_maker_double(steering_inputs, left, right, "Steering", "Left Wheel", "Right Wheel", "Steering Wheel Angle", "Tire Angle", "b-", "r-");
+            graph_maker_double(steering_inputs, left_camber, right_camber, "Camber vs Steering", "Left Wheel", "Right Wheel", "Steering Wheel Angle", "Camber Angle", "b-", "r-");
+
+            obj.prepare();
+            damper_inputs = 160:1:210;
+            front_height = zeros(1,length(damper_inputs));
+            rear_height = zeros(1,length(damper_inputs));
+            front_camber = zeros(1,length(damper_inputs));
+            rear_camber = zeros(1,length(damper_inputs));
+            front_bump = zeros(1,length(damper_inputs));
+            rear_bump = zeros(1,length(damper_inputs));
+            front_caster = zeros(1,length(damper_inputs));
+            rear_caster = zeros(1,length(damper_inputs));
+
+            for i=1:length(damper_inputs)
+                obj.set_front_dampers(damper_inputs(i));
+                obj.set_rear_dampers(damper_inputs(i));
+                front_height(i) = obj.fl_susp.get_contact_patch().z;
+                rear_height(i) = obj.rl_susp.get_contact_patch().z;
+                front_camber(i) = obj.fl_susp.camber_angle()*180/pi;
+                rear_camber(i) = obj.rl_susp.camber_angle()*180/pi;
+                front_bump(i) = obj.fl_steering_rad()*180/pi;
+                rear_bump(i) = obj.rl_steering_rad()*180/pi;
+                front_caster(i) = obj.fl_susp.caster_angle()*180/pi;
+                rear_caster(i) = obj.rl_susp.caster_angle()*180/pi;
+            end
+
+            graph_maker_double(damper_inputs, front_height, rear_height, "Damper Distance vs Wheel Height", "Front Height", "Rear Height", "Damper Point to Point Distance", "Wheel Height", 'b-', 'r-');
+
+            graph_maker(front_height, front_camber, "Front Wheel Height vs Front Camber Angle", "Wheel Height", "Camber Angle", 'b-');
+            graph_maker(rear_height, rear_camber, "Rear Wheel Height vs Rear Camber Angle", "Wheel Height", "Camber Angle", 'r-');
+            graph_maker_double(damper_inputs, front_camber, rear_camber, "Damper Distance vs Camber Angle", "Front Camber", 'Rear Camber', 'Damper Point to Point Distance', 'Camber Angle', 'b-', 'r-');
+
+            graph_maker(front_height, front_bump, "Front Wheel Height vs Front Bump Steer", "Wheel Height", "Steering Angle", 'b-');
+            graph_maker(rear_height, front_bump, "Rear Wheel Height vs Rear Bump Steer", "Wheel Height", "Steering Angle", 'r-');
+            graph_maker_double(damper_inputs, front_bump, rear_bump, "Damper Distance vs Bump Steer", "Front Bump Steer", 'Rear Bump Steer', 'Damper Point to Point Distance', 'Steering Angle', 'b-', 'r-');
+
+
+            graph_maker(front_height, front_caster, "Front Wheel Height vs Front Caster", "Wheel Height", "Caster Angle", 'b-');
+            graph_maker(rear_height, rear_caster, "Rear Wheel Height vs Rear Caster", "Wheel Height", "Caster Angle", 'r-');
+            graph_maker_double(damper_inputs, front_caster, rear_caster, "Damper Distance vs Caster Angle", "Front Caster", 'Rear Caster', 'Damper Point to Point Distance', 'Caster Angle', 'b-', 'r-');
+
+
+
+        end
 
     end
 end

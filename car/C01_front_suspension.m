@@ -2,7 +2,7 @@
 %% Left Front Local Knuckle Definition
 fl_knuckle_upper_connection = v3(  5.50000000,	   85.34270525,	    9.25325138); %TOCAR
 fl_knuckle_lower_connection = v3(  8.00000000,	  -88.43786947,	  -12.15496784); %TOCAR
-fl_knuckle_tierod_connection = v3( 68.00000000,	  -78.53979221,	  -15.47582113 ); %TOCAR
+fl_knuckle_tierod_connection = v3( 68.00000000,	  -58.53979221,	  -5.47582113 ); %TOCAR
 fl_knuckle_zero = v3(0,0,0); % NO TOCAR
 fl_knuckle_X = v3(1,0,0); % NO TOCAR
 fl_knuckle_Y = v3(0,1,0); % NO TOCAR

@@ -393,6 +393,11 @@ classdef suspension < handle
             view(3);
         end
 
+        function r = knuckle_radius(obj)
+            p = point_line_projection(obj.knuckle.coord(3), (obj.knuckle.coord(2) - obj.knuckle.coord(1))', obj.knuckle.coord(2));
+            r = (obj.knuckle.coord(3) - p);
+        end
+
     end
 end
 
