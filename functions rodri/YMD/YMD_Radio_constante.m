@@ -6,8 +6,8 @@ car = struct(); % Definiciones del coche
 
 g=9.81; %m/s^2
 
-car.l=1.6; % Wheelbase [m]
-car.a = 0.8;% Distancia CG a front axle [m]
+car.l=1.56; % Wheelbase [m]
+car.a = 0.5*car.l;% Distancia CG a front axle [m]
 car.b = car.l-car.a;% Distancia Cg a rear axle [m]
 car.Tf = 1.25;% Trackwith front [m]
 car.Tr = 1.25;% Trackwith rear [m]
@@ -119,9 +119,10 @@ end
 
 
 
-plot(ay_matrix, yaw_moment_matrix)
+plot(ay_matrix, yaw_moment_matrix, '.')
 hold on
-plot(ay_matrix', yaw_moment_matrix')
+plot(ay_matrix', yaw_moment_matrix', '.')
+grid on
 
 
 
