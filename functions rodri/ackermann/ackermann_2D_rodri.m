@@ -5,16 +5,16 @@ clc
 % DATOS (distancias todas en mm)
 % dimensiones coche
 wheelbase = 1600;
-front_track = 1250;
+front_track = 1150;
 rear_track = 1250; 
 r_pinion = 35/2; % radio pinion
 
 % INPUTS geometría steering. Centro de coordenadas en KingPin rueda
 % izquierda
-l_rack = 600; %
-x_rack = 60; % posición en eje x rack
-y_tie_mangueta = -25;
-x_tie_mangueta = 60;
+l_rack = 400; %
+x_rack = 0; % posición en eje x rack
+y_tie_mangueta = 4;
+x_tie_mangueta = 40;
 
 % cálculo puntos y ángulos para steer_angle = 0
 ax = x_rack;

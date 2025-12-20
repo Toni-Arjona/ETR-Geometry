@@ -34,22 +34,21 @@ area = 0.563; % área frontal del coche [m^2]
 
 
 % Inputs
-R = 10; % Radio de giro [m]
+R = 30; % Radio de giro [m]
 
-steer_int= 10:5:50; % Intervalo Steering wheel angle [rad]
-yaw_slip_int = deg2rad(0:0.5:12); % Intervalo Slip de CG en [rad]
+steer_int= -30:5:30; % Intervalo Steering wheel angle [rad]
+yaw_slip_int = deg2rad(-10:1:10); % Intervalo Slip de CG en [rad]
 
 Wf = g*car.m*car.b/(car.l); % peso sobre eje delantero [N]
 Wr = g*car.m*car.a/(car.l); % peso sobre eje trasero [N]
-
 idx_steer = 1;
 idx_yawslip = 1;
 yaw_moment_matrix = zeros(length(steer_int), length(yaw_slip_int));
 ay_matrix = zeros(length(steer_int), length(yaw_slip_int));
 
-v = 0.0001; % v inicial
+v = 0; % v inicial
 ay = sqrt(v*R)/g; % lat acc
-yaw_vel = v/R;
+yaw_vel = ay/v;
 
 ay_maximum=0;
 yaw_moment_ay_max=0;
@@ -57,16 +56,19 @@ ay_minimum=0;
 yaw_moment_ay_min=0;
 
 for steer = steer_int
+    
+    
 
     for yaw_slip = yaw_slip_int
     [FL_steer, FR_steer] = ackermann_function(steer); % llamada función ackermann, devuelve steer angle rueda iquierda y derecha
     FL_steer = deg2rad(FL_steer);
     FR_steer = deg2rad(FR_steer);
-        for k = 1:10
+   
+        for k = 1:100
             
             Vx = cos(yaw_slip)*v; % Velocidad x
             Vy = sin(yaw_slip)*v; % Velocidad y
-            yaw_vel = v/R;
+            yaw_vel = ay/v;
 
             % DOWNFORCE Y DRAG SOBRE CADA EJE
             dForce = 0.5*air_d*area*df_coeff*v^2; % downforce total [N]
@@ -106,7 +108,7 @@ for steer = steer_int
             [FY_RR, MZ_RR] = tire_model_function(RR_slip, camber_RR, FZ_RR); % Rear right Fy and Mz
 
             % YAW AND AY CALCULATIONS
-            ay = (FY_RR + FY_RL + FY_FR*cos(FR_steer) + FY_FL*cos(FL_steer))/(car.m *g); % aceleración lateral resultante [g]
+            ay = -(FY_RR + FY_RL + FY_FR*cos(FR_steer) + FY_FL*cos(FL_steer))/(car.m *g); % aceleración lateral resultante [g]
             yaw_moment = ((FY_FR*cos(FR_steer) + FY_FL*cos(FL_steer))*car.a - (FY_RR + FY_RL)*car.b - (MZ_RR + MZ_RL + MZ_FL + MZ_FR));
             v = sqrt(abs(ay*g*R));
             
@@ -141,54 +143,58 @@ grid on
 
 
 
-% --- Configuración de Colores y Gráfico ---
-
-n_steer = length(steer_int);
-n_slip = length(yaw_slip_int);
-
-% Mapas de color personalizados (similares a la foto 2)
-cmap_steer = [zeros(n_steer,1), linspace(1,0.5,n_steer)', linspace(0.5,1,n_steer)']; 
-cmap_slip = [ones(n_slip,1), linspace(0,1,n_slip)', zeros(n_slip,1)];
-
-fig = figure('Color', [0.1 0.1 0.1]); % Fondo oscuro
+% --- Configuración de la Figura ---
+fig = figure('Color', [0.1 0.1 0.1], 'Position', [100 100 1100 700]);
 ax1 = axes('Color', [0.1 0.1 0.1], 'XColor', 'w', 'YColor', 'w');
 hold on; grid on;
-set(ax1, 'GridColor', [0.3 0.3 0.3], 'MinorGridColor', [0.2 0.2 0.2]);
+set(ax1, 'GridColor', [0.4 0.4 0.4], 'GridAlpha', 0.5);
 
-% Plot isolíneas de Steer (Sólidas)
+% --- Preparación de Datos y Colores ---
+n_steer = length(steer_int);
+n_slip = length(yaw_slip_int);
+cmap_steer = jet(n_steer);  % Gradiente para Steer
+cmap_slip = parula(n_slip); % Gradiente para Slip
+
+h_steer = zeros(1, n_steer);
+labels_steer = cell(1, n_steer);
+h_slip = zeros(1, n_slip);
+labels_slip = cell(1, n_slip);
+
+% --- Plot Isolíneas de Steer (SI) ---
 for i = 1:n_steer
-    plot(ax1, ay_matrix(i, :), yaw_moment_matrix(i, :), 'Color', cmap_steer(i,:), 'LineWidth', 1.5);
+    h_steer(i) = plot(ax1, ay_matrix(i, :), yaw_moment_matrix(i, :), ...
+        'Color', cmap_steer(i,:), 'LineWidth', 1.2);
+    labels_steer{i} = sprintf('SI = %.1f°', steer_int(i));
 end
 
-% Plot isolíneas de Slip (Discontinuas)
+% --- Plot Isolíneas de Slip (VS) ---
 for j = 1:n_slip
-    plot(ax1, ay_matrix(:, j), yaw_moment_matrix(:, j), '--', 'Color', cmap_slip(j,:), 'LineWidth', 1);
+    h_slip(j) = plot(ax1, ay_matrix(:, j), yaw_moment_matrix(:, j), ...
+        '--', 'Color', cmap_slip(j,:), 'LineWidth', 1);
+    labels_slip{j} = sprintf('VS = %.1f°', rad2deg(yaw_slip_int(j)));
 end
 
-xlabel('Aceleración Lateral (a_y) [g]');
-ylabel('Momento de Guiñada [N·m]');
-title('YMD con Mapas de Color', 'Color', 'w');
+xlabel('Lateral accel [gs]');
+ylabel('Yaw Moment [N·m]');
+title('Yaw Moment Diagram (YMD)', 'Color', 'w');
 
-% --- Gestión de las dos Colorbars ---
+% --- Creación de las dos Leyendas ---
 
-% Barra 1: Steer
-colormap(ax1, cmap_steer);
-cb1 = colorbar(ax1, 'Location', 'none');
-cb1.Label.String = 'Ángulo Volante (Steer) [deg]';
-cb1.Label.Color = 'w'; cb1.Color = 'w';
-cb1.Ticks = linspace(0, 1, 8);
-cb1.TickLabels = string(round(linspace(min(steer_int), max(steer_int), 8)));
+% Leyenda 1: Steer Input (SI) - Esquina inferior derecha
+lgd1 = legend(ax1, h_steer, labels_steer, 'Location', 'southeast', ...
+    'TextColor', 'w', 'Color', [0.2 0.2 0.2], 'EdgeColor', [0.5 0.5 0.5], 'FontSize', 7);
+lgd1.NumColumns = 1;
 
-% Barra 2: Slip (usando un eje invisible para el segundo colormap)
+% Leyenda 2: Vehicle Slip (VS) - Esquina superior izquierda
+% Se crea un eje invisible para soportar la segunda leyenda
 ax2 = axes('Position', ax1.Position, 'Visible', 'off');
-colormap(ax2, cmap_slip);
-cb2 = colorbar(ax2, 'Location', 'none');
-cb2.Label.String = 'Ángulo Deriva (Slip) [deg]';
-cb2.Label.Color = 'w'; cb2.Color = 'w';
-cb2.Ticks = linspace(0, 1, 7);
-cb2.TickLabels = string(round(rad2deg(linspace(min(yaw_slip_int), max(yaw_slip_int), 7)), 1));
+hold on;
+lgd2 = legend(ax2, h_slip, labels_slip, 'Location', 'northwest', ...
+    'TextColor', 'w', 'Color', [0.2 0.2 0.2], 'EdgeColor', [0.5 0.5 0.5], 'FontSize', 7);
+lgd2.NumColumns = 1;
 
-% --- Ajuste de Posiciones (Layout final) ---
-ax1.Position = [0.10 0.15 0.65 0.75]; % Espacio para el gráfico
-cb1.Position = [0.82 0.15 0.025 0.75]; % Posición barra Steer
-cb2.Position = [0.91 0.15 0.025 0.75]; % Posición barra Slip
+% Ajuste de límites para centrar el diagrama
+axis(ax1, 'tight');
+margins = 0.1;
+xlim(ax1, [min(ay_matrix(:))-margins, max(ay_matrix(:))+margins]);
+ylim(ax1, [min(yaw_moment_matrix(:))-100, max(yaw_moment_matrix(:))+100]);
