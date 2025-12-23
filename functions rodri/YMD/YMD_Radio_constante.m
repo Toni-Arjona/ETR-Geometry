@@ -34,10 +34,10 @@ area = 0.563; % área frontal del coche [m^2]
 
 
 % Inputs
-R = 30; % Radio de giro [m]
+R = 10; % Radio de giro [m]
 
-steer_int= -30:5:30; % Intervalo Steering wheel angle [rad]
-yaw_slip_int = deg2rad(-10:1:10); % Intervalo Slip de CG en [rad]
+steer_int= -35:2:35; % Intervalo Steering wheel angle [rad]
+yaw_slip_int = deg2rad(-20:1:20); % Intervalo Slip de CG en [rad]
 
 Wf = g*car.m*car.b/(car.l); % peso sobre eje delantero [N]
 Wr = g*car.m*car.a/(car.l); % peso sobre eje trasero [N]
@@ -54,17 +54,17 @@ ay_maximum=0;
 yaw_moment_ay_max=0;
 ay_minimum=0;
 yaw_moment_ay_min=0;
+slips_max_ay = zeros(1, 4);
+loads_max_ay = zeros(1, 4);
 
-for steer = steer_int
-    
-    
+for steer = steer_int   
 
     for yaw_slip = yaw_slip_int
     [FL_steer, FR_steer] = ackermann_function(steer); % llamada función ackermann, devuelve steer angle rueda iquierda y derecha
     FL_steer = deg2rad(FL_steer);
     FR_steer = deg2rad(FR_steer);
    
-        for k = 1:100
+        for k = 1:10
             
             Vx = cos(yaw_slip)*v; % Velocidad x
             Vy = sin(yaw_slip)*v; % Velocidad y
@@ -72,17 +72,17 @@ for steer = steer_int
 
             % DOWNFORCE Y DRAG SOBRE CADA EJE
             dForce = 0.5*air_d*area*df_coeff*v^2; % downforce total [N]
-            dForce_front = dForce*car.a*car.copx; % downforce eje delantero [N]
-            dForce_rear = dForce*car.b*(1-car.copx); % downforce eje trasero [N]
+            dForce_front = dForce*(1-car.copx); % downforce eje delantero [N]
+            dForce_rear = dForce*car.copx; % downforce eje trasero [N]
             drag = 0.5*air_d*area*dr_coeff*v^2; % cálculo drag [N]
             drag_front = - drag*car.copz/car.l; % carga que aporta el drag del eje delantero [N] (es negativa, por lo que realmente es carga que quita)
             drag_rear = - drag_front; % carga que aporta el drag sobre el eje trasero [N] (es positiva, por lo que aporta carga, exactamente la carga que se quita del eje delantero)
 
             % SLIPS NEUMÁTICO             
-            FL_slip =  min(atan2((Vy + yaw_vel*car.a), (Vx + (yaw_vel*car.Tf/2))) - FL_steer, 15/57); % front left slip angle [rad]
-            FR_slip =  min(atan2((Vy + yaw_vel*car.a), (Vx - (yaw_vel*car.Tf/2)))- FR_steer, 15/57); % front right slip angle [rad]
-            RL_slip =  min(atan2((Vy - yaw_vel*car.b), (Vx + (yaw_vel*car.Tr/2))), 15/57); % rear left slip angle [rad]
-            RR_slip =  min(atan2((Vy - yaw_vel*car.b), (Vx - (yaw_vel*car.Tr/2))), 15/57); % rear right slip angle [rad]
+            FL_slip =  min(atan((Vy + yaw_vel*car.a)/(Vx + (yaw_vel*car.Tf/2))) - FL_steer, 15/57); % front left slip angle [rad]
+            FR_slip =  min(atan((Vy + yaw_vel*car.a)/(Vx - (yaw_vel*car.Tf/2))) - FR_steer, 15/57); % front right slip angle [rad]
+            RL_slip =  min(atan((Vy - yaw_vel*car.b)/(Vx + (yaw_vel*car.Tr/2))), 15/57); % rear left slip angle [rad]
+            RR_slip =  min(atan((Vy - yaw_vel*car.b)/(Vx - (yaw_vel*car.Tr/2))), 15/57); % rear right slip angle [rad]
         
 
             % CAMBER GAIN
@@ -93,14 +93,14 @@ for steer = steer_int
             camber_RR = gammaR0 + rolltocamber_ratio*roll ; % camber total Rear Right [rads]
            
             %WEIGHT TRASNFER
-            [FZ_FR, FZ_FL, FZ_RR, FZ_RL]= normal_load_per_tire_complete(car.m, ay, car.Tf, car.Tf, car.Zrf, car.Zrr, car.Kf, car.Kr, car.H, car.l, car.a); % llamada función laod transfer, devuelve carga sobre cada rueda, sin contar downforce
+            [FZ_FL, FZ_FR, FZ_RL, FZ_RR] = normal_load_per_tire_complete(car.m, ay, car.Tf, car.Tf, car.Zrf, car.Zrr, car.Kf, car.Kr, car.H, car.l, car.a); % llamada función laod transfer, devuelve carga sobre cada rueda, sin contar downforce
 
-            % TOTAL LOADS
-            FZ_FR = FZ_FR + (dForce_front + drag_front)/2 ;% total load on front right [N]
+            % TOTAL LOAD
             FZ_FL = FZ_FL + (dForce_front + drag_front)/2; % total load on front left [N]
-            FZ_RR = FZ_RR + (dForce_rear + drag_rear)/2; % total load on rear right [N]
+            FZ_FR = FZ_FR + (dForce_front + drag_front)/2;% total load on front right [N]
             FZ_RL = FZ_RL + (dForce_rear + drag_rear)/2; % total load on rear left [N]
-
+            FZ_RR = FZ_RR + (dForce_rear + drag_rear)/2; % total load on rear right [N]
+            
             % EACH TIRE'S FY AND MZ
             [FY_FL, MZ_FL] = tire_model_function(FL_slip, -camber_FL, FZ_FL); % Front left Fy and Mz
             [FY_FR, MZ_FR] = tire_model_function(FR_slip, camber_FR, FZ_FR);% Front right Fy and Mz
@@ -108,20 +108,21 @@ for steer = steer_int
             [FY_RR, MZ_RR] = tire_model_function(RR_slip, camber_RR, FZ_RR); % Rear right Fy and Mz
 
             % YAW AND AY CALCULATIONS
-            ay = -(FY_RR + FY_RL + FY_FR*cos(FR_steer) + FY_FL*cos(FL_steer))/(car.m *g); % aceleración lateral resultante [g]
+            ay = (FY_RR + FY_RL + FY_FR*cos(FR_steer) + FY_FL*cos(FL_steer))/(car.m *g); % aceleración lateral resultante [g]
             yaw_moment = ((FY_FR*cos(FR_steer) + FY_FL*cos(FL_steer))*car.a - (FY_RR + FY_RL)*car.b - (MZ_RR + MZ_RL + MZ_FL + MZ_FR));
             v = sqrt(abs(ay*g*R));
-            
-            if ay> ay_maximum
-                ay_maximum = ay; % Update maximum lateral acceleration
-                yaw_moment_ay_max=yaw_moment;
-            elseif ay< ay_minimum
-                ay_minimum=ay;
-                yaw_moment_ay_min=yaw_moment;
-            end
-
         end
-       
+        if ay > ay_maximum
+                ay_maximum = ay; % Update maximum lateral acceleration
+                yaw_moment_ay_max = yaw_moment;
+                slips_max_ay = rad2deg([FL_slip, FR_slip, RR_slip, RL_slip]);
+                loads_max_ay = [FZ_FL, FZ_FR, FZ_RL, FZ_RR];
+                fys_max_ay = [FY_FL, FY_FR, FY_RL, FY_RR];
+                wheelsteers_max_ay = rad2deg([FL_steer, FR_steer]);
+                steer_max_ay = (steer);
+                yaw_slip_max_ay = rad2deg(yaw_slip);
+                v_max = v;
+        end
         yaw_moment_matrix(idx_steer, idx_yawslip) = yaw_moment ;
         ay_matrix(idx_steer, idx_yawslip) = ay;
         idx_yawslip = idx_yawslip + 1;
@@ -132,13 +133,18 @@ for steer = steer_int
 end
 ay_maximum 
 yaw_moment_ay_max
-ay_minimum 
-yaw_moment_ay_min
+wheelsteers_max_ay
+fys_max_ay;
+steer_max_ay
+yaw_slip_max_ay
+v_max
+loads_n_slips = table(slips_max_ay', loads_max_ay', fys_max_ay', 'VariableNames', {'slip angle [deg]', 'vertical load [N]', 'fy [N]'}, 'RowNames', {'Front Left', 'Front Right', 'Rear Left', 'Rear Right'})
+
 
 figure(1)
-plot(ay_matrix, yaw_moment_matrix, '.')
+plot(ay_matrix, yaw_moment_matrix)
 hold on
-plot(ay_matrix', yaw_moment_matrix', '.')
+plot(ay_matrix', yaw_moment_matrix')
 grid on
 
 

@@ -1,5 +1,5 @@
 
-function [fz_FR, fz_FL, fz_RR, fz_RL]= normal_load_per_tire_complete(car_weight, ay, trackwidth_front, trackwidth_rear, rollcenter_front, ...
+function [fz_FL, fz_FR, fz_RL, fz_RR]= normal_load_per_tire_complete(car_weight, ay, trackwidth_front, trackwidth_rear, rollcenter_front, ...
     rollcenter_rear, rollstiffness_front, rollstiffness_rear, H, wheelbase, a)
     
     g=9.81; %Gravity in m/s^2
