@@ -118,7 +118,7 @@ for steer = steer_int
                 slips_max_ay = rad2deg([FL_slip, FR_slip, RR_slip, RL_slip]);
                 loads_max_ay = [FZ_FL, FZ_FR, FZ_RL, FZ_RR];
                 fys_max_ay = [FY_FL, FY_FR, FY_RL, FY_RR];
-                wheelsteers_max_ay = rad2deg([FL_steer, FR_steer]);
+                wheelsteers_max_ay = rad2deg([FL_steer, FR_steer, 0, 0]);
                 steer_max_ay = (steer);
                 yaw_slip_max_ay = rad2deg(yaw_slip);
                 v_max = v;
@@ -138,7 +138,7 @@ fys_max_ay;
 steer_max_ay
 yaw_slip_max_ay
 v_max
-loads_n_slips = table(slips_max_ay', loads_max_ay', fys_max_ay', 'VariableNames', {'slip angle [deg]', 'vertical load [N]', 'fy [n]'}, 'RowNames', {'Front Left', 'Front Right', 'Rear Left', 'Rear Right'})
+loads_n_slips = table(slips_max_ay', loads_max_ay', fys_max_ay', wheelsteers_max_ay,  'VariableNames', {'Slip angle [deg]', 'FZ [N]', 'FY [N]', 'Steer input [deg]}, 'RowNames', {'Front Left', 'Front Right', 'Rear Left', 'Rear Right'})
 
 
 figure(1)
