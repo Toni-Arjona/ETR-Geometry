@@ -36,8 +36,8 @@ area = 0.563; % área frontal del coche [m^2]
 % Inputs
 R = 10; % Radio de giro [m]
 
-steer_int= -35:2:35; % Intervalo Steering wheel angle [rad]
-yaw_slip_int = deg2rad(-20:1:20); % Intervalo Slip de CG en [rad]
+steer_int= -90:1:90; % Intervalo Steering wheel angle [rad]
+yaw_slip_int = deg2rad(-15:1:15); % Intervalo Slip de CG en [rad]
 
 Wf = g*car.m*car.b/(car.l); % peso sobre eje delantero [N]
 Wr = g*car.m*car.a/(car.l); % peso sobre eje trasero [N]
@@ -57,13 +57,13 @@ yaw_moment_ay_min=0;
 slips_max_ay = zeros(1, 4);
 loads_max_ay = zeros(1, 4);
 
-for steer = steer_int   
+for steer = steer_int  
 
     for yaw_slip = yaw_slip_int
     [FL_steer, FR_steer] = ackermann_function(steer); % llamada función ackermann, devuelve steer angle rueda iquierda y derecha
     FL_steer = deg2rad(FL_steer);
     FR_steer = deg2rad(FR_steer);
-   
+
         for k = 1:10
             
             Vx = cos(yaw_slip)*v; % Velocidad x
@@ -79,8 +79,8 @@ for steer = steer_int
             drag_rear = - drag_front; % carga que aporta el drag sobre el eje trasero [N] (es positiva, por lo que aporta carga, exactamente la carga que se quita del eje delantero)
 
             % SLIPS NEUMÁTICO             
-            FL_slip =  min(atan((Vy + yaw_vel*car.a)/(Vx + (yaw_vel*car.Tf/2))) - FL_steer, 15/57); % front left slip angle [rad]
-            FR_slip =  min(atan((Vy + yaw_vel*car.a)/(Vx - (yaw_vel*car.Tf/2))) - FR_steer, 15/57); % front right slip angle [rad]
+            FL_slip =  min(-atan((Vy + yaw_vel*car.a)/(Vx + (yaw_vel*car.Tf/2))) + FL_steer, 15/57); % front left slip angle [rad]
+            FR_slip =  min(-atan((Vy + yaw_vel*car.a)/(Vx - (yaw_vel*car.Tf/2))) + FR_steer, 15/57); % front right slip angle [rad]
             RL_slip =  min(atan((Vy - yaw_vel*car.b)/(Vx + (yaw_vel*car.Tr/2))), 15/57); % rear left slip angle [rad]
             RR_slip =  min(atan((Vy - yaw_vel*car.b)/(Vx - (yaw_vel*car.Tr/2))), 15/57); % rear right slip angle [rad]
         
@@ -137,13 +137,13 @@ fys_max_ay;
 steer_max_ay
 yaw_slip_max_ay
 v_max
-loads_n_slips = table(slips_max_ay', loads_max_ay', fys_max_ay', wheelsteers_max_ay',  'VariableNames', {'Slip angle [deg]', 'FZ [N]', 'FY [N]', 'Steer input [deg]'}, 'RowNames', {'Front Left', 'Front Right', 'Rear Left', 'Rear Right'})
+data_ay_max = table(slips_max_ay', loads_max_ay', fys_max_ay', wheelsteers_max_ay',  'VariableNames', {'Slip angle [deg]', 'FZ [N]', 'FY [N]', 'Steer input [deg]'}, 'RowNames', {'Front Left', 'Front Right', 'Rear Left', 'Rear Right'})
 
 
 figure(1)
-plot(ay_matrix, yaw_moment_matrix)
+plot(ay_matrix, yaw_moment_matrix, '.')
 hold on
-plot(ay_matrix', yaw_moment_matrix')
+plot(ay_matrix', yaw_moment_matrix', '.')
 grid on
 
 

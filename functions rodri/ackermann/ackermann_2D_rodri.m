@@ -11,10 +11,10 @@ r_pinion = 35/2; % radio pinion
 
 % INPUTS geometría steering. Centro de coordenadas en KingPin rueda
 % izquierda
-l_rack = 400; %
-x_rack = 0; % posición en eje x rack
-y_tie_mangueta = 4;
-x_tie_mangueta = 40;
+l_rack = 450; %
+x_rack = 50; % posición en eje x rack
+y_tie_mangueta = 20;
+x_tie_mangueta = 70;
 
 % cálculo puntos y ángulos para steer_angle = 0
 ax = x_rack;
@@ -38,10 +38,10 @@ for swheel_angle = 1:120 %rueda exterior
     rack_disp = deg2rad(swheel_angle)*r_pinion;
                                                                 
     l_ac = sqrt((ay + rack_disp)^2 + ax^2);
-    alpha_delta = acosd((l_ac^2 + l_brazo^2 - l_tierod^2)/(2*l_brazo*l_ac)) - alpha_ini;
-    ang_ac_delta = atan2d(ax, rack_disp + ay) - ang_ac_ini;
+    alpha_delta = alpha_ini- acosd((l_ac^2 + l_brazo^2 - l_tierod^2)/(2*l_brazo*l_ac));
+    ang_ac_delta = ang_ac_ini - atan2d(ax, rack_disp + ay);
 
-    extwheel_deg(idx) = (ang_ac_delta - alpha_delta);
+    extwheel_deg(idx) = abs(ang_ac_delta + alpha_delta);
 
     idx = idx + 1;
 
@@ -54,11 +54,12 @@ for swheel_angle = 1:120 %rueda interior
     rack_disp = -deg2rad(swheel_angle)*r_pinion;
                                                                 
     l_ac = sqrt((ay + rack_disp)^2 + ax^2);
-    alpha_delta = acosd((l_ac^2 + l_brazo^2 - l_tierod^2)/(2*l_brazo*l_ac)) - alpha_ini;
-    ang_ac_delta = atan2d(ax, rack_disp + ay) - ang_ac_ini;
+    alpha_delta = alpha_ini- acosd((l_ac^2 + l_brazo^2 - l_tierod^2)/(2*l_brazo*l_ac));
+    ang_ac_delta = ang_ac_ini - atan2d(ax, rack_disp + ay);
 
-    intwheel_deg(idx) = (ang_ac_delta + alpha_delta);
-    extwheel_ack_deg(idx) = atand(wheelbase/(wheelbase/tan(deg2rad(intwheel_deg(idx))) + front_track));
+    intwheel_deg(idx) = abs(ang_ac_delta + alpha_delta);
+    extwheel_ack_deg(idx) = atand(wheelbase/(wheelbase/tan(deg2rad(intwheel_deg(idx))) + rear_track));
+
 
     idx = idx + 1;
 
