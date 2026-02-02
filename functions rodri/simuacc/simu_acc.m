@@ -1,4 +1,4 @@
-close all
+    close all
 clear all
 clc
 %function tiempo_acc = simu_acc(gear_ratio)

@@ -25,7 +25,7 @@ car = struct(); % Definiciones del coche
 
 g=9.81; %m/s^2
 
-car.l=1.535; % Wheelbase [m]
+car.l=1.6; % Wheelbase [m]
 car.a = 0.5*car.l;% Distancia CG a front axle [m]
 car.b = car.l-car.a;% Distancia Cg a rear axle [m]
 car.Tf = 1.25;% Trackwith front [m]
@@ -81,12 +81,13 @@ yaw_moment_ay_min=0;
 slips_max_ay = zeros(1, 4);
 loads_max_ay = zeros(1, 4);
 
-for steer = steer_int
+for FR_steer = deg2rad(15:0.01:20)
+    for FL_steer = deg2rad(10:01:25)
 
         for yaw_slip = yaw_slip_int
-        [FL_steer, FR_steer] = ackermann_function(steer); % llamada función ackermann, devuelve steer angle rueda iquierda y derecha
-        FL_steer = deg2rad(FL_steer);
-        FR_steer = deg2rad(FR_steer);
+        %[FL_steer, FR_steer] = ackermann_function(steer); % llamada función ackermann, devuelve steer angle rueda iquierda y derecha
+        %FL_steer = deg2rad(FL_steer);
+        %FR_steer = deg2rad(FR_steer);
     
             for k = 1:10
                 
@@ -143,7 +144,7 @@ for steer = steer_int
                     loads_max_ay = [FZ_FL, FZ_FR, FZ_RL, FZ_RR];
                     fys_max_ay = [FY_FL, FY_FR, FY_RL, FY_RR];
                     wheelsteers_max_ay = rad2deg([FL_steer, FR_steer, 0, 0]);
-                    steer_max_ay = (steer);
+                    %steer_max_ay = (steer);
                     yaw_slip_max_ay = rad2deg(yaw_slip);
                     v_max = v;
             end
@@ -154,13 +155,13 @@ for steer = steer_int
         end
         idx_yawslip = 1;
         idx_steer = idx_steer + 1;
-    
+    end
 end
 
 ay_maximum 
 yaw_moment_ay_max
 fys_max_ay;
-steer_max_ay
+%steer_max_ay
 yaw_slip_max_ay
 v_max
 data_ay_max = table(slips_max_ay', loads_max_ay', fys_max_ay', wheelsteers_max_ay',  'VariableNames', {'Slip angle [deg]', 'FZ [N]', 'FY [N]', 'Steer input [deg]'}, 'RowNames', {'Front Left', 'Front Right', 'Rear Left', 'Rear Right'})

@@ -9,7 +9,7 @@ g = 9.81; % gravedad [m/s^2]
 
 %% PARÁMETROS SIMU
     v = 0.001; % velocidad inicial [m/s] (se ha cogido velocidad final de vuelta de una simu forward cualquiera)
-    d = 0.1; % intervalo para evaluación splines (como el vector radio se define a partir de esta evaluación, y los bucles iteran sobre el radio, acaba siendo el intervalo de simulación, en metros)
+    d = 1; % intervalo para evaluación splines (como el vector radio se define a partir de esta evaluación, y los bucles iteran sobre el radio, acaba siendo el intervalo de simulación, en metros)
     sf_lateral= 1 ; % porcentaje del agarre máximo lateral al que se llega
     sf_braking = 1; % porcentaje de agarre de frenada máxima al que se llega
     sf_accel = 1; % porcentaje de agarre de aceleración máxima al que se llega
@@ -182,8 +182,8 @@ g = 9.81; % gravedad [m/s^2]
     lat_acc = v_resultante.^2./radio; % Cálculo aceleración lateral para cada punto de simu
     dt = d ./ v_resultante; % Cálculo tiempo transcurrido en cada intervalo de simu
     g_long =    [diff(v_resultante),0]./dt; % cálculo aceleración longitudinal para cada punto de simu
-    dForce = 0.5*air_d*area*df_coeff*v_resultante.^2;
-    z_load_resultante = d_Force + car.m*g;
+    d_Force = 0.5*air_d*area*df_coeff*v_resultante.^2;
+    z_load_resultante = d_Force + m*g;
     
     
     tiempo_total = sum(dt) % cálculo tiempo de vuelta

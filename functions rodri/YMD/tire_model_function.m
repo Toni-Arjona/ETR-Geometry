@@ -3,7 +3,7 @@ function [Fy, Mz] = tire_model_function(slip, camber, Fz)
 
 lambdaHy=0;
 lambdaVy=1;
-lambdauy=0.805; 
+lambdauy=0.64; 
 lambdaKygamma=1;
 lambdaCy=1.22;
 lambdaEy=1;

@@ -1,4 +1,10 @@
 function [FL_steer, FR_steer] = ackermann_function(steering_wheel_angle)
+
+
+close all
+clear all
+clc
+
 % Punto c, kingpin a la altura del tie, rueda izquierda.  Es el origen de coordenadas para el estudio. 
 % Punto b, unión del tie con la mangueta.
 % Punto a, unión del tie con el rack.
@@ -12,17 +18,16 @@ wheelbase = 1600;
 front_track = 1150; %realmente no es el front track, sino la distancia entre kingpin izquierdo y derecho a la altura del tie.
 rear_track = 1250;
 r_pinion = 35/2; % radio pinion
-rack_disp = deg2rad(steering_wheel_angle)*r_pinion;
 
 % INPUTS geometría steering. Centro de coordenadas en KingPin rueda
 % izquierda
 l_rack = 450; %
-x_rack = 0; % posición en eje x rack
-y_tie_mangueta = 30;
-x_tie_mangueta = 80;
+x_rack = 50; % posición en eje x rack
+y_tie_mangueta = 40;
+x_tie_mangueta = 70;
 
 % cálculo puntos y ángulos para steer_angle = 0
-ax = x_rack;
+%ax = x_rack;
 ay = front_track/2 - l_rack/2;
 bx = x_tie_mangueta;
 by = y_tie_mangueta;
@@ -54,16 +59,5 @@ beta_delta = @(rack_disp, ax, ay, bx, by) beta_ini(rack_disp, ax, ay, bx, by) - 
 
 % variación total del ángulo phi de la rueda. Rueda exterior para rack_disp > 0. Rueda interior para rack_dips < 0.
 phi_delta = @(rack_disp, ax, ay, bx, by) abs(beta_delta(rack_disp, ax, ay, bx, by) + alpha_delta(rack_disp, ax, ay, bx, by));
-
-if steering_wheel_angle > 0
-
-    FL_steer = phi_delta(rack_disp, ax, ay, bx, by);
-    FR_steer = phi_delta(-rack_disp, ax, ay, bx, by);
-
-else 
-    FL_steer = -phi_delta(rack_disp, ax, ay, bx, by); 
-    FR_steer = -phi_delta(-rack_disp, ax, ay, bx, by);
-end
-
-
+                                                                
 end
