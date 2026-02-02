@@ -38,7 +38,7 @@ tie_rack_joint_ini = [-180, -225, 146.71];
 tie_upright_joint_ini = [-170, -580, 133];
 l_tie = norm(tie_upright_joint_ini - tie_rack_joint_ini); % longitud tie
 
-% Vector brazo de dirección (para trackear rotación total)
+% Vector brazo de dirección
 steerarm_vector_ini = tie_upright_joint_ini - lower_knuckle;
 
 % --- NUEVO: Vector radio desde el punto de pivote (lower knuckle) al centro de rueda

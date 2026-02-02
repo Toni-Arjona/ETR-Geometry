@@ -3,10 +3,10 @@ function [Fx, Fy, Fz, Mx, My, Mz, kappa, alpha, gamma, phit, Vx, P, Re, rho, two
     
     pressure = 82737;
     turn_slip = 0;
-    
+
     inputs = [Fz, long_slip, deg2rad(slip_angle), deg2rad(camber), turn_slip, car_speed, pressure];
     
-    outputs = mfeval(tire_model_data, inputs, 111);
+    outputs = mfeval(tire_model_data, inputs, 211);
     
     % Asignación de las 30 columnas del vector 'outputs' a variables individuales
     
