@@ -64,4 +64,6 @@ for k = length(res_camber_opt)
     res_re(k) = Re
 end
 
+table(fz_vec', res_slip_opt' , res_camber_opt', res_re', 'VariableNames', {'Fz [N]', 'Slip angle óptimo [deg]', 'Camber ópimo [deg]', 'Effective rolling radius [m]'})
+
       
