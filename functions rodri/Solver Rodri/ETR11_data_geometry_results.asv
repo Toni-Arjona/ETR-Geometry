@@ -1,0 +1,35 @@
+FL_DPR_COMPRESSION_int = 0:0.1:50;
+STEERING_WHEEL_ANGLE_int = -150:0.1:150;
+TIRE_REDIUS = 203;
+
+FL_STEER_RESULT = zeros(length(STEERING_WHEEL_ANGLE_int), length(FL_DPR_COMPRESSION_int));
+FL_CAMBER_RESULT = zeros(length(STEERING_WHEEL_ANGLE_int), length(FL_DPR_COMPRESSION_int));
+FL_JACKING_RESULT = zeros(length(STEERING_WHEEL_ANGLE_int), length(FL_DPR_COMPRESSION_int));
+FL_SCRUB_RESULT = zeros(length(STEERING_WHEEL_ANGLE_int), length(FL_DPR_COMPRESSION_int));
+FL_CASTERTRAIL_RESULT = zeros(length(STEERING_WHEEL_ANGLE_int), length(FL_DPR_COMPRESSION_int));
+FL_CASTER_RESULT = zeros(length(STEERING_WHEEL_ANGLE_int), length(FL_DPR_COMPRESSION_int));
+FL_KPI_RESULT = zeros(length(STEERING_WHEEL_ANGLE_int), length(FL_DPR_COMPRESSION_int));
+FL_TRACKWIDTH_RESULT = zeros(length(STEERING_WHEEL_ANGLE_int), length(FL_DPR_COMPRESSION_int));
+FL_WHEELBASE_RESULT = zeros(length(STEERING_WHEEL_ANGLE_int), length(FL_DPR_COMPRESSION_int));
+FL_MOTIONRARIO_RESULT = zeros(length(STEERING_WHEEL_ANGLE_int), length(FL_DPR_COMPRESSION_int));
+FL_WHEELTRAVEL_RESULT = zeros(length(STEERING_WHEEL_ANGLE_int), length(FL_DPR_COMPRESSION_int));
+
+
+
+for i = 1:length(STEERING_WHEEL_ANGLE_int)
+    for j = 1:length(FL_DPR_COMPRESSION_int)
+        [FL] = FL_SOLVER_ETR11_rodri(steering_wheel_angle, FL_DPR_COMPRESSION);
+
+        FL_STEER_RESULT(i, j) = atan2(FL.SPINDLE(1), FL.SPINDLE(2));
+        FL_CAMBER_RESULT(i, j) = asind(FL.SPINDLE(3));
+        FL_JACKING_RESULT(i, j) = TIRE_RADIUS - FL.SPINDLE(3);
+        FL_SCRUB_RESULT(i, j) = 
+        FL_CASTERTRAIL_RESULT(i, j) = 
+        FL_CASTER_RESULT(i, j) = 
+        FL_KPI_RESULT(i, j) = 
+        FL_TRACKWIDTH_RESULT(i, j) = 
+        FL_WHEELBASE_RESULT(i, j) = 
+        FL_MOTIONRARIO_RESULT(i, j) = 
+        FL_WHEELTRAVEL_RESULT(i, j) = 
+
+

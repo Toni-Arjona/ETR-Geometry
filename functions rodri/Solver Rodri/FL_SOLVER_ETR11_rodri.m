@@ -18,12 +18,16 @@ function[FL] = FL_SOLVER_ETR11_rodri(steering_wheel_angle, FL_DPR_COMPRESSION)
     
     
     %% COORDINATES DEFINITIONS. POINTS
+        TIRE_RADIUS = 203;
+
         % Wheel spindle 
         FL_SPINDLE_CENTER = [-100, -625, 203]; 
-        FL_SPINDLE_INNER = [-100, -561.5, 200.5];
+        FL_SPINDLE_INNER = [-100, -561.5, 203];
         FL_SPINDLE = (FL_SPINDLE_INNER - FL_SPINDLE_CENTER)/norm(FL_SPINDLE_INNER - FL_SPINDLE_CENTER);
+
         % Contact patch
-        FL_CONTACT_PATCH = FL_SPINDLE_CENTER + 203*(cross(cross(FL_SPINDLE, [0, 0, -1]), FL_SPINDLE)/norm(cross(cross(FL_SPINDLE, [0, 0, -1]), FL_SPINDLE)));
+        FL_CONTACT_PATCH = FL_SPINDLE_CENTER + TIRE_RADIUS*(cross(cross(FL_SPINDLE, [0, 0, -1]), FL_SPINDLE)/norm(cross(cross(FL_SPINDLE, [0, 0, -1]), FL_SPINDLE)));
+        
         % FL Knuckles
         FL_UW_KN = [-80, -520, 294]; 
         FL_LW_KN = [-100 ,-571, 111];
@@ -222,23 +226,25 @@ function[FL] = FL_SOLVER_ETR11_rodri(steering_wheel_angle, FL_DPR_COMPRESSION)
     
     % Nuevo contact patch
     v_down_wheel = cross(cross(FL_SPINDLE_FINAL, [0, 0, -1]), FL_SPINDLE_FINAL);
-    FL_CONTACT_PATCH_FINAL_POINT = FL_SPINDLE_CENTER_FINAL_POINT + 203 * (v_down_wheel / norm(v_down_wheel));
+    FL_CONTACT_PATCH_FINAL_POINT = FL_SPINDLE_CENTER_FINAL_POINT + TIRE_RADIUS * (v_down_wheel / norm(v_down_wheel));
     
     % Intersección del Kingpin con el suelo
     t_ground = -FL_LW_KN_FINAL_POINT(3) / FL_KP_FINAL_POINT(3);
     FL_KP_GROUND_FINAL_POINT = FL_LW_KN_FINAL_POINT + t_ground * FL_KP_FINAL_POINT;
 
-    FL_CAMBER = asind(FL_SPINDLE_FINAL(3))
+    FL_CAMBER = asind(FL_SPINDLE_FINAL(3));
 
 
-    [~,~,~,~,~,~,~,~,~,~,~,~,Re] = mfeval_function(270*9.81/4, 0, 0, FL_CAMBER, 0)
+    [~,~,~,~,~,~,~,~,~,~,~,~,Re] = mfeval_function(270*9.81/4, 0, 0, FL_CAMBER, 0);
+
+    FL.R_EFFECTIVE = Re;
 
     z_offset = [0, 0, FL_SPINDLE_CENTER_FINAL_POINT(3) - Re*1000];
 
-    FL.URW_MC = FL_URW_MC - z_offset;
-    FL.UFW_MC = FL_UFW_MC - z_offset;
-    FL.LRW_MC = FL_LRW_MC - z_offset;
-    FL.LFW_MC = FL_LFW_MC - z_offset;
+    FL.URW_MC        = FL_URW_MC - z_offset;
+    FL.UFW_MC        = FL_UFW_MC - z_offset;
+    FL.LRW_MC        = FL_LRW_MC - z_offset;
+    FL.LFW_MC        = FL_LFW_MC - z_offset;
     FL.UW_KN         = FL_UW_KN_FINAL_POINT - z_offset;
     FL.LW_KN         = FL_LW_KN_FINAL_POINT - z_offset;
     FL.TR_RACK       = FL_TR_RACK_FINAL_POINT - z_offset;
@@ -248,11 +254,17 @@ function[FL] = FL_SOLVER_ETR11_rodri(steering_wheel_angle, FL_DPR_COMPRESSION)
     FL.PUSH_RKR      = FL_PUSH_RKR_FINAL_POINT - z_offset;
     FL.SPINDLE_CENTER= FL_SPINDLE_CENTER_FINAL_POINT - z_offset;
     FL.SPINDLE_INNER = FL_SPINDLE_INNER_FINAL_POINT - z_offset;
+    FL.SPINDLE       = FL_SPINDLE_FINAL
     FL.DPR_MC        = FL_DPR_MC - z_offset;
     FL.RKR_AXIS_1    = FL_RKR_1 - z_offset;
     FL.RKR_AXIS_2    = FL_RKR_2 - z_offset;
     FL.CONTACT_PATCH = FL_CONTACT_PATCH_FINAL_POINT - z_offset;
     FL.KP_GROUND     = FL_KP_GROUND_FINAL_POINT - z_offset;
+
+
+    [FL.CONTACT_PATCH_INTERSECTION_PLUS, FL.CONTACT_PATCH_INTERSECTION_MINUS] = contact_patch_surface(TIRE_RADIUS, FL);
+   
+        
         
    
     

@@ -1,4 +1,5 @@
-function[FL] = FL_SOLVER_ETR11_rodri(steering_wheel_angle, FL_DPR_COMPRESSION)
+% ---> MODIFICACIÓN: Cabecera actualizada para recibir rkr0 y x0, y devolver FL_RKR_ANGLE y x <---
+function[FL, FL_RKR_ANGLE, x] = FL_SOLVER_ETR11_rodri_gemini_opt(steering_wheel_angle, FL_DPR_COMPRESSION, rkr0, x0)
     % Front left suspension and steering geometry
     % [wheel]_[componente 1]_[componente 2]
     % F - Front
@@ -20,12 +21,12 @@ function[FL] = FL_SOLVER_ETR11_rodri(steering_wheel_angle, FL_DPR_COMPRESSION)
     %% COORDINATES DEFINITIONS. POINTS
         % Wheel spindle 
         FL_SPINDLE_CENTER = [-100, -625, 203]; 
-        FL_SPINDLE_INNER = [-100, -561.5, 200.5];
+        FL_SPINDLE_INNER = [-100, -561.5, 203];
         FL_SPINDLE = (FL_SPINDLE_INNER - FL_SPINDLE_CENTER)/norm(FL_SPINDLE_INNER - FL_SPINDLE_CENTER);
         % Contact patch
         FL_CONTACT_PATCH = FL_SPINDLE_CENTER + 203*(cross(cross(FL_SPINDLE, [0, 0, -1]), FL_SPINDLE)/norm(cross(cross(FL_SPINDLE, [0, 0, -1]), FL_SPINDLE)));
         % FL Knuckles
-        FL_UW_KN = [-89, -520, 294]; 
+        FL_UW_KN = [-80, -520, 294]; 
         FL_LW_KN = [-100 ,-571, 111];
         
         % FL wishbones joints with monocoque
@@ -126,7 +127,9 @@ function[FL] = FL_SOLVER_ETR11_rodri(steering_wheel_angle, FL_DPR_COMPRESSION)
         FL_RKR_SOLVE_NEW_FUNCTION = @(FL_RKR_ANGLE) norm((FL_RKR_2 + rodrigues_rotation_NEW_FUNCTION(FL_RKR_AXIS_2_to_DPR, FL_RKR_AXIS, FL_RKR_ANGLE)) - FL_DPR_MC) - (DPR_LENGTH - FL_DPR_COMPRESSION);
         
         % Solucionar ecuación anterior igualada a 0.
-        FL_RKR_ANGLE = fzero(FL_RKR_SOLVE_NEW_FUNCTION, 0);
+        % ---> MODIFICACIÓN: Uso de estimación inicial rkr0 <---
+        FL_RKR_ANGLE = fzero(FL_RKR_SOLVE_NEW_FUNCTION, rkr0);
+        
         % Definir nueva posición de los extremos del rocker.
         FL_DPR_RKR_FINAL_POINT = FL_RKR_2 + rodrigues_rotation_NEW_FUNCTION(FL_RKR_AXIS_2_to_DPR, FL_RKR_AXIS, FL_RKR_ANGLE);
         FL_PUSH_RKR_FINAL_POINT = FL_RKR_2 + rodrigues_rotation_NEW_FUNCTION(FL_RKR_AXIS_2_to_PUSH, FL_RKR_AXIS, FL_RKR_ANGLE);
@@ -171,7 +174,10 @@ function[FL] = FL_SOLVER_ETR11_rodri(steering_wheel_angle, FL_DPR_COMPRESSION)
     
         % RESOLUCIÓN FINAL
         FL_TOTAL_SOLVE_NEW_FUNCTION = @(x) [FL_KNS_SOLVE_NEW_FUNCTION(x); FL_TR_SOLVE_NEW_FUNCTION(x); FL_PUSH_SOLVE_NEW_FUNCTION(x)];
-        x = fsolve(FL_TOTAL_SOLVE_NEW_FUNCTION, [0, 0, 0]);
+        
+        % ---> MODIFICACIÓN: Inclusión de optimoptions y uso de estimación inicial x0 en fsolve <---
+        options = optimoptions('fsolve', 'Display', 'off');
+        x = fsolve(FL_TOTAL_SOLVE_NEW_FUNCTION, x0, options);
         
         FL_UW_ANGLE = rad2deg(x(1));
         FL_LW_ANGLE = rad2deg(x(2));
@@ -233,39 +239,27 @@ function[FL] = FL_SOLVER_ETR11_rodri(steering_wheel_angle, FL_DPR_COMPRESSION)
 
     [~,~,~,~,~,~,~,~,~,~,~,~,Re] = mfeval_function(270*9.81/4, 0, 0, FL_CAMBER, 0)
 
-    z_offset = [0, 0, FL_SPINDLE_CENTER_FINAL_POINT(3) - Re];
+    z_offset = [0, 0, FL_SPINDLE_CENTER_FINAL_POINT(3) - Re*1000];
 
+    FL.URW_MC = FL_URW_MC - z_offset;
+    FL.UFW_MC = FL_UFW_MC - z_offset;
+    FL.LRW_MC = FL_LRW_MC - z_offset;
+    FL.LFW_MC = FL_LFW_MC - z_offset;
     FL.UW_KN         = FL_UW_KN_FINAL_POINT - z_offset;
     FL.LW_KN         = FL_LW_KN_FINAL_POINT - z_offset;
     FL.TR_RACK       = FL_TR_RACK_FINAL_POINT - z_offset;
     FL.TR_UPRIGHT    = FL_TR_UPRIGHT_FINAL_POINT - z_offset;
     FL.DPR_RKR       = FL_DPR_RKR_FINAL_POINT - z_offset;
-    FL.PUSH_UPRIGHT  = FL_PUSH_UPRIGHT_FINAL_POINT - z_offset;
+    FL.PUSH_UW       = FL_PUSH_UW_FINAL_POINT - z_offset;
     FL.PUSH_RKR      = FL_PUSH_RKR_FINAL_POINT - z_offset;
     FL.SPINDLE_CENTER= FL_SPINDLE_CENTER_FINAL_POINT - z_offset;
     FL.SPINDLE_INNER = FL_SPINDLE_INNER_FINAL_POINT - z_offset;
+    FL.DPR_MC        = FL_DPR_MC - z_offset;
+    FL.RKR_AXIS_1    = FL_RKR_1 - z_offset;
+    FL.RKR_AXIS_2    = FL_RKR_2 - z_offset;
     FL.CONTACT_PATCH = FL_CONTACT_PATCH_FINAL_POINT - z_offset;
     FL.KP_GROUND     = FL_KP_GROUND_FINAL_POINT - z_offset;
         
    
     
 end
-
-
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-   
-
-

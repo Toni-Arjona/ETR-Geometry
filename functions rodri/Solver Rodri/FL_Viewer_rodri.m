@@ -1,4 +1,4 @@
-function FL_Viewer_V5()
+function FL_Viewer()
     fig = uifigure('Name', 'ETR11 Live Geometry - Pure Plot', 'Position', [100 100 1100 750], 'Color', [0.1 0.1 0.1]);
     ax = uiaxes(fig, 'Position', [50 190 1000 530], 'BackgroundColor', [0 0 0], 'XColor', 'w', 'YColor', 'w', 'ZColor', 'w');
     hold(ax, 'on'); grid(ax, 'on'); axis(ax, 'equal'); view(ax, 3);
@@ -18,12 +18,12 @@ function FL_Viewer_V5()
     h.PtsW = plot3(ax, 0,0,0, 'wo', 'MarkerFaceColor', 'w', 'MarkerSize', 5); 
     h.PtsY = plot3(ax, 0,0,0, 'yo', 'MarkerFaceColor', 'y', 'MarkerSize', 5); 
 
-    [xc, yc, zc] = cylinder((16*25.4)/2, 40); zc = (zc - 0.5) * (7.5*25.4);
+    [xc, yc, zc] = cylinder((16*25.4)/2, 300); zc = (zc - 0.5) * (7.5*25.4);
     h.Wheel = surface(ax, xc, yc, zc, 'FaceColor', [0.3 0.3 0.3], 'EdgeColor', 'none', 'FaceAlpha', 0.5);
 
     % Sliders
     uilabel(fig, 'Position', [150 150 800 20], 'Text', 'ÁNGULO DE VOLANTE (Steering Angle)', 'FontWeight', 'bold', 'FontColor', 'w', 'HorizontalAlignment', 'center');
-    s_steer = uislider(fig, 'Position', [150 130 800 3], 'Limits', [-150 150], 'Value', 0);
+    s_steer = uislider(fig, 'Position', [150 130 800 3], 'Limits', [-90 90], 'Value', 0);
     
     uilabel(fig, 'Position', [150 70 800 20], 'Text', 'COMPRESIÓN DEL AMORTIGUADOR (Damper Compression)', 'FontWeight', 'bold', 'FontColor', 'w', 'HorizontalAlignment', 'center');
     s_comp = uislider(fig, 'Position', [150 50 800 3], 'Limits', [0 50], 'Value', 0);
