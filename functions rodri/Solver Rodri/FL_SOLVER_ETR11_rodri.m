@@ -235,6 +235,10 @@ function[FL] = FL_SOLVER_ETR11_rodri(steering_wheel_angle, FL_DPR_COMPRESSION)
 
     z_offset = [0, 0, FL_SPINDLE_CENTER_FINAL_POINT(3) - Re*1000];
 
+    FL.URW_MC = FL_URW_MC - z_offset;
+    FL.UFW_MC = FL_UFW_MC - z_offset;
+    FL.LRW_MC = FL_LRW_MC - z_offset;
+    FL.LFW_MC = FL_LFW_MC - z_offset;
     FL.UW_KN         = FL_UW_KN_FINAL_POINT - z_offset;
     FL.LW_KN         = FL_LW_KN_FINAL_POINT - z_offset;
     FL.TR_RACK       = FL_TR_RACK_FINAL_POINT - z_offset;
