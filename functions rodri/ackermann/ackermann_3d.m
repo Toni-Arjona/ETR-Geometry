@@ -6,13 +6,13 @@ track = 1250;
 
 % Puntos geometría. Todos los puntos corresponden a rueda delantera izquierda
 % Spindle
-spindle_center_ini = [-100, -623, 203]; 
-spindle_inner_point = [-100, -561.5, 200.5];
+spindle_center_ini = [-100, -625, 203]; 
+spindle_inner_point = [-100, -564, 201];
 spindle_vec_ini = (spindle_inner_point - spindle_center_ini)/ norm(spindle_inner_point - spindle_center_ini); % Vector unitario del spindle, inicial.
 
 % Knuckles
-upper_knuckle = [-89, -549, 249]; 
-lower_knuckle = [-105 ,-576, 111]; % referencia para cálculo Rodrigues
+upper_knuckle = [-80, -520, 294]; 
+lower_knuckle = [-96.5 ,-571, 111]; % referencia para cálculo Rodrigues
 kingpin_vector = (upper_knuckle - lower_knuckle)/norm(lower_knuckle - upper_knuckle); % vector unitario kingpin.
 
 % Wishbones - monocoque joints
@@ -34,16 +34,15 @@ damper_rocker_joint = [ -51, -112, 610];
 damper_monocoque_joint = [ 164, -112, 610];
 
 % Tie rod
-tie_rack_joint_ini = [-180, -225, 146.71];
-tie_upright_joint_ini = [-170, -580, 133];
+tie_rack_joint_ini = [-170, -225, 149.39];
+tie_upright_joint_ini = [-180, -560, 140];
 l_tie = norm(tie_upright_joint_ini - tie_rack_joint_ini); % longitud tie
 
 % Vector brazo de dirección (para trackear rotación total)
 steerarm_vector_ini = tie_upright_joint_ini - lower_knuckle;
 
-% --- NUEVO: Vector radio desde el punto de pivote (lower knuckle) al centro de rueda
+% Vector radio desde el punto de pivote (lower knuckle) al centro de rueda. Se usa para el cálculo del jacking geométrico
 spindle_radius_vector_ini = spindle_center_ini - lower_knuckle; 
-
 
 % Formula Rodrigues: rotar un vector v (steerarm_vec), alrededor de un eje k (kingpin_vec), un ángulo th (total steer, contando variaciones en todos los ejes).
 rotated_vec = @(v, k, th) v*cos(th) + cross(k, v)*sin(th) + k*dot(k, v)*(1 - cos(th)); 
@@ -52,6 +51,7 @@ idx = 1;
 ext_steer = zeros(1, 100);
 ext_camber = zeros(1, 100);
 ext_jacking = zeros(1, 100); 
+ext_ratio = zeros(1, 100); 
 
 % Bucle Exterior (Rack desplazándose en una dirección)
 for rack_disp = 0:0.5:50
@@ -65,18 +65,17 @@ for rack_disp = 0:0.5:50
     spindle_final = rotated_vec(spindle_vec_ini, kingpin_vector, theta_axis); % posición final del vector spindle después de la rotación.
     
     steer_angle = atan2d(spindle_final(1), spindle_final(2)); % proyección del spindle sobre plano XY para obtener steer
-    camber_angle = -asind(spindle_final(3)); % proyección del spindle sobre plano perpendicular al suelo y dirección de la rueda
+    camber_angle = asind(spindle_final(3)); % proyección del spindle sobre plano perpendicular al suelo y dirección de la rueda
     
     ext_steer(idx) = abs(steer_angle);
     ext_camber(idx) = camber_angle;
-    
-    % --- CÁLCULO JACKING EXT ---
-    % 1. Rotamos el vector que une el Kingpin con el centro de rueda
-    spindle_radius_final = rotated_vec(spindle_radius_vector_ini, kingpin_vector, theta_axis);
-    % 2. Calculamos la nueva posición Z del centro de rueda
-    spindle_center_final = lower_knuckle + spindle_radius_final;
-    % 3. Jacking = Altura Inicial - Altura Final (Si la rueda baja, el chasis sube)
-    ext_jacking(idx) = spindle_center_ini(3) - spindle_center_final(3);
+
+    ext_ratio(idx) = rad2deg(rack_disp/17.5)/ext_steer(idx);
+   
+    spindle_radius_final = rotated_vec(spindle_radius_vector_ini, kingpin_vector, theta_axis); % cálculo vector para jacking rotado   
+    spindle_center_final = lower_knuckle + spindle_radius_final; % cálculo nueva posición centro de la rueda    
+    ext_jacking(idx) = spindle_center_ini(3) - spindle_center_final(3); % jacking. Diferencia de altura entre 
+
     
     idx = idx + 1;
 end
@@ -98,7 +97,7 @@ for rack_disp = 0:-0.5:-50
     spindle_final = rotated_vec(spindle_vec_ini, kingpin_vector, theta_axis);
     
     steer_angle = atan2d(spindle_final(1), spindle_final(2));
-    camber_angle = -asind(spindle_final(3));
+    camber_angle = asind(spindle_final(3));
     
     int_steer(idx) = abs(steer_angle);
     int_camber(idx) = camber_angle;
@@ -128,16 +127,21 @@ plot(int_steer, ack_pctge * 100, 'LineWidth', 1.5)
 grid on; title('Ackermann Percentage'); ylabel('%');
 
 subplot(3,1,2)
-plot(int_steer, ext_camber, 'r', int_steer, int_camber, 'b', 'LineWidth', 1.5)
+plot(rad2deg((0:0.5:50)./17.5), ext_camber, 'r', rad2deg((0:0.5:50)./17.5), int_camber, 'b', 'LineWidth', 1.5)
 legend('Ext Wheel', 'Int Wheel');
 grid on; title('Camber Change'); ylabel('Deg');
 
 subplot(3,1,3)
 % Graficamos el Jacking individual y el total
-plot(int_steer, ext_jacking, 'r--', 'LineWidth', 1)
+plot(rad2deg((0:0.5:50)./17.5), ext_jacking, 'r--', 'LineWidth', 1)
 hold on
-plot(int_steer, int_jacking, 'b--', 'LineWidth', 1)
-plot(int_steer, total_axle_jacking, 'k', 'LineWidth', 2)
+plot(rad2deg((0:0.5:50)./17.5), int_jacking, 'b--', 'LineWidth', 1)
+plot(rad2deg((0:0.5:50)./17.5), total_axle_jacking, 'k', 'LineWidth', 2)
 legend('Ext Wheel Height', 'Int Wheel Height', 'Total Chassis Heave');
 grid on; title('Geometric Jacking (Chassis Lift)'); 
 xlabel('Inner Steer Angle [deg]'); ylabel('Vertical Disp [mm]');
+
+figure(2)
+plot(ext_steer, ext_ratio)
+
+

@@ -1,0 +1,36 @@
+clear all
+close all
+
+fz_ext = 1200;
+fz_int = 300;
+camber = -1.44;
+slip_int = -12:0.01:0;
+long_slip = 0;
+car_speed = 30; 
+mechanical_trail = 0.00677;
+
+
+for i = 1:length(slip_int)
+    [Fx, Fy, Fz, Mx, My, Mz, kappa, alpha, gamma, phit, Vx, P, Re, rho, two_a, t, mux, muy, omega, Rl, two_b, Mzr, Cx, Cy, Cz, Kya, sigmax, sigmay, dFy_dSA, Kxk] = mfeval_function(fz_ext, long_slip, slip_int(i), camber, car_speed);
+    fy_ext_result(i) = Fy;
+    mz_ext_result(i) = Mz;
+    mech_ext_mz_result(i) = -Fy*mechanical_trail;
+    total_ext_mz(i) = mech_mz_result(i) + Mz;
+end
+
+for i = 1:length(slip_int)
+    [Fx, Fy, Fz, Mx, My, Mz, kappa, alpha, gamma, phit, Vx, P, Re, rho, two_a, t, mux, muy, omega, Rl, two_b, Mzr, Cx, Cy, Cz, Kya, sigmax, sigmay, dFy_dSA, Kxk] = mfeval_function(fz_ext, long_slip, slip_int(i), camber, car_speed);
+    fy_ext_result(i) = Fy;
+    mz_ext_result(i) = Mz;
+    mech_ext_mz_result(i) = -Fy*mechanical_trail;
+    total_ext_mz(i) = mech_mz_result(i) + Mz;
+end
+
+plot(fy_result, mz_result)
+hold on
+plot(fy_result, mech_mz_result)
+plot(fy_result, total_mz)
+legend('Pneumatic trail Mz', 'Mechanical trail Mz', 'Total trail MZ')
+
+
+       

@@ -8,7 +8,7 @@ function [FL_steer, FR_steer] = ackermann_function(steering_wheel_angle)
 
 % DATOS (distancias todas en mm)
 % dimensiones coche
-wheelbase = 1600;
+wheelbase = 1535;
 front_track = 1150; %realmente no es el front track, sino la distancia entre kingpin izquierdo y derecho a la altura del tie.
 rear_track = 1250;
 r_pinion = 35/2; % radio pinion
@@ -18,7 +18,7 @@ rack_disp = deg2rad(steering_wheel_angle)*r_pinion;
 % izquierda
 l_rack = 450; %
 x_rack = 0; % posición en eje x rack
-y_tie_mangueta = 30;
+y_tie_mangueta = 20;
 x_tie_mangueta = 80;
 
 % cálculo puntos y ángulos para steer_angle = 0

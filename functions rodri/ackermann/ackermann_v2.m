@@ -19,12 +19,12 @@ r_pinion = 35/2; % radio pinion
 % INPUTS geometría steering. Centro de coordenadas en KingPin rueda
 % izquierda
 l_rack = 450; %
-x_rack = 50; % posición en eje x rack
-y_tie_mangueta = 40;
-x_tie_mangueta = 70;
+x_rack = 0; % posición en eje x rack
+y_tie_mangueta = 50;
+x_tie_mangueta = 80;
 
 % cálculo puntos y ángulos para steer_angle = 0
-%ax = x_rack;
+ax = x_rack;
 ay = front_track/2 - l_rack/2;
 bx = x_tie_mangueta;
 by = y_tie_mangueta;
@@ -56,16 +56,10 @@ beta_delta = @(rack_disp, ax, ay, bx, by) beta_ini(rack_disp, ax, ay, bx, by) - 
 
 % variación total del ángulo phi de la rueda. Rueda exterior para rack_disp > 0. Rueda interior para rack_dips < 0.
 phi_delta = @(rack_disp, ax, ay, bx, by) abs(beta_delta(rack_disp, ax, ay, bx, by) + alpha_delta(rack_disp, ax, ay, bx, by));
-                                                                
-Sistema = @(x) [phi_delta(x(1), x(2), ay, bx, by) - 20.5;
-                phi_delta(-x(1), x(2), ay, bx, by)- 22];
+                                                               
 
-%extwheel_ack_deg =  @(rack_disp, ax, ay, bx, by) atand(wheelbase/(wheelbase/tan(deg2rad(intwheel_deg(idx))) + rear_track));
+extwheel_ack_deg =  @(rack_disp, ax, ay, bx, by) atand(wheelbase/(wheelbase/tan(deg2rad(intwheel_deg(idx))) + rear_track));
 
-sol = fsolve(Sistema, [-50, 50]);
-
-d = sol(1) 
-ax = sol(2)
 
 phi_delta = @(rack_disp)  abs(beta_delta(rack_disp, ax, ay, bx, by) + alpha_delta(rack_disp, ax, ay, bx, by));
 dynamic_toe =  @(rack_disp) - phi_delta(rack_disp) + phi_delta(-rack_disp);

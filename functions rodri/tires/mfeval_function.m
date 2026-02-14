@@ -1,6 +1,10 @@
 function [Fx, Fy, Fz, Mx, My, Mz, kappa, alpha, gamma, phit, Vx, P, Re, rho, two_a, t, mux, muy, omega, Rl, two_b, Mzr, Cx, Cy, Cz, Kya, sigmax, sigmay, dFy_dSA, Kxk] = mfeval_function(Fz, long_slip, slip_angle, camber, car_speed)
-    tire_model_data = mfeval.readTIR("C:\Users\rodri\OneDrive\Escritorio\ETECH\GitHub\ETR-Geometry\functions rodri\tires\Hoosier_16_7.5_ETSEIB(4).tir");
+    persistent tire_model_data
     
+    % 2. Leer el archivo SOLO si la variable está vacía (primera ejecución)
+    if isempty(tire_model_data)
+        tire_model_data = mfeval.readTIR("C:\Users\rodri\OneDrive\Escritorio\ETECH\GitHub\ETR-Geometry\functions rodri\tires\Hoosier_16_7.5_ETSEIB(3).tir");
+    end
     pressure = 82737;
     turn_slip = 0;
 

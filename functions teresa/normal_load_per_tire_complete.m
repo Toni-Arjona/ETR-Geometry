@@ -3,6 +3,7 @@ function [fz_FL, fz_FR, fz_RL, fz_RR]= normal_load_per_tire_complete(car_weight,
     rollcenter_rear, rollstiffness_front, rollstiffness_rear, H, wheelbase, a)
     
     g=9.81; %Gravity in m/s^2
+    ay = ay/g;
 
    
     % H is the distance between the total car's CG and the NRA.
@@ -24,8 +25,8 @@ function [fz_FL, fz_FR, fz_RL, fz_RR]= normal_load_per_tire_complete(car_weight,
 
      fz_FR= wf/2+ WTFR;
      fz_FL= wf/2+ WTFL;
-     fz_RR= wf/2+ WTRR;
-     fz_RL= wf/2+ WTRL;
+     fz_RR= wr/2+ WTRR;
+     fz_RL= wr/2+ WTRL;
     
 end
 

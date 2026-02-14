@@ -59,11 +59,16 @@ ylabel('Camber Óptimo [deg]')
 title('Sensibilidad del Camber Óptimo a la Carga')
 
 
-for k = length(res_camber_opt)
+for k = 1:length(res_camber_opt)
     [Fx, Fy, Fz, Mx, My, Mz, kappa, alpha, gamma, phit, Vx, P, Re, rho, two_a, t, mux, muy, omega, Rl, two_b, Mzr, Cx, Cy, Cz, Kya, sigmax, sigmay, dFy_dSA, Kxk] = mfeval_function(fz_vec(k), 0, res_slip_opt(k), res_camber_opt(k), car_speed);
-    res_re(k) = Re
+    res_re(k) = Re;
+    res_pneumatic_trail(k) = t;
+    res_mz(k) = Mz;
+    res_mx(k) = Mx;
+    res_scrub_offset(k) = res_mx(k)/fz_vec(k);
+
 end
 
-table(fz_vec', res_slip_opt' , res_camber_opt', res_re', 'VariableNames', {'Fz [N]', 'Slip angle óptimo [deg]', 'Camber ópimo [deg]', 'Effective rolling radius [m]'})
+table(fz_vec', res_slip_opt' , res_camber_opt', res_re', res_pneumatic_trail', res_mz', res_scrub_offset', 'VariableNames', {'Fz [N]', 'Slip angle óptimo [deg]', 'Camber óptimo [deg]', 'Effective rolling radius [m]', 'Pneumatic trail [m]', 'Mz [Nm]', 'CoP y dist [m]'})
 
       

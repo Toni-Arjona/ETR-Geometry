@@ -1,0 +1,38 @@
+close all
+clear all
+
+idx = 1;
+roll_int = -2.5:0.1:2.5
+camber_FL = zeros(1, length(roll_int)); % Preallocate arrays for camber values
+camber_FR = zeros(1, length(roll_int));
+steer_FL = zeros(1, length(roll_int));
+steer_FR = zeros(1, length(roll_int));
+
+%jack_FR = zeros(1, 23);
+%jack_FL = zeros(1, 23);
+
+for roll = -2.5:0.1:2.5
+    [FL_steer, FR_steer, FL_camber, FR_camber, FL_jack, FR_jack] = ackermann_function_3D(0, roll)
+    camber_FL(idx) = FL_camber;
+    camber_FR(idx) = FR_camber;
+    steer_FL(idx) = FL_steer;
+    steer_FR(idx) = FR_steer;
+    idx = idx + 1
+end
+
+figure(1)
+plot(-2.5:0.1:2.5, camber_FL)
+hold on
+grid on
+plot(-2.5:0.1:2.5, camber_FR)
+
+figure(2)
+plot()
+
+%{
+figure(2)
+plot(0:5:110, jack_FL)
+hold on
+grid on
+plot(0:5:110, jack_FR)
+%}

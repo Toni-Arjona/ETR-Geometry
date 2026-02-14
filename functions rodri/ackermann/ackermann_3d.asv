@@ -38,12 +38,11 @@ tie_rack_joint_ini = [-180, -225, 146.71];
 tie_upright_joint_ini = [-170, -580, 133];
 l_tie = norm(tie_upright_joint_ini - tie_rack_joint_ini); % longitud tie
 
-% Vector brazo de dirección
+% Vector brazo de dirección (para trackear rotación total)
 steerarm_vector_ini = tie_upright_joint_ini - lower_knuckle;
 
-% --- NUEVO: Vector radio desde el punto de pivote (lower knuckle) al centro de rueda
+% Vector radio desde el punto de pivote (lower knuckle) al centro de rueda. Se usa para el cálculo del jacking geométrico
 spindle_radius_vector_ini = spindle_center_ini - lower_knuckle; 
-
 
 % Formula Rodrigues: rotar un vector v (steerarm_vec), alrededor de un eje k (kingpin_vec), un ángulo th (total steer, contando variaciones en todos los ejes).
 rotated_vec = @(v, k, th) v*cos(th) + cross(k, v)*sin(th) + k*dot(k, v)*(1 - cos(th)); 
@@ -69,14 +68,13 @@ for rack_disp = 0:0.5:50
     
     ext_steer(idx) = abs(steer_angle);
     ext_camber(idx) = camber_angle;
-    
-    % --- CÁLCULO JACKING EXT ---
-    % 1. Rotamos el vector que une el Kingpin con el centro de rueda
-    spindle_radius_final = rotated_vec(spindle_radius_vector_ini, kingpin_vector, theta_axis);
-    % 2. Calculamos la nueva posición Z del centro de rueda
-    spindle_center_final = lower_knuckle + spindle_radius_final;
-    % 3. Jacking = Altura Inicial - Altura Final (Si la rueda baja, el chasis sube)
-    ext_jacking(idx) = spindle_center_ini(3) - spindle_center_final(3);
+
+    ext_ratio(idx) = dag2rad(rack_disp/17.5)/ext_steer(idx);
+   
+    spindle_radius_final = rotated_vec(spindle_radius_vector_ini, kingpin_vector, theta_axis); % cálculo vector para jacking rotado   
+    spindle_center_final = lower_knuckle + spindle_radius_final; % cálculo nueva posición centro de la rueda    
+    ext_jacking(idx) = spindle_center_ini(3) - spindle_center_final(3); % jacking. Diferencia de altura entre 
+
     
     idx = idx + 1;
 end
@@ -141,3 +139,6 @@ plot(int_steer, total_axle_jacking, 'k', 'LineWidth', 2)
 legend('Ext Wheel Height', 'Int Wheel Height', 'Total Chassis Heave');
 grid on; title('Geometric Jacking (Chassis Lift)'); 
 xlabel('Inner Steer Angle [deg]'); ylabel('Vertical Disp [mm]');
+
+figure(2)
+plot()
