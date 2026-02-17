@@ -11,7 +11,7 @@ spindle_inner_point = [-100, -564, 201];
 spindle_vec_ini = (spindle_inner_point - spindle_center_ini)/ norm(spindle_inner_point - spindle_center_ini); % Vector unitario del spindle, inicial.
 
 % Knuckles
-upper_knuckle = [-80, -520, 294]; 
+upper_knuckle = [-83, -510, 294]; 
 lower_knuckle = [-96.5 ,-571, 111]; % referencia para cálculo Rodrigues
 kingpin_vector = (upper_knuckle - lower_knuckle)/norm(lower_knuckle - upper_knuckle); % vector unitario kingpin.
 

@@ -31,7 +31,23 @@ function [FL_CONTACT_PATCH_INTERSECTION_PLUS, FL_CONTACT_PATCH_INTERSECTION_MINU
     FL_CONTACT_PATCH_INTERSECTION_PLUS  = FL_TIRE_SURFACE(L_real, T_plus_real);
     FL_CONTACT_PATCH_INTERSECTION_MINUS = FL_TIRE_SURFACE(L_real, T_minus_real);
 
-   
+   % Concatenar puntos X e Y cerrando el polígono
+   %{
+    X_patch = [FL.CONTACT_PATCH_INTERSECTION_PLUS(:,1); flipud(FL.CONTACT_PATCH_INTERSECTION_MINUS(:,1)); FL.CONTACT_PATCH_INTERSECTION_PLUS(1,1)];
+    Y_patch = [FL.CONTACT_PATCH_INTERSECTION_PLUS(:,2); flipud(FL.CONTACT_PATCH_INTERSECTION_MINUS(:,2)); FL.CONTACT_PATCH_INTERSECTION_PLUS(1,2)];
+    
+    % Plotear
+    figure;
+    plot(X_patch, Y_patch, 'k-', 'LineWidth', 1.5);
+    hold on;
+    fill(X_patch, Y_patch, 'k', 'FaceAlpha', 0.2); % Sombreado de la huella
+    
+    axis equal;
+    grid on;
+    xlabel('X (mm)');
+    ylabel('Y (mm)');
+    title('Huella de contacto (Plano Z=0)');
+   %}
 end
 
    
