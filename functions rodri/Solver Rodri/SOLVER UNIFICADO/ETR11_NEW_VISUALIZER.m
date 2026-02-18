@@ -6,13 +6,21 @@ function ETR11_NEW_VISUALIZER()
     
     %% --- INICIALIZACIÓN DE OBJETOS GRÁFICOS ---
     createPlot = @(c, w) plot3(ax, 0,0,0, 'Color', c, 'LineWidth', w);
+    createDashed = @(c, w) plot3(ax, 0,0,0, 'Color', c, 'LineWidth', w, 'LineStyle', '--');
     createPts  = @(c) plot3(ax, 0,0,0, 'LineStyle', 'none', 'Marker', 'o', 'MarkerFaceColor', c, 'MarkerEdgeColor', c, 'MarkerSize', 5);
     
     side = {'FL', 'FR', 'RL', 'RR'};
     for i = 1:4
         s = side{i};
         h.(s).UW = createPlot('w', 2);
+        h.(s).UW_Base = createDashed('w', 1.5); % Cierre trapecio superior
         h.(s).LW = createPlot('w', 2);
+        h.(s).LW_Base = createDashed('w', 1.5); % Cierre trapecio inferior
+        
+        h.(s).KP_Line = createPlot('w', 1.5); % Línea Kingpin (CONTINUA)
+        h.(s).KP_Floor_Line = createDashed('w', 1.5); % Extensión Kingpin al suelo (DISCONTINUA)
+        h.(s).KP_Floor_Pt = createPts('w'); % Punto intersección Kingpin suelo (BLANCO)
+        
         h.(s).PUSH = createPlot('w', 2);
         h.(s).DPR = createPlot('w', 2);
         h.(s).RKR = createPlot('w', 1.5);
@@ -21,13 +29,15 @@ function ETR11_NEW_VISUALIZER()
         h.(s).Conn = createPlot('y', 1.5);
         h.(s).PtsW = createPts('w');
         h.(s).PtsY = createPts('y');
-        h.(s).LineCP = plot3(ax, 0,0,0, 'c--', 'LineWidth', 1.5);
-        h.(s).PtsCP = createPts('c');
+        
+        h.(s).LineCP = plot3(ax, 0,0,0, 'y--', 'LineWidth', 1.5); % Línea al CP en AMARILLO
+        h.(s).PtsCP = createPts('y'); % Punto del CP en AMARILLO
     end
     h.FrontRack = createPlot([0.8 0.8 0.8], 4);
     h.RearRack  = createPlot([0.8 0.8 0.8], 4);
     h.F_RC = plot3(ax, 0,0,0, 'Marker', 'x', 'MarkerSize', 10, 'Color', 'r', 'LineWidth', 2);
     h.R_RC = plot3(ax, 0,0,0, 'Marker', 'x', 'MarkerSize', 10, 'Color', 'r', 'LineWidth', 2);
+    h.RollAxis = createDashed('r', 1.5); % Línea Roll Axis
     
     [xc, yc, zc] = cylinder((16*25.4)/2, 60); 
     zc_m = (zc - 0.5) * (7.5*25.4);
@@ -49,14 +59,14 @@ function ETR11_NEW_VISUALIZER()
     s_cRL = uislider(fig, 'Position', [150 50 350 3], 'Limits', [0 50]);
     uilabel(fig, 'Position', [700 70 350 20], 'Text', 'COMPRESIÓN RR', lblP{:});
     s_cRR = uislider(fig, 'Position', [700 50 350 3], 'Limits', [0 50]);
-
+    
     % Callbacks actualizados para usar e.Value (tiempo real)
     s_st.ValueChangingFcn  = @(src, e) updateAll(e.Value, s_cFL.Value, s_cFR.Value, s_cRL.Value, s_cRR.Value);
     s_cFL.ValueChangingFcn = @(src, e) updateAll(s_st.Value, e.Value, s_cFR.Value, s_cRL.Value, s_cRR.Value);
     s_cFR.ValueChangingFcn = @(src, e) updateAll(s_st.Value, s_cFL.Value, e.Value, s_cRL.Value, s_cRR.Value);
     s_cRL.ValueChangingFcn = @(src, e) updateAll(s_st.Value, s_cFL.Value, s_cFR.Value, e.Value, s_cRR.Value);
     s_cRR.ValueChangingFcn = @(src, e) updateAll(s_st.Value, s_cFL.Value, s_cFR.Value, s_cRL.Value, e.Value);
-
+    
     function updateAll(st, cFL, cFR, cRL, cRR)
         % Se resuelve el coche completo con los valores instantáneos
         [FL, FR, RL, RR, F_RC, R_RC] = ETR11_GET_POINTS(st, cFL, cFR, cRL, cRR);
@@ -71,13 +81,28 @@ function ETR11_NEW_VISUALIZER()
         set(h.F_RC, 'XData', F_RC(1), 'YData', F_RC(2), 'ZData', F_RC(3));
         set(h.R_RC, 'XData', R_RC(1), 'YData', R_RC(2), 'ZData', R_RC(3));
         
+        % Actualización del Roll Axis
+        set(h.RollAxis, 'XData', [F_RC(1) R_RC(1)], 'YData', [F_RC(2) R_RC(2)], 'ZData', [F_RC(3) R_RC(3)]);
+        
         drawnow limitrate;
     end
-
+    
     function updateWheelGraphics(id, data)
         sh = h.(id);
+        
+        % Wishbones
         set(sh.UW, 'XData', [data.UFW_MC(1) data.UW_KN(1) data.URW_MC(1)], 'YData', [data.UFW_MC(2) data.UW_KN(2) data.URW_MC(2)], 'ZData', [data.UFW_MC(3) data.UW_KN(3) data.URW_MC(3)]);
         set(sh.LW, 'XData', [data.LFW_MC(1) data.LW_KN(1) data.LRW_MC(1)], 'YData', [data.LFW_MC(2) data.LW_KN(2) data.LRW_MC(2)], 'ZData', [data.LFW_MC(3) data.LW_KN(3) data.LRW_MC(3)]);
+        
+        % Cierres de los trapecios
+        set(sh.UW_Base, 'XData', [data.UFW_MC(1) data.URW_MC(1)], 'YData', [data.UFW_MC(2) data.URW_MC(2)], 'ZData', [data.UFW_MC(3) data.URW_MC(3)]);
+        set(sh.LW_Base, 'XData', [data.LFW_MC(1) data.LRW_MC(1)], 'YData', [data.LFW_MC(2) data.LRW_MC(2)], 'ZData', [data.LFW_MC(3) data.LRW_MC(3)]);
+        
+        % Líneas y puntos de Kingpin
+        set(sh.KP_Line, 'XData', [data.UW_KN(1) data.LW_KN(1)], 'YData', [data.UW_KN(2) data.LW_KN(2)], 'ZData', [data.UW_KN(3) data.LW_KN(3)]);
+        set(sh.KP_Floor_Line, 'XData', [data.LW_KN(1) data.KP_FLOOR(1)], 'YData', [data.LW_KN(2) data.KP_FLOOR(2)], 'ZData', [data.LW_KN(3) data.KP_FLOOR(3)]);
+        set(sh.KP_Floor_Pt, 'XData', data.KP_FLOOR(1), 'YData', data.KP_FLOOR(2), 'ZData', data.KP_FLOOR(3));
+        
         set(sh.PUSH, 'XData', [data.PUSH_UW(1) data.PUSH_RKR(1)], 'YData', [data.PUSH_UW(2) data.PUSH_RKR(2)], 'ZData', [data.PUSH_UW(3) data.PUSH_RKR(3)]);
         set(sh.DPR, 'XData', [data.DPR_RKR(1) data.DPR_MC(1)], 'YData', [data.DPR_RKR(2) data.DPR_MC(2)], 'ZData', [data.DPR_RKR(3) data.DPR_MC(3)]);
         

@@ -13,7 +13,7 @@ for i = 1:length(FL_dpr_compr_int)
 end
 
 for i = 1:length(RL_dpr_compr_int)
-    [~, ~, RL, ~, ~, ~] = ETR11_GET_POINTS(0, 0, 0, RL_dpr_compr_int(i), 0);
+    [~, ~, RL, ~, ~, ~] = ETR11_GET_POINTS(0, FL_dpr_compr_int(i), 0, 0, 0);
  
     RL_contact_patch_z(i) = RL.CONTACT_PATCH(3);
 
@@ -29,5 +29,5 @@ plot(FL_dpr_compr_int(1:end-1), F_motion_ratio, 'LineWidth', 1.5, 'DisplayName',
 grid on
 legend()
 xlabel('Damper Compression (mm)')
-ylabel('Motion Ratio')
+ylabel('Motion Ratio (\Delta Damper / \Delta Wheel Z)')
 title('Motion Ratio Curve')
