@@ -12,4 +12,3 @@ function graph_maker_double(xvals,yvals1,yvals2,given_title,name1,name2,x_name,y
 
     hold off
 end
-

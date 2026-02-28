@@ -11,6 +11,7 @@ classdef suspension < handle
         l_wishbone solid
         wheel wheel
         camber_shims_distance double
+        motor wheel
     end
 
     methods (Access = private)
@@ -50,6 +51,7 @@ classdef suspension < handle
 
             %Update wheel
             obj.wheel.update(obj.knuckle.coord(9), (obj.knuckle.coord(8) - obj.knuckle.coord(4))');
+            obj.motor.update(obj.knuckle.coord(4), (obj.knuckle.coord(8) - obj.knuckle.coord(4))');
         end
 
         function centre_wheel(obj)
@@ -68,7 +70,8 @@ classdef suspension < handle
 
             obj.knuckle.setDirection( 1, 2, 4, 9, direction );
             %Update wheel
-            obj.wheel.update(  obj.knuckle.coord(9) ,   (obj.knuckle.coord(8) - obj.knuckle.coord(4))' )
+            obj.wheel.update(  obj.knuckle.coord(9) ,   (obj.knuckle.coord(8) - obj.knuckle.coord(4))' );
+            obj.motor.update(obj.knuckle.coord(4), (obj.knuckle.coord(8) - obj.knuckle.coord(4))');
         end
 
         function centre = knuckle_rotation_centre(obj)
@@ -105,6 +108,7 @@ classdef suspension < handle
             obj.knuckle = knuckle;
             obj.l_wishbone = l_wishbone;
             obj.wheel = wheel(16*25.4/2, 7.5*25.4, 15 );
+            obj.motor = wheel(118.5/2, 115, 10);
             obj.camber_shims_distance = 0;
 
             %if( (obj.knuckle.coord(1) - obj.knuckle.coord(2))' * v3(0,0,1) < 0 )
@@ -146,16 +150,20 @@ classdef suspension < handle
             current_damper_len = obj.get_damper_distance();
             max_iterations = 50;
             tolerance = 1e-3; % mm
+            
 
             for i = 1:max_iterations
-                % Update the suspension with the current length
-                obj.damper.set_length(current_damper_len);
-                obj.susp_update();
-                
+
                 % Get the current ground height (Z-coordinate of the contact patch)
                 current_height = obj.get_contact_patch().z;
+                error = current_height - height; % Target - Current
                 
-                error = current_height- height; % Target - Current
+                % Update the suspension with the current length
+                step_factor = 0.5; % This will need tuning or replacement with a proper method.
+                current_damper_len = current_damper_len + step_factor * error;
+
+                obj.damper.set_length(current_damper_len);
+                obj.susp_update();
                 
                 if abs(error) < tolerance
                     % Solution found
@@ -173,10 +181,9 @@ classdef suspension < handle
                 
                 % Simple step: move the length by a fraction of the height error
                 % This is a very basic, non-robust search.
-                step_factor = 0.5; % This will need tuning or replacement with a proper method.
-                current_damper_len = current_damper_len + step_factor * error;
-            end
 
+            end
+            
             warning('Did not converge to the desired ground height in %d iterations.', max_iterations);
 
         end
@@ -197,6 +204,10 @@ classdef suspension < handle
 
         function radius = get_scrub_radius_X(obj)
             radius = abs(obj.get_contact_patch().y - obj.get_kingpin_in_ground().y);
+        end
+
+        function direction = knuckle_rotation_axis(obj)
+            direction = (obj.knuckle.coord(1) - obj.knuckle.coord(2))';
         end
         
         function angle = caster_angle(obj)
@@ -358,7 +369,17 @@ classdef suspension < handle
             point = obj.knuckle.coord(9) + to_ground_direction.*obj.wheel.get_radius();
         end
 
+        function direction = wheel_direction(obj)
+            direction = (obj.knuckle.coord(8) - obj.knuckle.coord(4))';
+        end
+
         function plot3d(obj,ax)
+
+            %Wheel
+            obj.wheel.update(obj.knuckle.coord(9), (obj.knuckle.coord(8) - obj.knuckle.coord(4))');
+            obj.motor.update(obj.knuckle.coord(4), (obj.knuckle.coord(8) - obj.knuckle.coord(4))');
+            obj.wheel.plot3d(ax);
+            obj.motor.plot3d(ax);
 
             obj.damper.plot3d(ax,'b')
             obj.rocker.plot3d(ax,'k');
@@ -374,9 +395,7 @@ classdef suspension < handle
             plot3dline(ax,obj.get_contact_patch(), obj.knuckle.coord(9), 'r');
             obj.get_kingpin_in_ground().plot3d(ax, 'r');
 
-            %Wheel
-            obj.wheel.update(obj.knuckle.coord(9), (obj.knuckle.coord(8) - obj.knuckle.coord(4))');
-            obj.wheel.plot3d(ax);
+
         end
 
         function alone_plot3d(obj)
@@ -391,6 +410,14 @@ classdef suspension < handle
             zlabel('Z');
             axis equal
             view(3);
+        end
+
+        function r = knuckle_rotation_radius(obj)
+            arguments (Output)
+                r double
+            end
+            centre = obj.knuckle_rotation_centre();
+            r = (centre - obj.knuckle.coord(3)).';
         end
 
         function r = knuckle_radius(obj)

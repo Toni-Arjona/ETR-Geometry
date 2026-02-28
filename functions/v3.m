@@ -33,7 +33,7 @@ classdef v3
         end
 
         function print(obj)
-            fprintf("{%14.8f\t%14.8f\t%14.8f}\n", obj.x, obj.y, obj.z);
+            fprintf("(%14.8f,\t%14.8f\t,%14.8f)\n", obj.x, obj.y, obj.z);
         end
 
         function mod = modulus(obj)
