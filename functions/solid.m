@@ -236,7 +236,6 @@ classdef solid < handle
         end
 
 
-
         function print(obj)
             for i = 1:length(obj.coord)
                 obj.coord(i).print();

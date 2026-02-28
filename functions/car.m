@@ -28,6 +28,7 @@ classdef car < handle
                 obj car
             end
 
+
             % Iterate to make the front wheels converge to static
             error = 1;
             while abs(error) > 1e-6
@@ -89,43 +90,47 @@ classdef car < handle
         end
 
         function update_labels(obj)
-            obj.fl_label.Text = sprintf("FL\nSteer:%3.2f\nCamber:%3.2f\nCaster:%3.2f\nHeight:%3.2f\nDamper:%3.2f\nS. Radius:%3.2f\nTierod:%3.2f\nT. Rad:%.1f\n", ...
+            obj.fl_label.Text = sprintf("FL\nSteer:%3.2f\nCamber:%3.2f\nCaster:%3.2f\nHeight:%3.2f\nDamper:%3.2f\nS. Radius:%3.2f\nTierod:%3.2f\nT. Rad:%.1f\nW-T-D:%5.2f\n", ...
                 obj.fl_steering_rad()*180/pi, ...
                 obj.fl_susp.camber_angle()*180/pi, ...
                 obj.fl_susp.caster_angle()*180/pi, ...
                 obj.fl_susp.get_contact_patch().z, ...
                 obj.fl_susp.get_damper_distance(), ...
-                obj.fl_susp.get_scrub_radius_X(), ...
+                obj.fl_susp.get_scrub_radius(), ...
                 obj.fl_tierod, ...
-                obj.fl_virtual_turning_radius()/1000);
+                obj.fl_virtual_turning_radius()/1000,...
+                obj.fl_wishbone_tierod_distance());
 
-            obj.fr_label.Text = sprintf("FR\nSteer:%3.2f\nCamber:%3.2f\nCaster:%3.2f\nHeight:%3.2f\nDamper:%3.2f\nS. Radius:%3.2f\nTierod:%3.2f\nT. Rad:%.1f\n", ...
+            obj.fr_label.Text = sprintf("FR\nSteer:%3.2f\nCamber:%3.2f\nCaster:%3.2f\nHeight:%3.2f\nDamper:%3.2f\nS. Radius:%3.2f\nTierod:%3.2f\nT. Rad:%.1f\nW-T-D:%5.2f\n", ...
                 obj.fr_steering_rad()*180/pi, ...
                 obj.fr_susp.camber_angle()*180/pi, ...
                 obj.fr_susp.caster_angle()*180/pi, ...
                 obj.fr_susp.get_contact_patch().z, ...
                 obj.fr_susp.get_damper_distance(), ...
-                obj.fr_susp.get_scrub_radius_X(), ...
+                obj.fr_susp.get_scrub_radius(), ...
                 obj.fr_tierod, ...
-                obj.fr_virtual_turning_radius()/1000);
+                obj.fr_virtual_turning_radius()/1000,...
+                obj.fr_wishbone_tierod_distance());
 
-            obj.rl_label.Text = sprintf("RL\nSteer:%3.2f\nCamber:%3.2f\nCaster:%3.2f\nHeight:%3.2f\nDamper:%3.2f\nS. Radius:%3.2f\nTierod:%3.2f\n", ...
+            obj.rl_label.Text = sprintf("RL\nSteer:%3.2f\nCamber:%3.2f\nCaster:%3.2f\nHeight:%3.2f\nDamper:%3.2f\nS. Radius:%3.2f\nTierod:%3.2f\nW-T-D:%5.2f\n", ...
                 obj.rl_steering_rad()*180/pi, ...
                 obj.rl_susp.camber_angle()*180/pi, ...
                 obj.rl_susp.caster_angle()*180/pi, ...
                 obj.rl_susp.get_contact_patch().z, ...
                 obj.rl_susp.get_damper_distance(), ...
-                obj.rl_susp.get_scrub_radius_X(), ...
-                obj.rl_tierod);
+                obj.rl_susp.get_scrub_radius(), ...
+                obj.rl_tierod,...
+                obj.rl_wishbone_tierod_distance());
 
-            obj.rr_label.Text = sprintf("RR\nSteer:%3.2f\nCamber:%3.2f\nCaster:%3.2f\nHeight:%3.2f\nDamper:%3.2f\nS. Radius:%3.2f\nTierod:%3.2f\n", ...
+            obj.rr_label.Text = sprintf("RR\nSteer:%3.2f\nCamber:%3.2f\nCaster:%3.2f\nHeight:%3.2f\nDamper:%3.2f\nS. Radius:%3.2f\nTierod:%3.2f\nW-T-D:%5.2f\n", ...
                 obj.rr_steering_rad()*180/pi, ...
                 obj.rr_susp.camber_angle()*180/pi, ...
                 obj.rr_susp.caster_angle()*180/pi, ...
                 obj.rr_susp.get_contact_patch().z, ...
                 obj.rr_susp.get_damper_distance(), ...
-                obj.rr_susp.get_scrub_radius_X(), ...
-                obj.rr_tierod);
+                obj.rr_susp.get_scrub_radius(), ...
+                obj.rr_tierod, ...
+                obj.rr_wishbone_tierod_distance());
         end       
 
         function fl_callback(obj, fig, ax, height)
@@ -531,8 +536,12 @@ classdef car < handle
         end
 
         function prepare(obj)
-            obj.set_front_dampers(180);
-            obj.set_rear_dampers(180);
+            %obj.set_front_dampers(180);
+            %obj.set_rear_dampers(180);
+            obj.fl_susp.set_ground_height(0);
+            obj.fr_susp.set_ground_height(0);
+            obj.rl_susp.set_ground_height(0);
+            obj.rr_susp.set_ground_height(0);
             obj.centre_steering();
             obj.set_toe_rear(0);
             obj.set_toe_front(0);
@@ -597,7 +606,7 @@ classdef car < handle
         end
         %% Graphing functions
 
-        function graph(obj)
+        function steering_graph(obj)
             obj.prepare();
             
             steering_inputs = -obj.f_steer.max_to_side:1:obj.f_steer.max_to_side;
@@ -614,9 +623,12 @@ classdef car < handle
             end
             graph_maker_double(steering_inputs, left, right, "Steering", "Left Wheel", "Right Wheel", "Steering Wheel Angle", "Tire Angle", "b-", "r-");
             graph_maker_double(steering_inputs, left_camber, right_camber, "Camber vs Steering", "Left Wheel", "Right Wheel", "Steering Wheel Angle", "Camber Angle", "b-", "r-");
+        end
 
+        function suspe_graph(obj)
             obj.prepare();
             damper_inputs = 160:1:210;
+            ground_heights = -30:1:30;
             front_height = zeros(1,length(damper_inputs));
             rear_height = zeros(1,length(damper_inputs));
             front_camber = zeros(1,length(damper_inputs));
@@ -627,8 +639,13 @@ classdef car < handle
             rear_caster = zeros(1,length(damper_inputs));
 
             for i=1:length(damper_inputs)
-                obj.set_front_dampers(damper_inputs(i));
-                obj.set_rear_dampers(damper_inputs(i));
+                %obj.set_front_dampers(damper_inputs(i));
+                %obj.set_rear_dampers(damper_inputs(i));
+                obj.fl_susp.set_ground_height(ground_heights(i));
+                obj.fr_susp.set_ground_height(ground_heights(i));
+                obj.rl_susp.set_ground_height(ground_heights(i));
+                obj.rr_susp.set_ground_height(ground_heights(i));
+
                 front_height(i) = obj.fl_susp.get_contact_patch().z;
                 rear_height(i) = obj.rl_susp.get_contact_patch().z;
                 front_camber(i) = obj.fl_susp.camber_angle()*180/pi;
@@ -653,12 +670,17 @@ classdef car < handle
             graph_maker(front_height, front_caster, "Front Wheel Height vs Front Caster", "Wheel Height", "Caster Angle", 'b-');
             graph_maker(rear_height, rear_caster, "Rear Wheel Height vs Rear Caster", "Wheel Height", "Caster Angle", 'r-');
             graph_maker_double(damper_inputs, front_caster, rear_caster, "Damper Distance vs Caster Angle", "Front Caster", 'Rear Caster', 'Damper Point to Point Distance', 'Caster Angle', 'b-', 'r-');
+        end
 
 
+
+
+        function graph(obj)
+            obj.steering_graph();
+            obj.suspe_graph();
 
         end
 
     end
 end
-
 

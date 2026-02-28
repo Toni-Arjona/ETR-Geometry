@@ -1,8 +1,8 @@
 
 % Steering Definition
-rack_centre = v3(-200, 0.00000000, 120.0);
-pinion_diameter = 35;
-rack_centre_distance = 250;
+rack_centre = v3(-180, 0.00000000, 149.46);
+pinion_diameter = 40;
+rack_centre_distance = 225;
 front_pinion = false;
 max_to_side = 120;
 f_steering = steering(rack_centre, pinion_diameter, rack_centre_distance, front_pinion, max_to_side);
