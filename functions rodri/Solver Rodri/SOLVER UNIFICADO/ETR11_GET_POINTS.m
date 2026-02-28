@@ -1,4 +1,4 @@
-function [FL, FR, RL, RR, F_ROLL_CENTER, R_ROLL_CENTER] = ETR11_GET_POINTS(steering_wheel_angle, FL_COMPRESSION, FR_COMPRESSION, RL_COMPRESSION, RR_COMPRESSION)
+function [FL, FR, RL, RR, F_ROLL_CENTER, R_ROLL_CENTER, FL_KINEMATICS, FR_KINEMATICS, RL_KINEMATICS, RR_KINEMATICS] = ETR11_GET_POINTS(steering_wheel_angle, FL_COMPRESSION, FR_COMPRESSION, RL_COMPRESSION, RR_COMPRESSION, LOADED_RADIUS)
     % [wheel]_[componente 1]_[componente 2] (mah o menoh)
     % HP - Hardpoint
     % F - Front
@@ -19,10 +19,9 @@ function [FL, FR, RL, RR, F_ROLL_CENTER, R_ROLL_CENTER] = ETR11_GET_POINTS(steer
         HP_FL.SPINDLE_CENTER = [-100, -625, 203]; 
         HP_FL.SPINDLE_INNER  = [-100, -561.5, 200.5];
 
-        % KUNCKLES
-        HP_FL.UW_KN          = [-83, -510, 294]; 
-        HP_FL.LW_KN          = [-96.5 ,-571, 111];
-
+        HP_FL.UW_KN          = [-97, -550, 294];
+        HP_FL.LW_KN          = [-106 ,-585, 106]; 
+       
         % WISHBONE - MONOCOQUE JOINT
         HP_FL.URW_MC         = [75, -225, 267];
         HP_FL.UFW_MC         = [-210, -225, 281];
@@ -30,23 +29,23 @@ function [FL, FR, RL, RR, F_ROLL_CENTER, R_ROLL_CENTER] = ETR11_GET_POINTS(steer
         HP_FL.LFW_MC         = [-210, -225, 123];
         
         % PUSH ROD
-        HP_FL.PUSH_UW        = [-83, -489, 319];
-        HP_FL.PUSH_RKR       = [-83, -193.5, 558];
+        HP_FL.PUSH_UW        = [-97, -489, 319];
+        HP_FL.PUSH_RKR       = [-97, -193.5, 558];
         
         % ROCKER AXIS
-        HP_FL.RKR_1          = [-18, -186.5, 587];
-        HP_FL.RKR_2          = [-18, -164, 552];
+        HP_FL.RKR_1          = [-32, -186.5, 587];
+        HP_FL.RKR_2          = [-32, -164, 552];
 
         % DAMPER
-        HP_FL.DPR_RKR        = [-43, -112, 610];
-        HP_FL.DPR_MC         = [167, -112, 610];
+        HP_FL.DPR_RKR        = [-54, -75, 610];
+        HP_FL.DPR_MC         = [128, -75, 610];
         
         % TIE ROD
-        HP_FL.TR_UPRIGHT     = [-180, -560, 140];
-        HP_FL.TR_RACK        = [-170, -225, 149.4];
+        HP_FL.TR_UPRIGHT     = [-185, -560, 140];
+        HP_FL.TR_RACK        = [-175, -225, 153];
         
         % PINION
-        HP_FL.D_PINION       = 35;
+        HP_FL.D_PINION       = 34;
 
     %% REAR HARDPOINTS (LEFT WHEEL)
         % Wheel spindle 
@@ -65,15 +64,15 @@ function [FL, FR, RL, RR, F_ROLL_CENTER, R_ROLL_CENTER] = ETR11_GET_POINTS(steer
         
         % RL Push rod
         HP_RL.PUSH_UW        = [1435, -517, 306.5];
-        HP_RL.PUSH_RKR       = [1435, -206, 487];
+        HP_RL.PUSH_RKR       = [1435, -236.5, 487];
         
         % RL Rocker axis points
         HP_RL.RKR_1          = [1373, -228, 497];
         HP_RL.RKR_2          = [1373, -205, 463];
         
         % RL Damper
-        HP_RL.DPR_RKR        = [1359, -161, 518];
-        HP_RL.DPR_MC         = [1149, -161, 518];
+        HP_RL.DPR_RKR        = [1379, -100, 518];
+        HP_RL.DPR_MC         = [1199, -100, 518];
         
         % RL Tie rod
         HP_RL.TR_UPRIGHT     = [1517, -560, 140];
@@ -122,13 +121,20 @@ function [FL, FR, RL, RR, F_ROLL_CENTER, R_ROLL_CENTER] = ETR11_GET_POINTS(steer
 
 
     %% LLAMADA SOLVER PARA CADA RUEDA
-    FL = ETR11_KINEMATICS_SOLVER(HP_FL, steering_wheel_angle, FL_COMPRESSION);
-    FR = ETR11_KINEMATICS_SOLVER(HP_FR, steering_wheel_angle, FR_COMPRESSION);
-    RL = ETR11_KINEMATICS_SOLVER(HP_RL, 0, RL_COMPRESSION);
-    RR = ETR11_KINEMATICS_SOLVER(HP_RR, 0, RR_COMPRESSION);
+    FL = ETR11_KINEMATICS_SOLVER(HP_FL, steering_wheel_angle, FL_COMPRESSION, LOADED_RADIUS);
+    FR = ETR11_KINEMATICS_SOLVER(HP_FR, steering_wheel_angle, FR_COMPRESSION, LOADED_RADIUS);
+    RL = ETR11_KINEMATICS_SOLVER(HP_RL, 0, RL_COMPRESSION, LOADED_RADIUS);
+    RR = ETR11_KINEMATICS_SOLVER(HP_RR, 0, RR_COMPRESSION, LOADED_RADIUS);
 
     % LLAMADA FUNCIÓN ROLL CENTERS
     [F_ROLL_CENTER, R_ROLL_CENTER] = roll_centers_calc(FL, FR, RL, RR);
+
+    % LLAMADA FUNCIÓN DATOS 
+    [FL_KINEMATICS, FR_KINEMATICS, RL_KINEMATICS, RR_KINEMATICS] = solver_kinematics_data(FL, FR, RL, RR);
+
+    % FUNCIÓN FUERZAS
+    %[FL_DYNAMICS, FR_DYNAMICS, RL_DYNAMICS, RR_DYNAMICS] = ETR11_DYNAMICS_SOLVER(FL, FR, RL, RR)
+
 
 end
 

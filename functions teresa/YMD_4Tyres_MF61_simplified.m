@@ -87,10 +87,10 @@ MZ=@(SA)  a0m + a1m*cos(SA*wm) + b1m*sin(SA*wm) + a2m*cos(2*SA*wm) + b2m*sin(2*S
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %Inputs
-V=14*3.6; %velocitat en X en km/h
-deltadg=-15:2:15; %Steering wheel angles en graus
+V=12*3.6; %velocitat en X en km/h
+deltadg=-20:2:20; %Steering wheel angles en graus
 SI=deltadg'.*pi/180; %Steering angle en rad
-Betadg=-8:1:8; %Slip angle en graus
+Betadg=-10:1:10; %Slip angle en graus
 VS=Betadg'.*pi/180; %Slip angle rad
 sliplim=17*pi/180; %Limit slip angle
 

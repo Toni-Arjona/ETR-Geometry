@@ -1,5 +1,4 @@
 clear all
-close all
 clc
 
 
@@ -28,7 +27,7 @@ end
 
 [mz_max_value, mz_max_idx] = min(mz_matrix');
 
-figure(1)
+figure(7)
 colororder(jet(15))
 plot(slip_int, mz_matrix)
 hold on

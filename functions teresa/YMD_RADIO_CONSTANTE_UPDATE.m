@@ -33,8 +33,8 @@ R = 10; % radio de curvatura [m]
 v = 5; % velocidad inicial [m/s]
 ay = v^2/R; % ay inicial [m/s^2]
 
-steer_int = -90:5:90; % intervalo de barrido para ángulo de volante [deg]
-yaw_slip_int = -15:1:15; % intervalo de barrido para slip de CG [deg]
+steer_int = -90:1:90; % intervalo de barrido para ángulo de volante [deg]
+yaw_slip_int = 15:-1:-15; % intervalo de barrido para slip de CG [deg]
 
 yaw_matrix = zeros(length(steer_int), length(yaw_slip_int)); % matriz de resultados yaw moment, filas steer constante, columnas yaw constante
 ay_matrix = zeros(length(steer_int), length(yaw_slip_int)); % matriz de resultados ay, filas steer constante, columnas yaw constante.
@@ -52,7 +52,7 @@ for steer = steer_int
             roll = (roll_h*m*ay)/(front_roll_stiffness + rear_roll_stifness); % roll [deg]
 
             % LLAMADA GEOMETRÍA DIRECCIÓN. (ya incluye camber delantero inicial en cada rueda y camber gain)
-            [FL_steer, FR_steer, FL_camber, FR_camber] = ackermann_function_3D(steer, roll);
+            [FL_steer, FR_steer, FL_camber, FR_camber] = ackermann_function_3D(steer);
 
             % CAMBER GAIN TRASERO
             RR_camber = rear_camber - roll_to_camber*roll;
@@ -114,7 +114,7 @@ for steer = steer_int
             total_FY = FY_FL*cosd(FL_steer) + FY_FR*cosd(FR_steer) + FY_RL + FY_RR;
             ay = total_FY/m;
 
-            yaw_moment = (FY_FL*cosd(FL_steer) + FY_FR*cosd(FR_steer))*a - (FY_RL + FY_RR)*b - (FX_FR*cosd(FR_steer) + FX_RR)*trackwidth/2 + (FX_FL*cosd(FL_steer) + FX_RL)*trackwidth/2 %+ (MZ_FL + MZ_FR + MZ_RL + MZ_RR);
+            yaw_moment = (FY_FL*cosd(FL_steer) + FY_FR*cosd(FR_steer))*a - (FY_RL + FY_RR)*b - (FX_FR*cosd(FR_steer) + FX_RR)*trackwidth/2 + (FX_FL*cosd(FL_steer) + FX_RL)*trackwidth/2 + (MZ_FL + MZ_FR + MZ_RL + MZ_RR);
             v = sqrt(abs(ay*R));
         end
         ay_matrix(idx_steer, idx_yawslip) = ay;
@@ -147,9 +147,9 @@ v_max
 data_ay_max = table(slips_max_ay', loads_max_ay', fys_max_ay', wheelsteers_max_ay', camber_results',  'VariableNames', {'Slip angle [deg]', 'FZ [N]', 'FY [N]', 'Steer input [deg]', 'Camber [deg]'}, 'RowNames', {'Front Left', 'Front Right', 'Rear Left', 'Rear Right'})
 
 figure(1)
-plot(ay_matrix, yaw_matrix)
+plot(ay_matrix, yaw_matrix, '.')
 hold on
-plot(ay_matrix', yaw_matrix')
+plot(ay_matrix', yaw_matrix', '.')
 grid on
 
 

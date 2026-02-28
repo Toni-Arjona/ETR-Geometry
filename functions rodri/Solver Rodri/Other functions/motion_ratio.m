@@ -1,33 +1,23 @@
-close all
+function [F_motion_ratio, R_motion_ratio, F_wheel_travel, R_wheel_travel] = motion_ratio(dpr_compr_int, LOADED_RADIUS)
 
-RL_dpr_compr_int = 0:0.1:43;
-FL_dpr_compr_int = 0:0.1:50;
-RL_contact_patch_z = zeros(1, length(RL_dpr_compr_int));
-FL_contact_patch_z = zeros(1, length(FL_dpr_compr_int));
+    RL_contact_patch_z = zeros(1, length(dpr_compr_int));
+    FL_contact_patch_z = zeros(1, length(dpr_compr_int));
+    
+    for i = 1:length(dpr_compr_int)
+        [FL, ~, RL] = ETR11_GET_POINTS(0, dpr_compr_int(i), dpr_compr_int(i), dpr_compr_int(i), dpr_compr_int(i), LOADED_RADIUS);
+     
+        FL_contact_patch_z(i) = FL.CONTACT_PATCH(3) 
+        RL_contact_patch_z(i) = RL.CONTACT_PATCH(3)
+        
+      
+    end
 
-for i = 1:length(FL_dpr_compr_int)
-    [FL, ~, ~, ~, ~, ~] = ETR11_GET_POINTS(0, FL_dpr_compr_int(i), 0, 0, 0);
- 
-    FL_contact_patch_z(i) = FL.CONTACT_PATCH(3);
+    FL_contact_patch_z = FL_contact_patch_z - FL_contact_patch_z(1);    
+    RL_contact_patch_z = RL_contact_patch_z - RL_contact_patch_z(1);
+    
+    R_motion_ratio = gradient(dpr_compr_int) ./ gradient(RL_contact_patch_z);
+    F_motion_ratio = gradient(dpr_compr_int) ./ gradient(FL_contact_patch_z);
+    F_wheel_travel = FL_contact_patch_z;
+    R_wheel_travel = RL_contact_patch_z;
 
 end
-
-for i = 1:length(RL_dpr_compr_int)
-    [~, ~, RL, ~, ~, ~] = ETR11_GET_POINTS(0, 0, 0, RL_dpr_compr_int(i), 0);
- 
-    RL_contact_patch_z(i) = RL.CONTACT_PATCH(3);
-
-end
-
-R_motion_ratio = diff(RL_dpr_compr_int) ./ diff(RL_contact_patch_z);
-F_motion_ratio = diff(FL_dpr_compr_int) ./ diff(FL_contact_patch_z);
-
-figure(1)
-plot(RL_dpr_compr_int(1:end-1), R_motion_ratio, 'LineWidth', 1.5, 'DisplayName', 'Rear MR')
-hold on
-plot(FL_dpr_compr_int(1:end-1), F_motion_ratio, 'LineWidth', 1.5, 'DisplayName', 'Front MR')
-grid on
-legend()
-xlabel('Damper Compression (mm)')
-ylabel('Motion Ratio')
-title('Motion Ratio Curve')

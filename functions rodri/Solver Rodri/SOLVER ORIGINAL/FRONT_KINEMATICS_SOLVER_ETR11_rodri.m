@@ -23,8 +23,8 @@ function[FL, FR] = FRONT_KINEMATICS_SOLVER_ETR11_rodri(steering_wheel_angle, FL_
         FL_SPINDLE_INNER = [-100, -561.5, 200.5];
 
         % FL Knuckles
-        FL_UW_KN = [-83, -510, 294]; 
-        FL_LW_KN = [-96.5 ,-571, 111];
+        FL_UW_KN = [-90, -540, 294];
+        FL_LW_KN = [-103.5 ,-580, 106]; 
         
         % FL wishbones joints with monocoque
         FL_URW_MC = [75, -225, 267];
@@ -33,8 +33,8 @@ function[FL, FR] = FRONT_KINEMATICS_SOLVER_ETR11_rodri(steering_wheel_angle, FL_
         FL_LFW_MC = [-210, -225, 123];
         
         % FL Push rod
-        FL_PUSH_UW = [-83, -489, 319];
-        FL_PUSH_RKR = [-83, -193.5, 558];
+        FL_PUSH_UW = [-90, -489, 319];
+        FL_PUSH_RKR = [-90, -193.5, 558];
         
         % FL Rocker axis points
         FL_RKR_1 = [-18, -186.5, 587];
@@ -45,8 +45,8 @@ function[FL, FR] = FRONT_KINEMATICS_SOLVER_ETR11_rodri(steering_wheel_angle, FL_
         FL_DPR_MC = [167, -112, 610];
 
         % FL Tie rod
-        FL_TR_UPRIGHT = [-180, -560, 140];
-        FL_TR_RACK = [-170, -225, 149.4];
+        FL_TR_UPRIGHT = [-185, -560, 140];
+        FL_TR_RACK = [-175, -225, 150];
         
     %% INPUTS STEERING
         D_PINION = 35;

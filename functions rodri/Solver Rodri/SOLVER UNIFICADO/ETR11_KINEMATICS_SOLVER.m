@@ -1,4 +1,4 @@
-function Out = ETR11_KINEMATICS_SOLVER(HP, steering_wheel_angle, DPR_COMPRESSION)
+function Out = ETR11_KINEMATICS_SOLVER(HP, steering_wheel_angle, DPR_COMPRESSION, LOADED_RADIUS)
     %% INPUTS STEERING
         RACK_DISPLACEMENT = deg2rad(steering_wheel_angle)*HP.D_PINION/2;
         TR_RACK_FINAL_POINT = HP.TR_RACK + [0, RACK_DISPLACEMENT, 0];
@@ -128,7 +128,7 @@ function Out = ETR11_KINEMATICS_SOLVER(HP, steering_wheel_angle, DPR_COMPRESSION
         % Nuevo spindle
         SPINDLE_FINAL = (SPINDLE_INNER_FINAL_POINT - SPINDLE_CENTER_FINAL_POINT)/norm(SPINDLE_INNER_FINAL_POINT - SPINDLE_CENTER_FINAL_POINT); % nuevo vector spindle
     
-    [~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,Out.LOADED_RADIUS ] = mfeval_function(270*9.81/4, 0, 0, asind(SPINDLE_FINAL(3)), 0);
+    %[~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,Out.LOADED_RADIUS ] = mfeval_function(270*9.81/4, 0, 0, asind(SPINDLE_FINAL(3)), 0);
     
     Out.URW_MC        = HP.URW_MC ;
     Out.UFW_MC        = HP.UFW_MC ;
@@ -148,12 +148,13 @@ function Out = ETR11_KINEMATICS_SOLVER(HP, steering_wheel_angle, DPR_COMPRESSION
     Out.DPR_MC        = HP.DPR_MC ;
     Out.RKR_AXIS_1    = HP.RKR_1 ;
     Out.RKR_AXIS_2    = HP.RKR_2 ;
+    Out.RKR_ANGLE     = RKR_ANGLE;
     
     % Cálculo contact patch
     RADIAL_VECTOR = cross(cross(Out.SPINDLE, [0, 0, -1]), Out.SPINDLE);
     RADIAL_VECTOR = RADIAL_VECTOR/norm(RADIAL_VECTOR);
     
-    Out.CONTACT_PATCH = Out.SPINDLE_CENTER + (Out.LOADED_RADIUS * 1000) * RADIAL_VECTOR;
+    Out.CONTACT_PATCH = Out.SPINDLE_CENTER + (LOADED_RADIUS * 1000) * RADIAL_VECTOR;
     
     % Cálculo plano del suelo en la rueda, respecto a monocasco fijo
     FLOOR_PARELLEL_PLANE = cross([1, 0, 0], [0, 1, 0]);
@@ -164,3 +165,4 @@ function Out = ETR11_KINEMATICS_SOLVER(HP, steering_wheel_angle, DPR_COMPRESSION
     Out.KP_FLOOR = Out.LW_KN - lambda_KP_FLOOR*Out.KP;
 
 end
+

@@ -42,14 +42,14 @@ function ETR11_SOLVER_VISUALIZER_gemini()
     s_st = uislider(fig, 'Position', [200 190 800 3], 'Limits', [-140 140]);
     
     uilabel(fig, 'Position', [150 140 350 20], 'Text', 'COMPRESIÓN FL', lblP{:});
-    s_cFL = uislider(fig, 'Position', [150 120 350 3], 'Limits', [0 50]);
+    s_cFL = uislider(fig, 'Position', [150 120 350 3], 'Limits', [-25 25]);
     uilabel(fig, 'Position', [700 140 350 20], 'Text', 'COMPRESIÓN FR', lblP{:});
-    s_cFR = uislider(fig, 'Position', [700 120 350 3], 'Limits', [0 50]);
+    s_cFR = uislider(fig, 'Position', [700 120 350 3], 'Limits', [-25 25]);
     
     uilabel(fig, 'Position', [150 70 350 20], 'Text', 'COMPRESIÓN RL', lblP{:});
-    s_cRL = uislider(fig, 'Position', [150 50 350 3], 'Limits', [0 50]);
+    s_cRL = uislider(fig, 'Position', [150 50 350 3], 'Limits', [-25 25]);
     uilabel(fig, 'Position', [700 70 350 20], 'Text', 'COMPRESIÓN RR', lblP{:});
-    s_cRR = uislider(fig, 'Position', [700 50 350 3], 'Limits', [0 50]);
+    s_cRR = uislider(fig, 'Position', [700 50 350 3], 'Limits', [-25 25]);
 
     % Callbacks con ValueChangingFcn
     s_st.ValueChangingFcn  = @(src, e) updateFront(e.Value, s_cFL.Value, s_cFR.Value);
