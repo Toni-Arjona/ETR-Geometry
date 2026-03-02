@@ -70,6 +70,7 @@ static_damper_compression = 0;
     ack_pctge = dynamic_toe./dynamic_toe_ack;
 
     
+    
     FL_jack_rate = - gradient(FL_spindle_height)./gradient(FL_steer);
     FR_jack_rate = - gradient(FR_spindle_height)./gradient(FR_steer);
 

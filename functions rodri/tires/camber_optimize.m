@@ -51,7 +51,7 @@ for fz = fz_vec
 end
 
 % --- TU PLOT FINAL ---
-figure
+figure(8)
 plot(fz_vec, res_camber_opt, '-o', 'LineWidth', 1.5)
 grid on
 xlabel('Carga Vertical Fz [N]')

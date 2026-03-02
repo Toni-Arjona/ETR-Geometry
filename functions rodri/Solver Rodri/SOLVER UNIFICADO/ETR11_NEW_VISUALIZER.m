@@ -69,7 +69,7 @@ function ETR11_NEW_VISUALIZER()
     
     % Fila 1: Dirección
     uilabel(fig, 'Position', [250 220 800 20], 'Text', 'ÁNGULO DE VOLANTE', lblP{:});
-    s_st = uislider(fig, 'Position', [250 200 800 3], 'Limits', [-140 140]);
+    s_st = uislider(fig, 'Position', [250 200 800 3], 'Limits', [-145 145]);
     
     % Fila 2: Ejes (Delantero / Trasero)
     uilabel(fig, 'Position', [150 160 350 20], 'Text', 'COMPRESIÓN EJE DELANTERO', lblP{:});

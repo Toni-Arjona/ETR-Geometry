@@ -76,26 +76,29 @@ function Out = ETR11_KINEMATICS_SOLVER(HP, steering_wheel_angle, DPR_COMPRESSION
             KP_NEW_FUNCTION = @(x) (LW_KN_NEW_FUNCTION(x) - UW_KN_NEW_FUNCTION(x))/norm(LW_KN_NEW_FUNCTION(x) - UW_KN_NEW_FUNCTION(x));             
        
         % Ecuación 3. Longitud tie. 
-        % Función auxiliar para inclinar un vector acompañando el cambio de Kingpin
-        tilt_axis = @(k_old, k_new) cross(k_old, k_new) / (norm(cross(k_old, k_new)) + eps);
-        tilt_angle = @(k_old, k_new) acos(max(-1, min(1, dot(k_old, k_new))));
-        tilt_vector = @(v, k_old, k_new) rodrigues_rotation(v, tilt_axis(k_old, k_new), tilt_angle(k_old, k_new));
-        
             % Vector inicial steerarm, descompuesto en componentes axial y radial sobre kingpin
             STEER_ARM_INI = HP.TR_UPRIGHT - HP.LW_KN;
 
-                % Componentes axial y radial sobre kingpin inicial
-                    STEER_ARM_INI_axial_KP = dot(STEER_ARM_INI, KP);
-                    STEER_ARM_INI_radial_KP = STEER_ARM_INI -  STEER_ARM_INI_axial_KP*KP;
+            % Componentes axial y radial sobre kingpin inicial
+            STEER_ARM_INI_axial_KP = 
 
-            % Nueva posición de tr-upright, aplicando componentes radial y axial sobre kingpin actualizado.
-                TR_UPRIGHT_NEW_FUNCTION = @(x) LW_KN_NEW_FUNCTION(x) + ...
-                    STEER_ARM_INI_axial_KP * KP_NEW_FUNCTION(x) + ...
-                    rodrigues_rotation(tilt_vector(STEER_ARM_INI_radial_KP, KP, KP_NEW_FUNCTION(x)), KP_NEW_FUNCTION(x), x(3));
-            
+
+            % Rotación alrededor de kingpin actualizado
+            TR_UPRIGHT_NEW_FUNCTION = @(x) LW_KN_NEW_FUNCTION(x) + rodrigues_rotation(STEER_ARM_VEC(x), KP_NEW_FUNCTION(x), x(3));
+
             % Ecuación a resolver
-            TR_SOLVE_FUNCTION = @(x) norm(TR_UPRIGHT_NEW_FUNCTION(x) - TR_RACK_FINAL_POINT) - TR_LENGTH; 
+            TR_SOLVE_FUNCTION = @(x) norm(TR_UPRIGHT_NEW_FUNCTION(x) - TR_RACK_FINAL_POINT) - TR_LENGTH;
 
+            %{
+            h_TR = @(x) dot(STEER_ARM, KP_NEW_FUNCTION(x)); % Cuánto sube el brazo por el eje (Escrito por gemini, me da palo)
+            v_rad_TR = @(x) STEER_ARM - h_TR(x) * KP_NEW_FUNCTION(x); % El resto del brazo (perpendicular) (Escrito por gemini, me da palo)
+    
+            % 2. Rotación acoplada: inclina con el eje y luego gira x(3)
+            TR_UPRIGHT_NEW_FUNCTION = @(x) LW_KN_NEW_FUNCTION(x) +  h_TR(x) * KP_NEW_FUNCTION(x) + rodrigues_rotation(v_rad_TR(x), KP_NEW_FUNCTION(x), x(3)); %(Escrito por gemini, me da palo)
+        
+            % Ecuación a resolver
+            TR_SOLVE_FUNCTION = @(x) norm(TR_UPRIGHT_NEW_FUNCTION(x) - TR_RACK_FINAL_POINT) - TR_LENGTH; %(Escrito por gemini, me da palo)
+            %}
  
         % RESOLUCIÓN FINAL
         TOTAL_SOLVE_NEW_FUNCTION = @(x) [KNS_SOLVE_FUNCTION(x); TR_SOLVE_FUNCTION(x); PUSH_SOLVE_FUNCTION(x)];
@@ -120,26 +123,22 @@ function Out = ETR11_KINEMATICS_SOLVER(HP, steering_wheel_angle, DPR_COMPRESSION
             LW_KN_to_SPINDLE_CENTER = HP.SPINDLE_CENTER - HP.LW_KN; % Vector inicial de lower knuckle a spindle center
         
             % Descomposición vector en componente axial y radial sobre kingpin
-            LW_KN_to_SPINDLE_CENTER_axial_KP = dot(LW_KN_to_SPINDLE_CENTER, KP); % comoponente axial
-            LW_KN_to_SPINDLE_CENTER_radial_KP = LW_KN_to_SPINDLE_CENTER - LW_KN_to_SPINDLE_CENTER_axial_KP*KP; % componente radial
+            LW_KN_to_SPINDLE_CENTER_axial_KP = dot(LW_KN_to_SPINDLE_CENTER, KP_FINAL); % comoponente axial
+            LW_KN_to_SPINDLE_CENTER_radial_KP = LW_KN_to_SPINDLE_CENTER - LW_KN_to_SPINDLE_CENTER_axial_KP*KP_FINAL; % componente radial
     
         % DESCOMPOSICIÓN AXIAL Y RADIAL RESPECTO A KINGPIN SPINDLE POINT INNER.
             LW_KN_to_SPINDLE_INNER = HP.SPINDLE_INNER - HP.LW_KN; % Vector inicial de lower knuckle a spindle center
         
             % Descomposición vector en componente axial y radial sobre kingpin
-            LW_KN_to_SPINDLE_INNER_axial_KP = dot(LW_KN_to_SPINDLE_INNER, KP); % comoponente axial
-            LW_KN_to_SPINDLE_INNER_radial_KP = LW_KN_to_SPINDLE_INNER - LW_KN_to_SPINDLE_INNER_axial_KP*KP; % componente radial
+            LW_KN_to_SPINDLE_INNER_axial_KP = dot(LW_KN_to_SPINDLE_INNER, KP_FINAL); % comoponente axial
+            LW_KN_to_SPINDLE_INNER_radial_KP = LW_KN_to_SPINDLE_INNER - LW_KN_to_SPINDLE_INNER_axial_KP*KP_FINAL; % componente radial
         
         % Nuevo spindle center
-        SPINDLE_CENTER_FINAL_POINT = LW_KN_FINAL_POINT + ...
-            LW_KN_to_SPINDLE_CENTER_axial_KP * KP_FINAL + ...
-            rodrigues_rotation(tilt_vector(LW_KN_to_SPINDLE_CENTER_radial_KP, KP, KP_FINAL), KP_FINAL, x(3));
-
+        SPINDLE_CENTER_FINAL_POINT = LW_KN_FINAL_POINT + LW_KN_to_SPINDLE_CENTER_axial_KP * KP_FINAL + rodrigues_rotation(LW_KN_to_SPINDLE_CENTER_radial_KP, KP_FINAL, x(3));
+    
         % Nuevo spindle inner
-        SPINDLE_INNER_FINAL_POINT = LW_KN_FINAL_POINT + ...
-            LW_KN_to_SPINDLE_INNER_axial_KP * KP_FINAL + ...
-            rodrigues_rotation(tilt_vector(LW_KN_to_SPINDLE_INNER_radial_KP, KP, KP_FINAL), KP_FINAL, x(3));    
-        
+        SPINDLE_INNER_FINAL_POINT = LW_KN_FINAL_POINT + LW_KN_to_SPINDLE_INNER_axial_KP * KP_FINAL + rodrigues_rotation(LW_KN_to_SPINDLE_INNER_radial_KP, KP_FINAL, x(3));
+    
         % Nuevo spindle
         SPINDLE_FINAL = (SPINDLE_INNER_FINAL_POINT - SPINDLE_CENTER_FINAL_POINT)/norm(SPINDLE_INNER_FINAL_POINT - SPINDLE_CENTER_FINAL_POINT); % nuevo vector spindle
     

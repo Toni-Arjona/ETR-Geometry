@@ -19,8 +19,8 @@ function [FL, FR, RL, RR, F_ROLL_CENTER, R_ROLL_CENTER, FL_KINEMATICS, FR_KINEMA
         HP_FL.SPINDLE_CENTER = [-100, -625, 203]; 
         HP_FL.SPINDLE_INNER  = [-100, -561.5, 200.5];
 
-        HP_FL.UW_KN          = [-90, -540, 294];
-        HP_FL.LW_KN          = [-103.5 ,-580, 106]; 
+        HP_FL.UW_KN          = [-98, -550, 294];
+        HP_FL.LW_KN          = [-106 ,-585, 106]; 
        
         % WISHBONE - MONOCOQUE JOINT
         HP_FL.URW_MC         = [75, -225, 267];
@@ -29,23 +29,23 @@ function [FL, FR, RL, RR, F_ROLL_CENTER, R_ROLL_CENTER, FL_KINEMATICS, FR_KINEMA
         HP_FL.LFW_MC         = [-210, -225, 123];
         
         % PUSH ROD
-        HP_FL.PUSH_UW        = [-83, -489, 319];
-        HP_FL.PUSH_RKR       = [-83, -193.5, 558];
+        HP_FL.PUSH_UW        = [-98, -489, 319];
+        HP_FL.PUSH_RKR       = [-98, -185, 558];
         
         % ROCKER AXIS
-        HP_FL.RKR_1          = [-18, -186.5, 587];
-        HP_FL.RKR_2          = [-18, -164, 552];
+        HP_FL.RKR_1          = [-32, -186.5, 587];
+        HP_FL.RKR_2          = [-32, -164, 552];
 
         % DAMPER
-        HP_FL.DPR_RKR        = [-43, -80, 610];
-        HP_FL.DPR_MC         = [137, -80, 610];
+        HP_FL.DPR_RKR        = [-54, -75, 610];
+        HP_FL.DPR_MC         = [131, -75, 610];
         
         % TIE ROD
-        HP_FL.TR_UPRIGHT     = [-185, -560, 140];
-        HP_FL.TR_RACK        = [-175, -225, 150];
+        HP_FL.TR_UPRIGHT     = [-185, -560, 135];
+        HP_FL.TR_RACK        = [-160, -225, 145];
         
         % PINION
-        HP_FL.D_PINION       = 35;
+        HP_FL.D_PINION       = 34;
 
     %% REAR HARDPOINTS (LEFT WHEEL)
         % Wheel spindle 
@@ -64,15 +64,15 @@ function [FL, FR, RL, RR, F_ROLL_CENTER, R_ROLL_CENTER, FL_KINEMATICS, FR_KINEMA
         
         % RL Push rod
         HP_RL.PUSH_UW        = [1435, -517, 306.5];
-        HP_RL.PUSH_RKR       = [1435, -206, 487];
+        HP_RL.PUSH_RKR       = [1435, -236.5, 487];
         
         % RL Rocker axis points
         HP_RL.RKR_1          = [1373, -228, 497];
         HP_RL.RKR_2          = [1373, -205, 463];
         
         % RL Damper
-        HP_RL.DPR_RKR        = [1359, -120, 518];
-        HP_RL.DPR_MC         = [1179, -120, 518];
+        HP_RL.DPR_RKR        = [1379, -100, 518];
+        HP_RL.DPR_MC         = [1199, -100, 518];
         
         % RL Tie rod
         HP_RL.TR_UPRIGHT     = [1517, -560, 140];

@@ -19,18 +19,18 @@ function [FL, FR, RL, RR, F_ROLL_CENTER, R_ROLL_CENTER, FL_KINEMATICS, FR_KINEMA
         HP_FL.SPINDLE_CENTER = [-100, -625, 203]; 
         HP_FL.SPINDLE_INNER  = [-100, -561.5, 200.5];
 
-        HP_FL.UW_KN          = [-97, -550, 294];
+        HP_FL.UW_KN          = [-98, -550, 294];
         HP_FL.LW_KN          = [-106 ,-585, 106]; 
        
         % WISHBONE - MONOCOQUE JOINT
         HP_FL.URW_MC         = [75, -225, 267];
         HP_FL.UFW_MC         = [-210, -225, 281];
-        HP_FL.LRW_MC         = [80, -225, 135];
-        HP_FL.LFW_MC         = [-210, -225, 123];
+        HP_FL.LRW_MC         = [80, -225, 133];
+        HP_FL.LFW_MC         = [-210, -225, 121];
         
         % PUSH ROD
-        HP_FL.PUSH_UW        = [-97, -489, 319];
-        HP_FL.PUSH_RKR       = [-97, -193.5, 558];
+        HP_FL.PUSH_UW        = [-98, -489, 319];
+        HP_FL.PUSH_RKR       = [-98, -185, 558];
         
         % ROCKER AXIS
         HP_FL.RKR_1          = [-32, -186.5, 587];
@@ -38,14 +38,14 @@ function [FL, FR, RL, RR, F_ROLL_CENTER, R_ROLL_CENTER, FL_KINEMATICS, FR_KINEMA
 
         % DAMPER
         HP_FL.DPR_RKR        = [-54, -75, 610];
-        HP_FL.DPR_MC         = [128, -75, 610];
+        HP_FL.DPR_MC         = [131, -75, 610];
         
         % TIE ROD
-        HP_FL.TR_UPRIGHT     = [-185, -560, 140];
-        HP_FL.TR_RACK        = [-175, -225, 153];
+        HP_FL.TR_UPRIGHT     = [-185, -560, 135];
+        HP_FL.TR_RACK        = [-160, -225, 147];
         
         % PINION
-        HP_FL.D_PINION       = 34;
+        HP_FL.D_PINION       = 31;
 
     %% REAR HARDPOINTS (LEFT WHEEL)
         % Wheel spindle 
