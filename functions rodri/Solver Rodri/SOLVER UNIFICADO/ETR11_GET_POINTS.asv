@@ -1,4 +1,4 @@
-function [FL, FR, RL, RR, F_ROLL_CENTER, R_ROLL_CENTER, FL_KINEMATICS, FR_KINEMATICS, RL_KINEMATICS, RR_KINEMATICS, FL_DYNAMICS, RL_DYNAMICS] = ETR11_GET_POINTS(steering_wheel_angle, FL_COMPRESSION, FR_COMPRESSION, RL_COMPRESSION, RR_COMPRESSION, LOADED_RADIUS)
+function [FL, FR, RL, RR, F_ROLL_CENTER, R_ROLL_CENTER, FL_KINEMATICS, FR_KINEMATICS, RL_KINEMATICS, RR_KINEMATICS, FL_DYNAMICS] = ETR11_GET_POINTS(steering_wheel_angle, FL_COMPRESSION, FR_COMPRESSION, RL_COMPRESSION, RR_COMPRESSION, LOADED_RADIUS)
     % [wheel]_[componente 1]_[componente 2] (mah o menoh)
     % HP - Hardpoint
     % F - Front
@@ -23,7 +23,7 @@ function [FL, FR, RL, RR, F_ROLL_CENTER, R_ROLL_CENTER, FL_KINEMATICS, FR_KINEMA
         HP_FL.LW_KN          = [-106 ,-585, 106]; 
        
         % WISHBONE - MONOCOQUE JOINT
-        HP_FL.URW_MC         = [75, -225, 273]; 
+        HP_FL.URW_MC         = [75, -225, 272]; 
         HP_FL.UFW_MC         = [-212, -225, 279]; 
         HP_FL.LRW_MC         = [70, -225, 133]; 
         HP_FL.LFW_MC         = [-210, -225, 121]; 
@@ -34,10 +34,10 @@ function [FL, FR, RL, RR, F_ROLL_CENTER, R_ROLL_CENTER, FL_KINEMATICS, FR_KINEMA
 
         front_rkr_axis = HP_FL.RKR_1 - HP_FL.RKR_2;
         f_a = 50;
-        f_b = 87;
+        f_b = 88.5;
      
         % PUSH ROD
-        HP_FL.PUSH_UW        = [-99, -505, 327.082053];
+        HP_FL.PUSH_UW        = [-99, -500, 319];
         HP_FL.PUSH_RKR       = (HP_FL.RKR_2 + 0.5*front_rkr_axis) + f_a*[-1, 0, 0];
         % HP_FL.PUSH_RKR     = [-100, -175, 569.5];% ok  
 
@@ -61,13 +61,13 @@ function [FL, FR, RL, RR, F_ROLL_CENTER, R_ROLL_CENTER, FL_KINEMATICS, FR_KINEMA
                
         % RL Knuckles
         HP_RL.UW_KN          = [1435, -551, 294]; 
-        HP_RL.LW_KN          = [1432 ,-595, 111];
+        HP_RL.LW_KN          = [1435 ,-600, 111];
         
         % RL wishbones joints with monocoque
         HP_RL.URW_MC         = [1545, -255, 281];
-        HP_RL.UFW_MC         = [1265, -255, 291];
-        HP_RL.LRW_MC         = [1545, -255, 124];
-        HP_RL.LFW_MC         = [1250, -255, 149];
+        HP_RL.UFW_MC         = [1265, -255, 294];
+        HP_RL.LRW_MC         = [1545, -255, 125.5];
+        HP_RL.LFW_MC         = [1250, -255, 152.5];
 
         % RL Rocker axis points
         HP_RL.RKR_1          = [1385, -228, 497];
@@ -75,10 +75,10 @@ function [FL, FR, RL, RR, F_ROLL_CENTER, R_ROLL_CENTER, FL_KINEMATICS, FR_KINEMA
 
         rear_rkr_axis = HP_RL.RKR_1 - HP_RL.RKR_2;
         r_a = 50;
-        r_b = 106.5;
+        r_b = 107.9;
         
         % RL Push rod
-        HP_RL.PUSH_UW        = [1435, -505, 319.868481];
+        HP_RL.PUSH_UW        = [1435, -517, 306.5];
         HP_RL.PUSH_RKR       = (HP_RL.RKR_2 + 0.5*rear_rkr_axis) + r_a*[1, 0, 0];
         % HP_RL.PUSH_RKR       = [1435, -220, 487];
         
@@ -89,8 +89,8 @@ function [FL, FR, RL, RR, F_ROLL_CENTER, R_ROLL_CENTER, FL_KINEMATICS, FR_KINEMA
         %HP_RL.DPR_MC        = [1199, -100, 518];
         
         % RL Tie rod
-        HP_RL.TR_UPRIGHT     = [1535, -570, 200];
-        HP_RL.TR_RACK        = [1535, -255, 205.5];
+        HP_RL.TR_UPRIGHT     = [1517, -560, 140];
+        HP_RL.TR_RACK        = [1528, -255, 156];
         
         % Eje trasero fijo 
         HP_RL.D_PINION       = 0;
@@ -147,16 +147,16 @@ function [FL, FR, RL, RR, F_ROLL_CENTER, R_ROLL_CENTER, FL_KINEMATICS, FR_KINEMA
     [FL_KINEMATICS, FR_KINEMATICS, RL_KINEMATICS, RR_KINEMATICS] = solver_kinematics_data(FL, FR, RL, RR);
 
     % FUERZA CONTACT PATCH (FL SOLO DE MOMENTO)
-    FL_CONTACT_PATCH_FORCE = [-2377, 2382, 4157];
-    RL_CONTACT_PATCH_FORCE = [-2876, 2681, 5093];
-
+    FL_CONTACT_PATCH_FORCE = [2377, 2382, 4157];
+    RL_CONTACT_PATCH_FORCE = [2876, 2681, 5093]
 
     % FUNCIÓN FUERZAS
     FL_DYNAMICS = ETR11_DYNAMICS_SOLVER(FL, FL_CONTACT_PATCH_FORCE);
-    % FR_DYNAMICS = ETR11_DYNAMICS_SOLVER(FR, FR_CONTACT_PATCH_FORCE);
-    
+    %{
+    FR_DYNAMICS = ETR11_DYNAMICS_SOLVER(FR, FR_CONTACT_PATCH_FORCE);
     RL_DYNAMICS = ETR11_DYNAMICS_SOLVER(RL, RL_CONTACT_PATCH_FORCE);
-    % RR_DYNAMICS = ETR11_DYNAMICS_SOLVER(RR, RR_CONTACT_PATCH_FORCE);
+    RR_DYNAMICS = ETR11_DYNAMICS_SOLVER(RR, RR_CONTACT_PATCH_FORCE);
+    %}
 
 
 end

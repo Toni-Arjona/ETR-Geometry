@@ -27,30 +27,48 @@ function Out_Dynamics = ETR11_DYNAMICS_SOLVER(HP, CONTACT_PATCH_FORCE)
     lfw_moment = cross(lfw_point, lfw_direction);
     lrw_moment = cross(lrw_point, lrw_direction);
 
-   
+    %% SUBSISTEMA 1. MANGUETA.
+    % Incógnita(s): fuerza en upper kunckle (3 componentes), fuerzas en lower knuckle(2 componentes) y fuerza tie ( 1 componente)
+    upper_knuckle_point = HP.UW_KN;
     
+    A_sub1 = [tie_direction, tie_moment; 
+              lfw_direction, lfw_moment;
+              lrw_direction, lrw_moment;
+              [1, 0, 0], cross(upper_knuckle_point,  [1, 0, 0]);
+              [0, 1, 0], cross(upper_knuckle_point,  [0, 1, 0]);
+              [0, 0, 1], cross(upper_knuckle_point,  [0, 0, 1])]';
+
+    B = [-CONTACT_PATCH_FORCE, -contact_patch_moment]';
+
+    F_sub1_incognitas = A_sub1\B;
+
+    % SUBSISTEMA 2. UPPER WISHBONE + PUSH
+    
+    Out_Dynamics.push = 
+    
+
+    
+    %{
+    TOTAL MATRIXS
     A = [tie_direction, tie_moment; 
         push_direction, push_moment;
         ufw_direction, ufw_moment;
         urw_direction, urw_moment;
         lfw_direction, lfw_moment;
         lrw_direction, lrw_moment]';
-
-   B = [-CONTACT_PATCH_FORCE, -contact_patch_moment]';
     
    
     
     % RESOLVER SISTEMA
     F_incognitas = A \ B;
-   
+    %}
 
-    Out_Dynamics.TieRod = F_incognitas(1);
-    Out_Dynamics.PUSH = F_incognitas(2);
-    Out_Dynamics.UFW = F_incognitas(3);
-    Out_Dynamics.URW = F_incognitas(4);
-    Out_Dynamics.LFW = F_incognitas(5);
-    Out_Dynamics.LRW = F_incognitas(6);
-    
+    Out_Dynamics.TieRod = F_sub1_incognitas(1);
+    Out_Dynamics.LFW = F_sub1_incognitas(2);
+    Out_Dynamics.LRW = F_sub1_incognitas(3);
+    Out_Dynamics.KNX = F_sub1_incognitas(4);
+    Out_Dynamics.KNY = F_sub1_incognitas(5);
+    Out_Dynamics.KNZ = F_sub1_incognitas(6);
 
 end
 
