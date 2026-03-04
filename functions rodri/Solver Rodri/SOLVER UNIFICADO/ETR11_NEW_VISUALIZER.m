@@ -43,7 +43,6 @@ function ETR11_NEW_VISUALIZER()
         h.(s).TrajCP = plot3(ax, 0,0,0, 'r-', 'LineWidth', 1.5); 
     end
     h.FrontRack = createPlot([0.8 0.8 0.8], 4);
-    h.RearRack  = createPlot([0.8 0.8 0.8], 4);
     h.F_RC = plot3(ax, 0,0,0, 'Marker', 'x', 'MarkerSize', 10, 'Color', 'r', 'LineWidth', 2);
     h.R_RC = plot3(ax, 0,0,0, 'Marker', 'x', 'MarkerSize', 10, 'Color', 'r', 'LineWidth', 2);
     h.RollAxis = createDashed('r', 1.5); 
@@ -73,21 +72,21 @@ function ETR11_NEW_VISUALIZER()
     
     % Fila 2: Ejes (Delantero / Trasero)
     uilabel(fig, 'Position', [150 160 350 20], 'Text', 'COMPRESIÓN EJE DELANTERO', lblP{:});
-    s_F = uislider(fig, 'Position', [150 140 350 3], 'Limits', [-25 25]);
+    s_F = uislider(fig, 'Position', [150 140 350 3], 'Limits', [-25 32]);
     
     uilabel(fig, 'Position', [800 160 350 20], 'Text', 'COMPRESIÓN EJE TRASERO', lblP{:});
-    s_R = uislider(fig, 'Position', [800 140 350 3], 'Limits', [-25 25]);
+    s_R = uislider(fig, 'Position', [800 140 350 3], 'Limits', [-25 32]);
     
     % Fila 3: Lados (Izquierdo / Derecho) - Roll/Balanceo
     uilabel(fig, 'Position', [150 100 350 20], 'Text', 'COMPRESIÓN LADO IZQUIERDO', lblP{:});
-    s_Left = uislider(fig, 'Position', [150 80 350 3], 'Limits', [-25 25]);
+    s_Left = uislider(fig, 'Position', [150 80 350 3], 'Limits', [-25 32]);
     
     uilabel(fig, 'Position', [800 100 350 20], 'Text', 'COMPRESIÓN LADO DERECHO', lblP{:});
-    s_Right = uislider(fig, 'Position', [800 80 350 3], 'Limits', [-25 25]);
+    s_Right = uislider(fig, 'Position', [800 80 350 3], 'Limits', [-25 32]);
     
     % Fila 4: Global (Heave)
     uilabel(fig, 'Position', [475 40 350 20], 'Text', 'COMPRESIÓN GLOBAL (HEAVE TOTAL)', lblP{:});
-    s_All = uislider(fig, 'Position', [475 20 350 3], 'Limits', [-25 25]);
+    s_All = uislider(fig, 'Position', [475 20 350 3], 'Limits', [-25 32]);
     
     % Callbacks unificados para 6 deslizables
     s_st.ValueChangingFcn    = @(src, e) updateAll(e.Value, s_F.Value, s_R.Value, s_Left.Value, s_Right.Value, s_All.Value);
@@ -141,7 +140,6 @@ function ETR11_NEW_VISUALIZER()
         updateWheelGraphics('RR', RR);
         
         set(h.FrontRack, 'XData', [FL.TR_RACK(1) FR.TR_RACK(1)], 'YData', [FL.TR_RACK(2) FR.TR_RACK(2)], 'ZData', [FL.TR_RACK(3) FR.TR_RACK(3)]);
-        set(h.RearRack,  'XData', [RL.TR_RACK(1) RR.TR_RACK(1)], 'YData', [RL.TR_RACK(2) RR.TR_RACK(2)], 'ZData', [RL.TR_RACK(3) RR.TR_RACK(3)]);
         set(h.F_RC, 'XData', F_RC(1), 'YData', F_RC(2), 'ZData', F_RC(3));
         set(h.R_RC, 'XData', R_RC(1), 'YData', R_RC(2), 'ZData', R_RC(3));
         

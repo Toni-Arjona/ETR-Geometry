@@ -31,8 +31,8 @@ g = 9.81; % gravedad [m/s^2]
 %% NEUMÁTICO
     tire_radius = effective_rolling_radius(m*g/4, 0.827); % radio efectivo de la rueda [m]    
     
-    coeff_long_max = 2.1; % coeficiente longitudinal máximo 
-    coeff_lat_max = 1.9; % coeficiente lateral máximo        
+    coeff_long_max = 1.55; % coeficiente longitudinal máximo 
+    coeff_lat_max = 1.55; % coeficiente lateral máximo        
     lat_mu = sf_lateral*coeff_lat_max; % coeficiente lateral neumático
     long_mu = sf_accel*coeff_long_max; % coeficiente longitudinal neumático
     camber_deg = -2;

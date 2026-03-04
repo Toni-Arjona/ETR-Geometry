@@ -6,7 +6,7 @@ static_damper_compression = 0;
 
 
 %% MOTION RATIO and BUMP STEER
-    dpr_compr_int = -25:1:25;
+    dpr_compr_int = -25:1:32;
 
     RL_contact_patch_z = zeros(1, length(dpr_compr_int));
     FL_contact_patch_z = zeros(1, length(dpr_compr_int));

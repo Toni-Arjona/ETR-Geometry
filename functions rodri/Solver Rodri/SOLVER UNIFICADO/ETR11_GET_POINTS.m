@@ -16,67 +16,81 @@ function [FL, FR, RL, RR, F_ROLL_CENTER, R_ROLL_CENTER, FL_KINEMATICS, FR_KINEMA
 
     %% FRONT HARDPOINTS (LEFT WHEEL)
         % SPINDLE
-        HP_FL.SPINDLE_CENTER = [-100, -625, 203]; 
-        HP_FL.SPINDLE_INNER  = [-100, -561.5, 200.5];
+        HP_FL.SPINDLE_CENTER = [-100, -625, 203];  % ok
+        HP_FL.SPINDLE_INNER  = [-100, -567, 200.5]; % ok
 
-        HP_FL.UW_KN          = [-98, -550, 294];
+        HP_FL.UW_KN          = [-99, -550, 294];
         HP_FL.LW_KN          = [-106 ,-585, 106]; 
        
         % WISHBONE - MONOCOQUE JOINT
-        HP_FL.URW_MC         = [75, -225, 267];
-        HP_FL.UFW_MC         = [-210, -225, 281];
-        HP_FL.LRW_MC         = [80, -225, 133];
-        HP_FL.LFW_MC         = [-210, -225, 121];
-        
-        % PUSH ROD
-        HP_FL.PUSH_UW        = [-98, -489, 319];
-        HP_FL.PUSH_RKR       = [-98, -185, 558];
-        
+        HP_FL.URW_MC         = [75, -225, 272]; 
+        HP_FL.UFW_MC         = [-212, -225, 279]; 
+        HP_FL.LRW_MC         = [70, -225, 133]; 
+        HP_FL.LFW_MC         = [-210, -225, 121]; 
+
         % ROCKER AXIS
-        HP_FL.RKR_1          = [-32, -186.5, 587];
-        HP_FL.RKR_2          = [-32, -164, 552];
+        HP_FL.RKR_1          = [-49, -186.5, 587]; % ok
+        HP_FL.RKR_2          = [-49, -164, 552]; % ok
+
+        front_rkr_axis = HP_FL.RKR_1 - HP_FL.RKR_2;
+        f_a = 50;
+        f_b = 88.5;
+     
+        % PUSH ROD
+        HP_FL.PUSH_UW        = [-99, -500, 319];
+        HP_FL.PUSH_RKR       = (HP_FL.RKR_2 + 0.5*front_rkr_axis) + f_a*[-1, 0, 0];
+        % HP_FL.PUSH_RKR     = [-100, -175, 569.5];% ok  
 
         % DAMPER
-        HP_FL.DPR_RKR        = [-54, -75, 610];
-        HP_FL.DPR_MC         = [131, -75, 610];
-        
+        HP_FL.DPR_RKR        = (HP_FL.RKR_2 + 0.5*front_rkr_axis) + f_b*(cross(f_a*[-1, 0, 0], front_rkr_axis))/norm(cross(f_a*[-1, 0, 0], front_rkr_axis));
+        %HP_FL.DPR_RKR       = [-50, -90, 610]; % ok 
+        HP_FL.DPR_MC         = HP_FL.DPR_RKR + 175*[1, 0, 0];
+        %HP_FL.DPR_MC         = [125, -100, 620]; % ok
+   
         % TIE ROD
-        HP_FL.TR_UPRIGHT     = [-185, -560, 135];
-        HP_FL.TR_RACK        = [-160, -225, 147];
+        HP_FL.TR_UPRIGHT     = [-180, -560, 137];% ok
+        HP_FL.TR_RACK        = [-165, -225, 149.5];% ok
         
         % PINION
-        HP_FL.D_PINION       = 31;
+        HP_FL.D_PINION       = 29;
 
     %% REAR HARDPOINTS (LEFT WHEEL)
         % Wheel spindle 
         HP_RL.SPINDLE_CENTER = [1435, -625, 203]; 
-        HP_RL.SPINDLE_INNER  = [1435, -561.5, 200.5];
+        HP_RL.SPINDLE_INNER  = [1435, -567, 200.5];
                
         % RL Knuckles
-        HP_RL.UW_KN          = [1435, -551.5, 294]; 
-        HP_RL.LW_KN          = [1435 ,-576, 111];
+        HP_RL.UW_KN          = [1435, -551, 294]; 
+        HP_RL.LW_KN          = [1435 ,-600, 111];
         
         % RL wishbones joints with monocoque
         HP_RL.URW_MC         = [1545, -255, 281];
         HP_RL.UFW_MC         = [1265, -255, 294];
-        HP_RL.LRW_MC         = [1545, -255, 124];
-        HP_RL.LFW_MC         = [1250, -255, 151];
+        HP_RL.LRW_MC         = [1545, -255, 125.5];
+        HP_RL.LFW_MC         = [1250, -255, 152.5];
+
+        % RL Rocker axis points
+        HP_RL.RKR_1          = [1385, -228, 497];
+        HP_RL.RKR_2          = [1385, -212.5, 463];
+
+        rear_rkr_axis = HP_RL.RKR_1 - HP_RL.RKR_2;
+        r_a = 50;
+        r_b = 107.9;
         
         % RL Push rod
         HP_RL.PUSH_UW        = [1435, -517, 306.5];
-        HP_RL.PUSH_RKR       = [1435, -236.5, 487];
-        
-        % RL Rocker axis points
-        HP_RL.RKR_1          = [1373, -228, 497];
-        HP_RL.RKR_2          = [1373, -205, 463];
+        HP_RL.PUSH_RKR       = (HP_RL.RKR_2 + 0.5*rear_rkr_axis) + r_a*[1, 0, 0];
+        % HP_RL.PUSH_RKR       = [1435, -220, 487];
         
         % RL Damper
-        HP_RL.DPR_RKR        = [1379, -100, 518];
-        HP_RL.DPR_MC         = [1199, -100, 518];
+        HP_RL.DPR_RKR        = (HP_RL.RKR_2 + 0.5*rear_rkr_axis) + r_b*(cross(rear_rkr_axis, r_a*[1, 0, 0]))/norm(cross(r_a*[1, 0, 0], rear_rkr_axis));
+        %HP_RL.DPR_RKR       = [1380, -90, 518];
+        HP_RL.DPR_MC         = HP_RL.DPR_RKR + 175*[-1, 0, 0];
+        %HP_RL.DPR_MC        = [1199, -100, 518];
         
         % RL Tie rod
         HP_RL.TR_UPRIGHT     = [1517, -560, 140];
-        HP_RL.TR_RACK        = [1528, -255, 155];
+        HP_RL.TR_RACK        = [1528, -255, 156];
         
         % Eje trasero fijo 
         HP_RL.D_PINION       = 0;
