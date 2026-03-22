@@ -18,15 +18,15 @@
 %
 %  donde:
 %    a = dot(k,v)*k    Componente axial. Determina a qué altura a lo largo del eje está el centro de la
-%                       circunferencia, con el "punto offset" como referencia. Se determina TRIVIALMENTE como la
+%                       circunferencia, con el "punto offset" como referencia. Se determina  como la
 %                       proyección del vector v sobre el eje k, con el módulo de ese vector como dot(k,v) y
-%                       dirección (normalizada) k.
+%                       dirección k.
 %
 %    r = v - a          Componente radial. Su módulo es el radio de la circunferencia, la distancia ortogonal del
-%                       "destino" del vector v al eje k. Se calcula TRIVIALMENTE como v - a.
+%                       punto a rotar al eje k. Se calcula como v - a.
 %
 %    s = cross(k,v)     Componente tangencial. Determina el plano de la rotación junto con r. Se calcula
-%                       TRIVIALMENTE como cross(k,v).
+%                       como cross(k,v).
 %
 %  Sustituyendo y elevando al cuadrado ambos lados:
 %
