@@ -1,12 +1,13 @@
 clc
-clear all
 close all
 
 static_damper_compression = 0; 
+lower_limit_damper = -25;
+upper_limit_damper = 32;
 
 
 %% MOTION RATIO and BUMP STEER
-    dpr_compr_int = -25:1:32;
+    dpr_compr_int = lower_limit_damper:0.1:upper_limit_damper;
 
     RL_contact_patch_z = zeros(1, length(dpr_compr_int));
     FL_contact_patch_z = zeros(1, length(dpr_compr_int));
@@ -16,9 +17,15 @@ static_damper_compression = 0;
 
     F_ROLL_CENTER_h = zeros(1, length(dpr_compr_int));
     R_ROLL_CENTER_h = zeros(1, length(dpr_compr_int));
+
+    F_rkr_push_dot = zeros(1, length(dpr_compr_int));
+    R_rkr_push_dot = zeros(1, length(dpr_compr_int));
+
+    F_AR_RATIO = zeros(1, length(dpr_compr_int));
+    R_AR_RATIO = zeros(1, length(dpr_compr_int));
     
     for i = 1:length(dpr_compr_int)
-        [FL, ~, RL, ~, F_ROLL_CENTER, R_ROLL_CENTER, FL_KINEMATICS, ~, RL_KINEMATICS] = ETR11_GET_POINTS(0, dpr_compr_int(i), dpr_compr_int(i), dpr_compr_int(i), dpr_compr_int(i), 0.199);
+        [FL, ~, RL, ~, F_ROLL_CENTER, R_ROLL_CENTER, FL_KINEMATICS, ~, RL_KINEMATICS] = ETR11_GET_POINTS(0, dpr_compr_int(i), dpr_compr_int(i), dpr_compr_int(i), dpr_compr_int(i), 0.203);
      
         FL_contact_patch_z(i) = FL.CONTACT_PATCH(3);    
         RL_contact_patch_z(i) = RL.CONTACT_PATCH(3);
@@ -28,11 +35,35 @@ static_damper_compression = 0;
 
         F_ROLL_CENTER_h(i) = F_ROLL_CENTER(3);
         R_ROLL_CENTER_h(i) = R_ROLL_CENTER(3);
-    
+
+        F_rkr_push_dot(i) = FL_KINEMATICS.PUSH_RKR_DOT;
+        R_rkr_push_dot(i) = RL_KINEMATICS.PUSH_RKR_DOT;
+
     end
-    
+
     R_motion_ratio = diff(dpr_compr_int) ./ diff(RL_contact_patch_z);
     F_motion_ratio = diff(dpr_compr_int) ./ diff(FL_contact_patch_z);
+
+%% ROLL
+    left_travel_roll = static_damper_compression:1:upper_limit_damper;
+    right_travel_roll = static_damper_compression:-1:lower_limit_damper;
+
+    front_roll = zeros(1, min(length(right_travel_roll), length(left_travel_roll)));
+    rear_roll = zeros(1, min(length(right_travel_roll), length(left_travel_roll)));
+
+    for i = 1:min(length(right_travel_roll), length(left_travel_roll))
+        [FL, FR, RL, RR, F_ROLL_CENTER, R_ROLL_CENTER, FL_KINEMATICS, FR_KINEMATICS, RL_KINEMATICS, RR_KINEMATICS] = ETR11_GET_POINTS(0, left_travel_roll(i), right_travel_roll(i), left_travel_roll(i), right_travel_roll(i), 0.203);
+
+        front_roll(i) = atand((FL.CONTACT_PATCH(3) - FR.CONTACT_PATCH(3))/((FL.CONTACT_PATCH(2) - FR.CONTACT_PATCH(2))));
+        rear_roll(i) = atand((RL.CONTACT_PATCH(3) - RR.CONTACT_PATCH(3))/((RL.CONTACT_PATCH(2) - RR.CONTACT_PATCH(2))));
+
+        front_ARB_angle(i) = rad2deg(FL.ARB_ANGLE - FR.ARB_ANGLE);
+        rear_ARB_angle(i) = rad2deg(RL.ARB_ANGLE - RR.ARB_ANGLE);
+    end
+
+    front_anti_roll_ratio = gradient(front_ARB_angle)./gradient(front_roll);
+    rear_anti_roll_ratio = gradient(rear_ARB_angle)./gradient(rear_roll);
+
 
 
 %% STEER
@@ -50,7 +81,7 @@ static_damper_compression = 0;
     FR_scrub = zeros(1, length(steer_int));
     
     for i = 1:length(steer_int)
-        [FL, FR, ~, ~, ~, ~, FL_KINEMATICS, FR_KINEMATICS] = ETR11_GET_POINTS(steer_int(i), static_damper_compression, static_damper_compression, static_damper_compression, static_damper_compression, 0.199);
+        [FL, FR, ~, ~, ~, ~, FL_KINEMATICS, FR_KINEMATICS] = ETR11_GET_POINTS(steer_int(i), static_damper_compression, static_damper_compression, static_damper_compression, static_damper_compression, 0.203);
      
         FL_steer(i) = FL_KINEMATICS.STEER;
         FR_steer(i) = FR_KINEMATICS.STEER;
@@ -100,9 +131,9 @@ static_damper_compression = 0;
     % SUSPE (MOTION RATIO, ROLL CENTER, JACK, BUMP STEER)
     figure(2)
     subplot(2,2,1)
-    plot(dpr_compr_int(1:end-1), R_motion_ratio, 'LineWidth', 1.5, 'DisplayName', 'Rear MR')
-    hold on
     plot(dpr_compr_int(1:end-1), F_motion_ratio, 'LineWidth', 1.5, 'DisplayName', 'Front MR')
+    hold on
+    plot(dpr_compr_int(1:end-1), R_motion_ratio, 'LineWidth', 1.5, 'DisplayName', 'Rear MR')
     grid on
     legend()
     xlabel('Damper Compression (mm)')
@@ -110,9 +141,9 @@ static_damper_compression = 0;
     title('Motion Ratio Curve')
 
     subplot(2,2,2)
-    plot(dpr_compr_int, RL_bump_steer, 'LineWidth', 1.5, 'DisplayName', 'Rear BSteer')
+    plot(dpr_compr_int, FL_bump_steer, 'LineWidth', 1.5, 'DisplayName', 'Front BSteer')
     hold on
-    plot(dpr_compr_int, FL_bump_steer, 'LineWidth', 1.5, 'DisplayName', 'Front Bsteer')
+    plot(dpr_compr_int, RL_bump_steer, 'LineWidth', 1.5, 'DisplayName', 'Rear Bsteer')
     grid on
     legend()
     xlabel('Damper Compression (mm)')
@@ -120,24 +151,24 @@ static_damper_compression = 0;
     title('Bump steer')
 
     subplot(2,2,3)
-    plot(dpr_compr_int, F_ROLL_CENTER_h - FL_contact_patch_z, 'LineWidth', 1.5, 'DisplayName', 'Front')
+    plot(dpr_compr_int, F_ROLL_CENTER_h, 'LineWidth', 1.5, 'DisplayName', 'Front')
     hold on
-    plot(dpr_compr_int, R_ROLL_CENTER_h - RL_contact_patch_z, 'LineWidth', 1.5, 'DisplayName', 'Rear')
+    plot(dpr_compr_int, R_ROLL_CENTER_h, 'LineWidth', 1.5, 'DisplayName', 'Rear')
     grid on
     legend()
     xlabel('Damper Compression (mm)')
-    ylabel('Roll center height [deg]')
+    ylabel('Roll center height [mm]')
     title('Roll centers heigths (relative to monocoque)')
     
     subplot(2,2,4)
-    plot(steer_int, -(FL_spindle_height - FL_spindle_height(1)), 'LineWidth', 1.5, 'DisplayName', 'Front left wheel')
+    plot(front_roll, front_anti_roll_ratio, 'LineWidth', 1.5, 'DisplayName', 'Front axis')
     hold on
-    plot(steer_int, -(FR_spindle_height - FR_spindle_height(1)), 'LineWidth', 1.5, 'DisplayName', 'Front right wheel')
+    plot(front_roll, rear_anti_roll_ratio, 'LineWidth', 1.5, 'DisplayName', 'Rear axis')
     grid on
     legend()
-    ylabel('Jack [m]')
-    xlabel('Steer angle [deg]')
-    title('Jack')
+    ylabel('ARB ratio')
+    xlabel('Roll [deg]')
+    title('Anti-roll bar installation ratio (ARB TORSION/ROLL)')
 
 
     % STEER PAREMTERS (TRAIL, SCRUB, CAMBER, JACK RATE)
@@ -160,8 +191,9 @@ static_damper_compression = 0;
     grid on
     legend()
     ylabel('Jack rate [mm/deg]')
-    xlabel('Steer angle [deg]')
+    xlabel('Steering wheel angle [deg]')
     title('Jack rate')
+
 
     subplot(2, 2, 3)
     plot(steer_int, FL_scrub, 'LineWidth', 1.5, 'DisplayName', 'Front left wheel')
@@ -173,6 +205,7 @@ static_damper_compression = 0;
     ylabel('Scrub radius [mm]')
     title('Scrub radius')
 
+
     subplot(2, 2, 4)
     plot(steer_int, FL_camber, 'LineWidth', 1.5, 'DisplayName', 'Front left wheel')
     hold on
@@ -180,10 +213,9 @@ static_damper_compression = 0;
     grid on
     legend()
     ylabel('Camber [deg]')
-    xlabel('Steer angle [deg]')
+    xlabel('Steerin wheel angle [deg]')
     title('Camber')
-    
-    
+
 
 % CASO 1
 ay = 2*9.81;
@@ -229,7 +261,7 @@ v = 30;
     
 
 % Aero
-    df_coeff = 4;
+    df_coeff = 8;
     drag_coeff = 1.3;
     area = 0.56;
     air_density = 1.225;

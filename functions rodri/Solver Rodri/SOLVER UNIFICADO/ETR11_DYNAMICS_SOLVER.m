@@ -1,7 +1,17 @@
-function Out_Dynamics = ETR11_DYNAMICS_SOLVER(HP, CONTACT_PATCH_FORCE)
+function Out_Dynamics = ETR11_DYNAMICS_SOLVER(HP, CONTACT_PATCH_FORCE, TIRE_MOMENT)
+% ETR11_DYNAMICS_SOLVER  6×6 static equilibrium at contact patch.
+%
+%   HP                  : geometry struct (post-kinematics)
+%   CONTACT_PATCH_FORCE : [Fx, Fy, Fz] force at contact patch [N]
+%   TIRE_MOMENT         : (optional) [Mx, My, Mz] tyre moment in global frame [N·m]
+%                         Mx = overturning, Mz = self-aligning.  Default = [0,0,0].
 
-    % KNOWN FORCE MOMENT (CONTACT PATCH FORCE)
-    contact_patch_moment = cross(HP.CONTACT_PATCH, CONTACT_PATCH_FORCE);
+    if nargin < 3 || isempty(TIRE_MOMENT)
+        TIRE_MOMENT = [0, 0, 0];
+    end
+
+    % KNOWN FORCE MOMENT (CONTACT PATCH FORCE + TYRE MOMENT)
+    contact_patch_moment = cross(HP.CONTACT_PATCH, CONTACT_PATCH_FORCE) + TIRE_MOMENT;
 
     % FORCES APLICATION POINTS
     push_point = HP.PUSH_RKR;

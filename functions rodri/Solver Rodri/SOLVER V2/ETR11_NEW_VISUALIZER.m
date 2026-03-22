@@ -165,7 +165,7 @@ function ETR11_NEW_VISUALIZER()
         end
         h_fps.Text = sprintf('Solver: %.1f Hz', fps_val);
 
-        [FL, FR, RL, RR, F_RC, R_RC, FL_K, FR_K, RL_K, RR_K] = ETR11_GET_POINTS(st, cFL, cFR, cRL, cRR, LOADED_RADIUS);
+        [FL, FR, RL, RR, F_RC, R_RC, FL_K, FR_K, RL_K, RR_K] =  ETR11_GET_POINTS_v2(st, cFL, cFR, cRL, cRR);
         
         pts_cp = [FL.CONTACT_PATCH; FR.CONTACT_PATCH; RL.CONTACT_PATCH; RR.CONTACT_PATCH];
         coeffs = [pts_cp(:,1:2), ones(4,1)] \ pts_cp(:,3); 

@@ -115,21 +115,21 @@ REX2                         = -7.44585176139118e-06
 RHX1                         = -0.00795329716522972
 $----------------------------------------------overturning coefficients
 [OVERTURNING_COEFFICIENTS]
-QSX1                         = 0.0
-QSX2                         = 0.0
-QSX3                         = 0.0
-QSX4                         = 5.0
-QSX5                         = 1.0
-QSX6                         = 10.0
-QSX7                         = 0.0
-QSX8                         = 0.0
-QSX9                         = 0.4
-QSX10                        = 0.0
-QSX11                        = 5.0
-QSX12                        = 0
-QSX13                        = 0
-QSX14                        = 0
-PPMX1                        = 0
+QSX1                         = -0.0227                 
+QSX2                         = 2.1630               
+QSX3                         = 0.3030               
+QSX4                         = 0.1625               
+QSX5                         = 0                 
+QSX6                         = 0                 
+QSX7                         = 0.0701               
+QSX8                         = 0                 
+QSX9                         = 0                
+QSX10                        = 0                 
+QSX11                        = 0                 
+QSX12                        = 0                 
+QSX13                        = 0                 
+QSX14                        = 0                 
+PPMX1                        = 0.4034         
 $--------------------------------------------------lateral coefficients
 [LATERAL_COEFFICIENTS]
 PCY1                         = 1.477553032924075
